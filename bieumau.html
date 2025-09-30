@@ -1,0 +1,1300 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="vi" xmlns="http://www.w3.org/1999/xhtml" xmlns:og="http://ogp.me/ns#"
+    xmlns:fb="http://www.facebook.com/2008/fbml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://thep.hoaphat.com.vn/favicon.ico" type="image/x-icon" rel="shortcut icon" />
+    <title>Thép Hòa Phát - HPG Group</title>
+    <meta name="description" content="Website chính thức của tập đoàn Hòa Phát lĩnh vực Gang Thép" />
+    <link rel="canonical" href="https://thep.hoaphat.com.vn" />
+    <link rel="alternate" hreflang="en" href="https://thep.hoaphat.com.vn/en" />
+    <meta property="og:site_name" content="ThepHoaPhat" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Thép Hòa Phát - HPG Group" />
+    <meta property="og:description" content="Website chính thức của tập đoàn Hòa Phát lĩnh vực Gang Thép" />
+    <meta property="og:url" content="https://thep.hoaphat.com.vn" />
+    <meta property="og:image" content="https://thep.hoaphat.com.vn/assets/img/logo.png" />
+    <link rel="stylesheet" href="https://thep.hoaphat.com.vn/assets/libs/font-awesome/font-awesome.min.css">
+    <link rel="stylesheet" href="https://thep.hoaphat.com.vn/assets/libs/slick/slick.css">
+    <link rel="stylesheet" href="https://thep.hoaphat.com.vn/assets/libs/slick/slick-theme.css">
+    <link rel="stylesheet" href="https://thep.hoaphat.com.vn/assets/libs/lightgallery/lightgallery.min.css">
+    <link rel="stylesheet" href="https://thep.hoaphat.com.vn/assets/libs/select2/select2.min.css">
+    <link rel="stylesheet" href="https://thep.hoaphat.com.vn/assets/libs/fancybox/jquery.fancybox.min.css">
+    <link rel="stylesheet" href="https://thep.hoaphat.com.vn/assets/libs/css/animate.min.css">
+    <link rel="stylesheet" href="https://thep.hoaphat.com.vn/assets/css/style.min.css?v=1.1">
+
+    <meta name="csrf-token" content="D5QjS3xoPmzHj0UjQ8u1GoxNt42wtjX7ddjfHQbG">
+
+    <style>
+        .fb-livechat,
+        .fb-widget {
+            display: none
+        }
+
+        .fb-livechat {
+            height: 0
+        }
+
+        .ctrlq.fb-button,
+        .ctrlq.fb-close {
+            position: fixed;
+            right: 55px;
+            cursor: pointer
+        }
+
+        .ctrlq.fb-button {
+            display: none;
+            z-index: 999;
+            width: 60px;
+            height: 60px;
+            text-align: center;
+            bottom: 30px;
+            border: 0;
+            outline: 0;
+            border-radius: 60px;
+            -webkit-border-radius: 60px;
+            -moz-border-radius: 60px;
+            -ms-border-radius: 60px;
+            -o-border-radius: 60px;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, .06), 0 2px 32px rgba(0, 0, 0, .16);
+            -webkit-transition: box-shadow .2s ease;
+            background-size: 80%;
+            transition: all .2s ease-in-out
+        }
+
+        .ctrlq.fb-button:focus,
+        .ctrlq.fb-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .09), 0 4px 40px rgba(0, 0, 0, .24)
+        }
+
+        .fb-widget {
+            background: #fff;
+            z-index: 1000;
+            position: fixed;
+            width: 360px;
+            height: 435px;
+            overflow: hidden;
+            opacity: 0;
+            top: calc(50% - 190px / 2);
+            right: 55px;
+            border-radius: 6px;
+            -o-border-radius: 6px;
+            -webkit-border-radius: 6px;
+            box-shadow: 0 5px 40px rgba(0, 0, 0, .16);
+            -webkit-box-shadow: 0 5px 40px rgba(0, 0, 0, .16);
+            -moz-box-shadow: 0 5px 40px rgba(0, 0, 0, .16);
+            -o-box-shadow: 0 5px 40px rgba(0, 0, 0, .16)
+        }
+
+        .fb-credit {
+            text-align: center;
+            margin-top: 8px
+        }
+
+        .fb-credit a {
+            transition: none;
+            color: #bec2c9;
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            text-decoration: none;
+            border: 0;
+            font-weight: 400
+        }
+
+        .ctrlq.fb-overlay {
+            z-index: 0;
+            position: fixed;
+            height: 100vh;
+            width: 100vw;
+            -webkit-transition: opacity .4s, visibility .4s;
+            transition: opacity .4s, visibility .4s;
+            top: 0;
+            left: 0;
+            background: rgba(0, 0, 0, .05);
+            display: none
+        }
+
+        .ctrlq.fb-close {
+            z-index: 4;
+            padding: 0 6px;
+            background: #365899;
+            font-weight: 700;
+            font-size: 11px;
+            color: #fff;
+            margin: 8px;
+            border-radius: 3px
+        }
+
+        .ctrlq.fb-close::after {
+            content: "X";
+            font-family: sans-serif
+        }
+
+        .bubble {
+            display: none;
+            width: 20px;
+            height: 20px;
+            background: #c00;
+            color: #fff;
+            position: absolute;
+            z-index: 999999999;
+            text-align: center;
+            vertical-align: middle;
+            top: -2px;
+            left: -5px;
+            border-radius: 50%;
+        }
+
+        .bubble-msg {
+            width: 120px;
+            left: -140px;
+            top: 5px;
+            position: relative;
+            background: rgba(59, 89, 152, .8);
+            color: #fff;
+            padding: 5px 8px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        /* Reset mặc định */
+        ul,
+        li {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Menu cha */
+        .menu {
+            display: flex;
+            gap: 20px;
+            background: #f0f0f0;
+            padding: 10px;
+        }
+
+        /* Mục cha Biểu mẫu hành chính */
+        .menu-child__item {
+            position: relative;
+            /* cần để submenu nằm trong khung cha */
+        }
+
+        /* Link chính */
+        .menu-child__item>a {
+            display: block;
+            text-decoration: none;
+            color: #333;
+            padding: 10px 15px;
+            background: #3498db;
+            border-radius: 6px;
+            color: #fff;
+        }
+
+        /* Submenu (ẩn mặc định) */
+        .submenu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            white-space: nowrap;
+            /* ngăn xuống dòng */
+            width: max-content;
+            /* chiều rộng tự động theo nội dung */
+            min-width: 180px;
+            /* chiều rộng tối thiểu */
+        }
+
+        /* Item con */
+        .submenu li a {
+            display: block;
+            padding: 8px 12px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        /* Hover item con */
+        .submenu li a:hover {
+            background: #f5f5f5;
+        }
+
+        /* Khi hover vào cha, hiện submenu */
+        .menu-child__item:hover .submenu {
+            display: block;
+        }
+
+        main {
+            max-width: 900px;
+            /* Giới hạn chiều rộng để đọc dễ */
+            margin: 40px auto;
+            /* Căn giữa nội dung */
+            padding: 20px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+            font-family: "Segoe UI", Roboto, sans-serif;
+        }
+
+        main h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        main ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            /* khoảng cách giữa các mục */
+        }
+
+        main ul li {
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        main ul li:hover {
+            background: #eaf4ff;
+            border-color: #3498db;
+            transform: translateY(-2px);
+        }
+
+        main ul li a {
+            display: block;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: #333;
+            line-height: 1.5;
+            word-wrap: break-word;
+            /* Tự xuống dòng khi dài */
+            white-space: normal;
+            /* Cho phép xuống dòng */
+            font-size: 15px;
+        }
+
+        main ul li a:hover {
+            color: #1a73e8;
+        }
+    </style>
+
+    <div class="fb-livechat">
+        <div class="ctrlq fb-overlay"></div>
+        <div class="fb-widget">
+            <div class="ctrlq fb-close"></div>
+            <div class="fb-page" data-href="https://www.facebook.com/tapdoanhoaphat1992" data-tabs="messages"
+                data-width="360" data-height="400" data-small-header="true" data-hide-cover="true"
+                data-show-facepile="false"> </div>
+            <div id="fb-root"></div>
+        </div>
+        <div class="bubble">1</div>
+        <div class="bubble-msg">Bạn cần hỗ trợ?</div></a>
+    </div>
+    <script src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.9"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script>jQuery(document).ready(function ($) { function detectmob() { if (navigator.userAgent.match(/Android/i) || navigator.userAgent.match(/webOS/i) || navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPod/i) || navigator.userAgent.match(/BlackBerry/i) || navigator.userAgent.match(/Windows Phone/i)) { return true; } else { return false; } } var t = { delay: 125, overlay: $(".fb-overlay"), widget: $(".fb-widget"), button: $(".fb-button") }; setTimeout(function () { $("div.fb-livechat").fadeIn() }, 8 * t.delay); if (!detectmob()) { $(".ctrlq").on("click", function (e) { e.preventDefault(), t.overlay.is(":visible") ? (t.overlay.fadeOut(t.delay), t.widget.stop().animate({ bottom: 0, opacity: 0 }, 2 * t.delay, function () { $(this).hide("slow"), t.button.show() })) : t.button.fadeOut("medium", function () { t.widget.stop().show().animate({ bottom: "100px", opacity: 1 }, 2 * t.delay), t.overlay.fadeIn(t.delay) }) }) } });</script>
+
+    <script type="text/javascript" src="https://thep.hoaphat.com.vn/assets/libs/js/jquery.min.js"></script>
+    <script type="text/javascript" src="https://thep.hoaphat.com.vn/assets/libs/slick/slick.min.js"></script>
+    <script type="text/javascript"
+        src="https://thep.hoaphat.com.vn/assets/libs/fancybox/jquery.fancybox.min.js"></script>
+    <script type="text/javascript"
+        src="https://thep.hoaphat.com.vn/assets/libs/lightgallery/lightgallery-all.min.js"></script>
+    <script type="text/javascript" src="https://thep.hoaphat.com.vn/assets/libs/select2/select2.min.js"></script>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-164923763-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'UA-164923763-1');
+    </script>
+
+    <meta name="google-site-verification" content="4AWJnAkMhQ1AMa1j7gr-OU2dSkczBPmhu7Uz2ZzeAzw" />
+
+    <meta name="ahrefs-site-verification" content="783f7be3dc82bb90f7f5f41901b5dc6d13bf8bc941cec940ff767dc1c2cabf9a">
+
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RVZEWBFN3S"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-RVZEWBFN3S');
+    </script>
+    <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "LocalBusiness",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Ha Noi",
+            "addressRegion": "Vietnam",
+            "streetAddress": "Khu dân cư Hiệp Thượng, P.Hiệp Sơn, TX.Kinh Môn, Hải Dương, Việt Nam"
+          },
+            "image": [
+              "https://storage.sudospaces.com/hoaphat-com-vn/2022/02/logo-gang-thep.jpg"
+            ],
+            "priceRange": "$$$",
+            "description": "Website chính thức của tập đoàn Hòa Phát lĩnh vực Gang Thép",
+            "name": "Thép Hòa Phát - HPG Group",
+            "telephone": "(024) 3974 7745/46"
+        }
+    </script>
+</head>
+
+<body>
+    <div id="fb-root"></div>
+    <script async defer crossorigin="anonymous"
+        src="https://connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v4.0&appId=385713232082700&autoLogAppEvents=1"></script>
+
+
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1>
+                    <a href="https://thep.hoaphat.com.vn">
+                        <img src="https://storage.sudospaces.com/hoaphat-com-vn/2022/02/logo-gang-thep.jpg" alt="">
+                    </a>
+                </h1>
+            </div>
+            <div class="header-main">
+                <div class="header-main__top">
+                    <div class="navigation">
+                        <ul class="navigation-list">
+                            <li><a href="https://www.facebook.com/tapdoanhoaphat1992" target="_blank"></i></a></li>
+                            <!-- <li><a href="https://www.youtube.com/channel/UCvcoWopzzKDaWrwUSZN7tsA?view_as=subscriber" target="_blank"><i class="fa fa-youtube-play"></i></a></li> -->
+                            <li class="hidden"><a href="https://thep.hoaphat.com.vn"><img
+                                        src="https://thep.hoaphat.com.vn/assets/img/icon/icon-vi.png" alt=""></a></li>
+                            <li><a href="https://thep.hoaphat.com.vn/en"><img
+                                        src="https://thep.hoaphat.com.vn/assets/img/icon/icon-en.png" alt=""></a></li>
+                        </ul>
+                    </div>
+                    <div class="search">
+                        <form action="https://thep.hoaphat.com.vn/tim-kiem" method="GET">
+                            <input type="text" name="keyword" class="search-input" placeholder="Tìm kiếm..." value="">
+                            <button type="submit" class="search-btn">
+
+                                <!-- <i class="fa fa-search"></i> -->
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="header-main__bottom">
+                    <nav class="menu">
+                        <ul class="menu-container">
+                            <li class="menu-item">
+                                <a href="/gioi-thieu" title="">Giới thiệu</a>
+                                <ul class="menu-child">
+                                    <li class="menu-child__item"><a href="/gioi-thieu#introduction">Giới thiệu chung</a>
+                                    </li>
+                                    <li class="menu-child__item"><a href="/gioi-thieu#products">Sản phẩm chính</a></li>
+                                    <li class="menu-child__item"><a href="/gioi-thieu#history">Lịch sử hình thành</a>
+                                    </li>
+                                    <li class="menu-child__item"><a href="/gioi-thieu#history">Biểu mẫu hành chính</a>
+                                        <!-- <ul class="submenu">
+                                            <li><a href="#">Checklist kiểm tra tuân thủ phát thải Carbon hàng tháng</a>
+                                            </li>
+                                            <li><a href="#">Chính sách quản lý dữ liệu bền vững (Carbon, Năng lượng,
+                                                    Nước)</a></li>
+                                            <li><a href="#">Chính sách Bảo mật thông tin</a></li>
+                                            <li><a href="#">Phiếu đề xuất dịch vụ thông tin nội bộ (Dashboard, Báo cáo
+                                                    môi trường)</a></li>
+                                            <li><a href="#">Danh mục hệ thống đo lường năng lượng và phát thải</a></li>
+                                            <li><a href="#">Sổ theo dõi đào tạo nhân viên về phát triển bền vững</a>
+                                            </li>
+                                            <li><a href="#">Phiếu yêu cầu cung cấp dữ liệu ESG cho khách hàng/nhà đầu
+                                                    tư</a></li>
+                                            <li><a href="#">Phiếu đăng ký sử dụng dịch vụ thông tin “Cổng dữ liệu
+                                                    ESG”</a></li>
+                                            <li><a href="#">Phiếu khảo sát ý kiến khách hàng về minh bạch phát thải</a>
+                                            </li>
+                                            <li><a href="#">Biểu mẫu đánh giá hiệu quả đào tạo và nâng cao nhận thức
+                                                    xanh</a></li>
+                                        </ul> -->
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="menu-item">
+                                <a href="/san-pham" title="">Sản phẩm</a>
+                                <ul class="menu-child">
+                                    <li class="menu-child__item"><a
+                                            href="https://thep.hoaphat.com.vn/san-pham#phoi-thep">Phôi thép</a></li>
+                                    <li class="menu-child__item"><a
+                                            href="https://thep.hoaphat.com.vn/san-pham#thep-cuon">Thép cuộn</a></li>
+                                    <li class="menu-child__item"><a
+                                            href="https://thep.hoaphat.com.vn/san-pham#thep-cuon-can-nong">Thép cuộn cán
+                                            nóng</a></li>
+                                    <li class="menu-child__item"><a
+                                            href="https://thep.hoaphat.com.vn/san-pham#thep-thanh">Thép thanh</a></li>
+                                    <li class="menu-child__item"><a
+                                            href="https://thep.hoaphat.com.vn/san-pham#thep-dac-biet">Thép đặc biệt</a>
+                                    </li>
+                                    <li class="menu-child__item"><a href="/san-pham#san-pham-lien-quan">Sản phẩm liên
+                                            quan</a></li>
+                                </ul>
+                            </li>
+                            <li class="menu-item">
+                                <a href="/chat-luong-hoa-phat" title="">Chất lượng thép Hòa Phát</a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="/he-thong-phan-phoi" title="">Hệ thống phân phối</a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="/xuat-khau" title="">Xuất khẩu</a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="/cong-trinh" title="">Công trình</a>
+                            </li>
+                            <!-- <li class="menu-item">
+                                <a href="/tin-tuc" title="">Tin tứcđ</a>
+                                <ul class="menu-child">
+                                    <li class="menu-child__item"><a
+                                            href="https://thep.hoaphat.com.vn/tin-tuc/tin-cong-ty">Tin công ty</a></li>
+                                    <li class="menu-child__item"><a href="https://www.hoaphat.com.vn/tin-tuc">Tin Tập
+                                            đoàn</a></li>
+                                    <li class="menu-child__item"><a
+                                            href="https://thep.hoaphat.com.vn/tin-cong-nghe/tin-cong-nghe">Tin công
+                                            nghệ</a></li>
+                                </ul>
+                            </li> -->
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="menu-fix">
+        <div class="container">
+            <div class="menu-fix__logo">
+                <a href="https://thep.hoaphat.com.vn">
+                    <img src="https://storage.sudospaces.com/hoaphat-com-vn/2022/02/logo-gang-thep.jpg" alt="">
+                </a>
+            </div>
+            <div class="menu-fix__content">
+                <ul class="menu-fix__container">
+                    <li class="menu-fix__item">
+                        <a href="/gioi-thieu" title="">Giới thiệu</a>
+                        <ul class="menu-fix__child">
+                            <li class="menu-fix__child-item"><a href="/gioi-thieu#introduction">Giới thiệu chung</a>
+                            </li>
+                            <li class="menu-fix__child-item"><a href="/gioi-thieu#products">Sản phẩm chính</a></li>
+                            <li class="menu-fix__child-item"><a href="/gioi-thieu#history">Lịch sử hình thành</a></li>
+                        </ul>
+                    </li>
+                    <li class="menu-fix__item">
+                        <a href="/san-pham" title="">Sản phẩm</a>
+                        <ul class="menu-fix__child">
+                            <li class="menu-fix__child-item"><a
+                                    href="https://thep.hoaphat.com.vn/san-pham#phoi-thep">Phôi thép</a></li>
+                            <li class="menu-fix__child-item"><a
+                                    href="https://thep.hoaphat.com.vn/san-pham#thep-cuon">Thép cuộn</a></li>
+                            <li class="menu-fix__child-item"><a
+                                    href="https://thep.hoaphat.com.vn/san-pham#thep-cuon-can-nong">Thép cuộn cán
+                                    nóng</a></li>
+                            <li class="menu-fix__child-item"><a
+                                    href="https://thep.hoaphat.com.vn/san-pham#thep-thanh">Thép thanh</a></li>
+                            <li class="menu-fix__child-item"><a
+                                    href="https://thep.hoaphat.com.vn/san-pham#thep-dac-biet">Thép đặc biệt</a></li>
+                            <li class="menu-fix__child-item"><a href="/san-pham#san-pham-lien-quan">Sản phẩm liên
+                                    quan</a></li>
+                        </ul>
+                    </li>
+                    <li class="menu-fix__item">
+                        <a href="/chat-luong-hoa-phat" title="">Chất lượng thép Hòa Phát</a>
+                    </li>
+                    <li class="menu-fix__item">
+                        <a href="/he-thong-phan-phoi" title="">Hệ thống phân phối</a>
+                    </li>
+                    <li class="menu-fix__item">
+                        <a href="/xuat-khau" title="">Xuất khẩu</a>
+                    </li>
+                    <li class="menu-fix__item">
+                        <a href="/cong-trinh" title="">Công trình</a>
+                    </li>
+                    <!-- <li class="menu-fix__item">
+                        <a href="/tin-tuc" title="">Tin tức</a>
+                        <ul class="menu-fix__child">
+                            <li class="menu-fix__child-item"><a
+                                    href="https://thep.hoaphat.com.vn/tin-tuc/tin-cong-ty">Tin công ty</a></li>
+                            <li class="menu-fix__child-item"><a href="https://www.hoaphat.com.vn/tin-tuc">Tin Tập
+                                    đoàn</a></li>
+                            <li class="menu-fix__child-item"><a
+                                    href="https://thep.hoaphat.com.vn/tin-cong-nghe/tin-cong-nghe">Tin công nghệ</a>
+                            </li>
+                        </ul>
+                    </li> -->
+                </ul>
+            </div>
+        </div>
+    </div>
+    <main class="main">
+        <h2>BIỂU MẪU HÀNH CHÍNH</h2>
+        <ul>
+            <li><a href="#">Checklist kiểm tra tuân thủ phát thải Carbon hàng tháng</a></li>
+            <li><a href="#">Chính sách quản lý dữ liệu bền vững (Carbon, Năng lượng, Nước)</a></li>
+            <li><a href="#">Chính sách Bảo mật thông tin</a></li>
+            <li><a href="#">Phiếu đề xuất dịch vụ thông tin nội bộ (Dashboard, Báo cáo môi trường)</a></li>
+            <li><a href="#">Danh mục hệ thống đo lường năng lượng và phát thải</a></li>
+            <li><a href="#">Sổ theo dõi đào tạo nhân viên về phát triển bền vững</a></li>
+            <li><a href="#">Phiếu yêu cầu cung cấp dữ liệu ESG cho khách hàng/nhà đầu tư</a></li>
+            <li><a href="#">Phiếu đăng ký sử dụng dịch vụ thông tin “Cổng dữ liệu ESG”</a></li>
+            <li><a href="#">Phiếu khảo sát ý kiến khách hàng về minh bạch phát thải</a></li>
+            <li><a href="#">Biểu mẫu đánh giá hiệu quả đào tạo và nâng cao nhận thức xanh</a></li>
+        </ul>
+        <!-- <section class="slideshow">
+			<div class="item"><a href="#">
+					<div class="item-image">
+						<img src="https://storage.sudospaces.com/hoaphat-com-vn/2020/03/web-thep-1920x700px-03.png"
+							alt="web-thep-1920x700px-03">
+					</div>
+					<div class="item-info">
+						<div class="container">
+							<h1 class="item-info__subtitle"><i class="fa fa-chevron-right"></i>Thép Hòa Phát</h1>
+							<div class="item-info__title">Thị phần số 1 Việt Nam</div>
+							<div class="item-info__desc">Thép Hòa Phát sử dụng công nghệ lò cao khép kín tiên tiến nhất
+								hiện nay</div>
+						</div>
+					</div>
+				</a></div>
+		</section>
+		<div style="width: 100%;float: left;">
+			<div class="container" style="position: relative;">
+				<img style="width: 250px;position: absolute;z-index: 10;bottom: 20px;" src="/assets/img/tu-hao-thuong-hieu-quoc-gia.png" alt="">
+			</div>
+		</div>
+		<section class="box-intro">
+			<div class="container">
+				<div class="box-intro__content">
+					<div class="box-intro__content-detail animated" data-animate="fadeInLeft">
+						<div class="title">
+							<h2 class="title-text">Chất lượng thép hòa phát</h2>
+							<span class="title-border"></span>
+						</div>
+						<div class="box-intro__content-detail__desc">Với tổng công suất lên đến 16 triệu tấn thép
+							thô/năm, Hòa Phát áp dụng công nghệ lò cao hiện đại, tuần hoàn khép kín từ quặng sắt đến
+							thép cuộn cán nóng, thép xây dựng, thép chất lượng cao các loại. Sản phẩm đáp ứng tất cả
+							những tiêu chuẩn khắt khe nhất, sẵn sàng phục vụ các dự án trọng điểm quốc gia và xuất khẩu
+							ra thế giới. <p style="color: transparent;;"><a href="https://slidengon.com/">Dịch vụ làm
+									slide</a></p>
+						</div>
+						<div class="box-intro__content-detail__link">
+							<a href="/chat-luong-hoa-phat" class="btn-primary">Xem thêm </i></a>
+						</div>
+					</div>
+					<div class="box-intro__content-media animated" data-animate="fadeInRight">
+
+						<a data-fancybox="gallery" class="fancybox-media media-ytb"
+							href="https://youtu.be/HYdSdGclqww?si=Qt1ZL3CTR0jxnBDH">
+							<img src="https://storage.sudospaces.com/hoaphat-com-vn/2021/03/phoi-canh-cau-my-thuan-2-1593413234-width1004height565.jpg"
+								alt="">
+							<span class="media-play"></span>
+						</a>
+						<div style="display: none;">
+							<a data-fancybox="gallery" class="fancybox-media media-ytb"
+								href="https://youtu.be/X20ZaxLdo1s?si=5ReeFLaaBR7Qu1wi">
+								<img src="https://storage.sudospaces.com/hoaphat-com-vn/2021/03/phoi-canh-cau-my-thuan-2-1593413234-width1004height565.jpg"
+									alt="">
+								<span class="media-play"></span>
+							</a>
+							<a data-fancybox="gallery" class="fancybox-media media-ytb"
+								href="https://youtu.be/XLBmG8i_MNM?si=O6hl81l_TB1JkExm">
+								<img src="https://storage.sudospaces.com/hoaphat-com-vn/2021/03/phoi-canh-cau-my-thuan-2-1593413234-width1004height565.jpg"
+									alt="">
+								<span class="media-play"></span>
+							</a>
+						</div>
+					</div>
+				</div>
+				<div class="box-intro__slide animated" data-animate="fadeInUp">
+					<div class="item">
+						<div class="item-image">
+							<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/11/astm-medium.png" alt="astm"
+								title="ASTM">
+
+						</div>
+					</div>
+					<div class="item">
+						<div class="item-image">
+							<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/11/logo-bsen-medium.png"
+								alt="logo-bsen" title="BS EN">
+
+						</div>
+					</div>
+					<div class="item">
+						<div class="item-image">
+							<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/11/jis-medium.jpg" alt="jis"
+								title="JIS">
+
+						</div>
+					</div>
+					<div class="item">
+						<div class="item-image">
+							<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/11/iso-14001-medium.jpg"
+								alt="iso-14001" title="ISO 14001:2015">
+
+						</div>
+					</div>
+					<div class="item">
+						<div class="item-image">
+							<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/11/9001-2015-medium.png"
+								alt="9001-2015" title="ISO 9001:2015">
+
+						</div>
+					</div>
+					<div class="item">
+						<div class="item-image">
+							<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/11/tcvn-medium.jpg" alt="tcvn"
+								title="TCVN">
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="sign" data-animate="animated fadeInUp">
+			<div class="container">
+				<div class="title">
+					<div class="title-text">Dấu hiệu nhận biết Thép Hòa Phát</div>
+				</div>
+				<div class="sign-box">
+					<div class="sign-box__image">
+						<img src="https://thep.hoaphat.com.vn/assets/img/image/sign.png" alt="sign">
+					</div>
+					<div class="sign-box__item">
+						<div class="item">
+							<div class="item-title">Logo thương hiệu</div>
+							<div class="item-desc">Biểu tượng 3 mũi tên hướng lên dập nổi</div>
+						</div>
+						<div class="item">
+							<div class="item-title">Ký hiệu mác thép</div>
+							<div class="item-desc">Một số mác thép không ký hiệu trên thanh thép, hoặc có ký hiệu bằng
+								các dấu chấm (.)</div>
+						</div>
+						<div class="item">
+							<div class="item-title">Logo Hòa Phát</div>
+							<div class="item-desc">Chữ &quot;HOA PHAT&quot; được in nổi như mẫu</div>
+						</div>
+						<div class="item">
+							<div class="item-title">Ký hiệu đường kính danh nghĩa</div>
+							<div class="item-desc">Cỡ chữ, chiều sâu chữ ký hiệu giống với chữ &quot;HOA PHAT&quot;
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="sign-link">
+					<a href="https://thep.hoaphat.com.vn/tin-cong-nghe/dau-hieu-nhan-biet-thep-hoa-phat.html"
+						class="btn-primary">Xem thêm </a>
+				</div>
+			</div>
+		</section>
+
+		<section class="product-home">
+			<div class="container">
+				<div class="title">
+					<h2 class="title-text">Sản phẩm</h2>
+					<span class="title-border"></span>
+				</div>
+				<div class="product-home__list">
+					<div class="product-widget animated" data-animate="fadeInUp">
+						<div class="product-widget__media square">
+							<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/12/phoi-thep-3-1.jpg"
+								alt="phoi-thep-3-1">
+						</div>
+						<div class="product-widget__content">
+							<div class="product-widget__content-center">
+								<h2 class="product-widget__content-title">PHÔI THÉP</h2>
+								<div class="product-widget__content-desc">Hòa Phát cung cấp 2 loại kích thước: 150x150
+									mm và 120x120mm, dùng để sản xuất thép xây dựng các loại</div>
+								<div class="product-widget__content-link">
+									<a href="/san-pham#phoi-thep" class="btn-primary">Xem thêm </a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="product-widget animated" data-animate="fadeInUp">
+						<div class="product-widget__media square">
+							<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/12/thep-cuon-2.jpg"
+								alt="thep-cuon-2">
+						</div>
+						<div class="product-widget__content">
+							<div class="product-widget__content-center">
+								<h2 class="product-widget__content-title">THÉP CUỘN</h2>
+								<div class="product-widget__content-desc">Gồm các kích thước Φ6, Φ8, Φ10, được sử dụng
+									cho các công trình xây dựng</div>
+								<div class="product-widget__content-link">
+									<a href="/san-pham#thep-cuon" class="btn-primary">Xem thêm </a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="product-widget animated" data-animate="fadeInUp">
+						<div class="product-widget__media square">
+							<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/12/thep-thanh.jpg"
+								alt="thep-thanh">
+						</div>
+						<div class="product-widget__content">
+							<div class="product-widget__content-center">
+								<h2 class="product-widget__content-title">THÉP THANH</h2>
+								<div class="product-widget__content-desc">Đáp ứng nhiều tiêu chuẩn trong nước và quốc tế
+									như TCVN, JIS, ASTM... Sản xuất được mác thép lên tới D55 sử dụng cho các siêu công
+									trình</div>
+								<div class="product-widget__content-link">
+									<a href="/san-pham#thep-thanh" class="btn-primary">Xem thêm </a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="product-widget animated" data-animate="fadeInUp">
+						<div class="product-widget__media square">
+							<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/12/hot-rolled-coil-1.jpg"
+								alt="hot-rolled-coil-1">
+						</div>
+						<div class="product-widget__content">
+							<div class="product-widget__content-center">
+								<h2 class="product-widget__content-title">THÉP CUỘN CÁN NÓNG</h2>
+								<div class="product-widget__content-desc">Là nguyên liệu đầu vào cho dây chuyền sản xuất
+									tôn mạ, ống thép, cơ khí và đóng tàu</div>
+								<div class="product-widget__content-link">
+									<a href="/san-pham#thep-cuon-can-nong" class="btn-primary">Xem thêm </a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="product-widget animated" data-animate="fadeInUp">
+						<div class="product-widget__media square">
+							<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/12/thep-du-ung-luc-1.jpg"
+								alt="thep-du-ung-luc-1">
+						</div>
+						<div class="product-widget__content">
+							<div class="product-widget__content-center">
+								<h2 class="product-widget__content-title">THÉP ĐẶC BIỆT</h2>
+								<div class="product-widget__content-desc">Gồm thép rút dây, thép dự ứng lực và mặt bích
+								</div>
+								<div class="product-widget__content-link">
+									<a href="/san-pham#thep-dac-biet" class="btn-primary">Xem thêm </a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="product-widget animated" data-animate="fadeInUp">
+						<div class="product-widget__media square">
+							<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/12/s95-1.jpg" alt="s95-1">
+						</div>
+						<div class="product-widget__content">
+							<div class="product-widget__content-center">
+								<h2 class="product-widget__content-title">SẢN PHẨM LIÊN QUAN</h2>
+								<div class="product-widget__content-desc">Các sản phẩm phụ phát sinh trong quá trình
+									luyện gang thép</div>
+								<div class="product-widget__content-link">
+									<a href="/san-pham#san-pham-lien-quan" class="btn-primary">Xem thêm </a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="news-slide animated" data-animate="fadeInUp">
+			<div class="container">
+				<div class="title">
+					<p class="title-text">Công trình</p>
+					<span class="title-border"></span>
+				</div>
+				<div class="news-slide__list">
+					<div class="news-slide__list-item">
+						<div class="item">
+							<div class="item-image">
+								<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/10/nhiet-dien-mong-duong-large.jpg"
+									alt="">
+							</div>
+							<div class="item-info"><a
+									href="https://thep.hoaphat.com.vn/cong-trinh/nha-may-nhiet-dien-mong-duong.html">
+									<h3 class="item-info__title">Nhà máy Nhiệt điện Mông Dương</h3>
+								</a></div>
+						</div>
+						<div class="item">
+							<div class="item-image">
+								<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/10/nhiet-dien-quang-ninh-large.jpg"
+									alt="">
+							</div>
+							<div class="item-info"><a
+									href="https://thep.hoaphat.com.vn/cong-trinh/nha-may-nhiet-dien-quang-ninh.html">
+									<h3 class="item-info__title">Nhà máy Nhiệt điện Quảng Ninh</h3>
+								</a></div>
+						</div>
+						<div class="item">
+							<div class="item-image">
+								<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/10/nhiet-dien-nghi-son-1-1024x611-large.jpg"
+									alt="">
+							</div>
+							<div class="item-info"><a
+									href="https://thep.hoaphat.com.vn/cong-trinh/nha-may-nhiet-dien-nghi-son-1.html">
+									<h3 class="item-info__title">Nhà máy nhiệt điện Nghi Sơn 1</h3>
+								</a></div>
+						</div>
+						<div class="item">
+							<div class="item-image">
+								<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/10/cao-toc-hn-hai-phong-large.jpg"
+									alt="">
+							</div>
+							<div class="item-info"><a
+									href="https://thep.hoaphat.com.vn/cong-trinh/duong-cao-toc-ha-noi-hai-phong.html">
+									<h3 class="item-info__title">Đường cao tốc Hà Nội – Hải Phòng</h3>
+								</a></div>
+						</div>
+						<div class="item">
+							<div class="item-image">
+								<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/10/trung-tam-truyen-hinh-vn-large.jpg"
+									alt="">
+							</div>
+							<div class="item-info"><a
+									href="https://thep.hoaphat.com.vn/cong-trinh/trung-tam-truyen-hinh-viet-nam.html">
+									<h3 class="item-info__title">Trung tâm truyền hình Việt Nam</h3>
+								</a></div>
+						</div>
+						<div class="item">
+							<div class="item-image">
+								<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/10/cao-toc-noi-bai-lao-cai-large.jpg"
+									alt="">
+							</div>
+							<div class="item-info"><a
+									href="https://thep.hoaphat.com.vn/cong-trinh/duong-cao-toc-noi-bai-lao-cai.html">
+									<h3 class="item-info__title">Đường cao tốc Nội Bài – Lào Cai</h3>
+								</a></div>
+						</div>
+					</div>
+					<div class="news-slide__list-item">
+						<div class="item">
+							<div class="item-image">
+								<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/12/cang-cai-mep-thi-vai90317601-dhrh-large.jpg"
+									alt="">
+							</div>
+							<div class="item-info"><a href="https://thep.hoaphat.com.vn/cong-trinh/cang-cai-mep.html">
+									<h3 class="item-info__title">Cảng Cái Mép</h3>
+								</a></div>
+						</div>
+						<div class="item">
+							<div class="item-image">
+								<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/12/cau-can-vanh-dai-3-large.jpg"
+									alt="">
+							</div>
+							<div class="item-info"><a
+									href="https://thep.hoaphat.com.vn/cong-trinh/du-an-cau-can-duong-vanh-dai-3.html">
+									<h3 class="item-info__title">Dự án Cầu cạn đường vành đai 3</h3>
+								</a></div>
+						</div>
+						<div class="item">
+							<div class="item-image">
+								<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/12/metro-nhon-ga-ha-noi-large.jpg"
+									alt="">
+							</div>
+							<div class="item-info"><a
+									href="https://thep.hoaphat.com.vn/cong-trinh/tuyen-metro-nhon--ga-ha-noi.html">
+									<h3 class="item-info__title">Tuyến Metro Nhổn - ga Hà Nội</h3>
+								</a></div>
+						</div>
+						<div class="item">
+							<div class="item-image">
+								<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/12/times-city-park-hill-large.jpg"
+									alt="">
+							</div>
+							<div class="item-info"><a
+									href="https://thep.hoaphat.com.vn/cong-trinh/times-city-park-hill.html">
+									<h3 class="item-info__title">Times City Park Hill</h3>
+								</a></div>
+						</div>
+						<div class="item">
+							<div class="item-image">
+								<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/12/formosa-ha-tinh-1024x768-large.jpg"
+									alt="">
+							</div>
+							<div class="item-info"><a
+									href="https://thep.hoaphat.com.vn/cong-trinh/du-an-formosa-ha-tinh.html">
+									<h3 class="item-info__title">Dự án Formosa Hà Tĩnh</h3>
+								</a></div>
+						</div>
+						<div class="item">
+							<div class="item-image">
+								<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/12/design-of-cao-lanh-bridge-1024x620-large.jpg"
+									alt="">
+							</div>
+							<div class="item-info"><a href="https://thep.hoaphat.com.vn/cong-trinh/cau-cao-lanh.html">
+									<h3 class="item-info__title">Cầu Cao Lãnh</h3>
+								</a></div>
+						</div>
+					</div>
+					<div class="news-slide__list-item">
+						<div class="item">
+							<div class="item-image">
+								<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/12/cau-vam-cong-large.jpg"
+									alt="">
+							</div>
+							<div class="item-info"><a href="https://thep.hoaphat.com.vn/cong-trinh/cau-vam-cong.html">
+									<h3 class="item-info__title">Cầu Vàm Cống</h3>
+								</a></div>
+						</div>
+						<div class="item">
+							<div class="item-image">
+								<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/12/nhiet-dien-thai-binh-1-1024x683-large.jpg"
+									alt="">
+							</div>
+							<div class="item-info"><a
+									href="https://thep.hoaphat.com.vn/cong-trinh/nha-may-nhiet-dien-thai-binh-1.html">
+									<h3 class="item-info__title">Nhà máy Nhiệt điện Thái Bình 1</h3>
+								</a></div>
+						</div>
+						<div class="item">
+							<div class="item-image">
+								<img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/12/khu-do-thi-sa-la-tphcm-1024x576-large.jpg"
+									alt="">
+							</div>
+							<div class="item-info"><a
+									href="https://thep.hoaphat.com.vn/cong-trinh/khu-do-thi-sala--tp-ho-chi-minh.html">
+									<h3 class="item-info__title">Khu đô thị Sala - TP.Hồ Chí Minh</h3>
+								</a></div>
+						</div>
+						<div class="item">
+							<div class="item-image">
+								<img src="https://storage.sudospaces.com/hoaphat-com-vn/2021/03/san-bay-nb-large.jpg"
+									alt="">
+							</div>
+							<div class="item-info"><a
+									href="https://thep.hoaphat.com.vn/cong-trinh/cai-tao-duong-bang-san-bay-quoc-te-noi-bai.html">
+									<h3 class="item-info__title">Cải tạo đường băng sân bay quốc tế Nội Bài</h3>
+								</a></div>
+						</div>
+						<div class="item">
+							<div class="item-image">
+								<img src="https://storage.sudospaces.com/hoaphat-com-vn/2021/03/20170515122854-cau-long-thanh-1468229670-large.jpg"
+									alt="">
+							</div>
+							<div class="item-info"><a
+									href="https://thep.hoaphat.com.vn/cong-trinh/cao-toc-long-thanh--dau-giay.html">
+									<h3 class="item-info__title">Cao Tốc Long Thành - Dầu Giây</h3>
+								</a></div>
+						</div>
+						<div class="item">
+							<div class="item-image">
+								<img src="https://storage.sudospaces.com/hoaphat-com-vn/2021/03/phoi-canh-cau-my-thuan-2-1593413234-width1004height565-large.jpg"
+									alt="">
+							</div>
+							<div class="item-info"><a href="https://thep.hoaphat.com.vn/cong-trinh/cau-my-thuan-2.html">
+									<h3 class="item-info__title">Cầu Mỹ Thuận 2</h3>
+								</a></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="news-home">
+			<div class="container">
+				<div class="news-home__list animated" data-animate="fadeInLeft">
+					<div class="title"><a href="/tin-tuc/tin-cong-ty">
+							<p class="title-text">Tin công ty</p>
+						</a></div>
+
+					<div class="news-home__list-box">
+						<div class="item"><a
+								href="https://thep.hoaphat.com.vn/tin-tuc/san-luong-ban-hang-thep-hoa-phat-dat-2-6-trieu-tan-trong-quy-2-2025.html">
+								<div class="item-image">
+									<img src="https://storage.sudospaces.com/hoaphat-com-vn/2022/07/thep-cuon-can-nong-ss400-4.jpg"
+										alt="thep-cuon-can-nong-ss400-4">
+								</div>
+								<div class="item-info">
+									<div class="item-info__title">
+										<p class="item-info__title-time time">
+											<i class="fa fa-calendar" aria-hidden="true"></i>
+											09/07/2025
+											<i class="fa fa-clock-o" aria-hidden="true"></i>
+											11:08
+										</p>
+										<h3 class="item-info__title-text">Sản lượng bán hàng thép Hòa Phát đạt 2,6 triệu
+											tấn trong quý ...</h3>
+										<p class="item-info__title-desc"> Quý 2/2025, Tập đoàn Hòa Phát sản xuất 2,5
+											triệu tấn thép thô, tương đương quý 1 và tăng 10% so với cùng kỳ 2024. Sản
+											lượng bán hàng thép ...</p>
+									</div>
+								</div>
+							</a></div>
+						<ul class="item-list">
+							<li><a
+									href="https://thep.hoaphat.com.vn/tin-tuc/doanh-nghiep-co-khi-se-su-dung-nhieu-nhat-san-pham-cua-hoa-phat-thuc-day-noi-dia-hoa.html">Doanh
+									nghiệp cơ khí sẽ sử dụng nhiều nhất sản phẩm của Hòa Phát, thúc ...</a></li>
+							<li><a
+									href="https://thep.hoaphat.com.vn/tin-tuc/hoa-phat-tro-thanh-doanh-nghiep-duy-nhat-o-dong-nam-a-san-xuat-ray-tau-cao-toc.html">Hòa
+									Phát trở thành doanh nghiệp duy nhất ở Đông Nam Á sản xuất ray tàu ...</a></li>
+							<li><a
+									href="https://thep.hoaphat.com.vn/tin-tuc/quang-ngai-tap-trung-xu-ly-dut-diem-nhung-kien-nghi-cua-hoa-phat-de-dam-bao-tien-do-du-an.html">Quảng
+									Ngãi tập trung xử lý dứt điểm những kiến nghị của Hòa Phát để ...</a></li>
+						</ul>
+						<div class="item-link">
+							<a href="/tin-tuc/tin-cong-ty" class="btn-primary">Xem thêm </a>
+						</div>
+					</div>
+				</div>
+
+				<div class="news-home__list animated" data-animate="fadeInRight">
+					<div class="title"><a href="https://www.hoaphat.com.vn/tin-tuc">
+							<p class="title-text">Tin tập đoàn</p>
+						</a></div>
+
+					<div class="news-home__list-box">
+
+						<div class="item"><a
+								href="https://www.hoaphat.com.vn/tin-tuc/hoa-phat-vao-top-50-cong-ty-kinh-doanh-hieu-qua-nhat-viet-nam-nam-thu-14-lien-tiep.html"
+								target="_blank">
+								<div class="item-image">
+									<img src="https://storage.sudospaces.com/hoaphat-com-vn/2025/09/50-kinh-doanh.jpg"
+										alt="50-kinh-doanh">
+								</div>
+								<div class="item-info">
+									<div class="item-info__title">
+										<p class="item-info__title-time time">
+											<i class="fa fa-calendar" aria-hidden="true"></i>
+											27/09/2025
+											<i class="fa fa-clock-o" aria-hidden="true"></i>
+
+										</p>
+										<h3 class="item-info__title-text">Hòa Phát vào Top 50 Công ty kinh doanh hiệu
+											quả nhất Việt Nam năm ...</h3>
+										<p class="item-info__title-desc">Ngày 27/9/2025, Tập đoàn Hòa Phát đã được vinh
+											danh Top 50 Công ty kinh doanh hiệu quả nhất Việt Nam 2025. Đây là năm thứ
+											14 liên tiếp, Hòa ...</p>
+									</div>
+								</div>
+							</a></div>
+
+						<ul class="item-list">
+							<li><a href="https://www.hoaphat.com.vn/tin-tuc/eu-khong-ap-thue-chong-ban-pha-gia-voi-thep-cuon-can-nong-hoa-phat.html"
+									target="_blank">EU không áp thuế chống bán phá giá với thép cuộn cán nóng Hòa
+									Phát</a></li>
+							<li><a href="https://www.hoaphat.com.vn/tin-tuc/hoa-phat-can-moc-15-trieu-tan-hrc.html"
+									target="_blank">Hòa Phát cán mốc 15 triệu tấn HRC</a></li>
+							<li><a href="https://www.hoaphat.com.vn/tin-tuc/ton-hoa-phat-chong-an-mon-ben-mau-truoc-khi-hau-bien.html"
+									target="_blank">Tôn Hòa Phát: Chống ăn mòn, bền màu trước khí hậu biển</a></li>
+						</ul>
+						<div class="item-link">
+							<a href="https://www.hoaphat.com.vn/tin-tuc" class="btn-primary">Xem thêm </a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section> -->
+    </main>
+
+
+    <footer class="footer">
+        <div class="footer-top">
+            <img class="footer-background footer-background__left"
+                src="https://thep.hoaphat.com.vn/assets/img/background_footer_left.png" alt="">
+            <div class="container">
+                <div class="footer-top__header">
+                    <div class="footer-top__logo">
+                        <img src="https://storage.sudospaces.com/hoaphat-com-vn/2022/02/logo-am-ban.jpg"
+                            alt="logo-am-ban">
+                    </div>
+                    <p class="footer-top__text"> Khu dân cư Hiệp Thượng, P.Hiệp Sơn, TX.Kinh Môn, Hải Dương, Việt Nam
+                    </p>
+                    <!-- <ul class="footer-top__social">
+					<li><a href="https://www.facebook.com/tapdoanhoaphat1992/" target="_blank"></a></li>
+					<li><a href="https://www.youtube.com/user/nghihd/" target="_blank"></a></li>
+					<li><a href="https://www.youtube.com/user/nghihd/" target="_blank"></a></li>
+					<li><a href="https://slidengon.com/" target="_blank"></a></li>
+					<li><a href="" target="_blank"></a></li>
+				</ul> -->
+                </div>
+                <div class="footer-top__content">
+                    <div class="footer-item">
+                        <div class="footer-item__title">Hà Nội</div>
+                        <ul class="footer-item__list">
+                            <li><a>66 Nguyễn Du, Hai Bà Trưng, Hà Nội</a></li>
+                            <li><a href="tel:(024) 3974 7745/46">(024) 3974 7745/46</a></li>
+                            <li><a href="tel:(024) 3974 7762">(024) 3974 7762</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-item">
+                        <div class="footer-item__title">Đà Nẵng</div>
+                        <ul class="footer-item__list">
+                            <li><a>171 Đường Trường Chinh, Quận Thanh Khê, TP.Đà Nẵng</a></li>
+                            <li><a href="tel:(0236) 3721 232">(0236) 3721 232</a></li>
+                            <li><a href="tel:(0236) 3722 833">(0236) 3722 833</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-item">
+                        <div class="footer-item__title">Công ty TNHH MTV Hòa Phát Bình Định</div>
+                        <ul class="footer-item__list">
+                            <li><a>Lô A401, Khu công nghiệp Nhơn Hội, TP.Quy Nhơn, Bình Định</a></li>
+                            <li><a href="tel:(0256) 222 0468">(0256) 222 0468</a></li>
+                            <li><a href="tel:(0256) 222 0568">(0256) 222 0568</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-item">
+                        <div class="footer-item__title">Chi nhánh Tp.Hồ Chí Minh</div>
+                        <ul class="footer-item__list">
+                            <li><a>22 Võ Văn Kiệt, P. Nguyễn Thái Bình, Q.1, TP.HCM</a></li>
+                            <li><a href="tel:(028) 3512 9896">(028) 3512 9896</a></li>
+                            <li><a href="tel:(028) 3899 1730">(028) 3899 1730</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <img class="footer-background footer-background__right"
+                src="https://thep.hoaphat.com.vn/assets/img/background_footer_right.png" alt="">
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="footer-bottom__copyright">
+                    <p>Copyright © 2019 <a href='https://thep.hoaphat.com.vn/' target='_blank'>Hoa Phat Group</a>. All
+                        right reserved. Designed by Sudo</p>
+                </div>
+                <div class="footer-bottom__link">
+                    <ul>
+                        <li><a href="">Điều khoản sử dụng</a></li>
+                        <li><a href="">Chính sách bảo mật</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <section class="icon-fix icon-fix-right">
+        <div class="item">
+            <div class="item-image">
+                <a href="https://www.hoaphat.com.vn/">
+                    <img src="https://thep.hoaphat.com.vn/assets/img/icon/icon-fix-1.png" alt="">
+                </a>
+            </div>
+            <div class="item-tooltip">Trang chủ tập đoàn</div>
+        </div>
+        <div class="item">
+            <div class="item-image">
+                <a href="mailto:banpr@hoaphat.com.vn">
+                    <img src="https://thep.hoaphat.com.vn/assets/img/icon/icon-fix-2.png" alt="">
+                </a>
+            </div>
+            <div class="item-tooltip">banpr@hoaphat.com.vn</div>
+        </div>
+        <div class="item item-messenger">
+            <div class="item-image">
+                <a href="https://m.me/tapdoanhoaphat1992/">
+                    <img src="https://thep.hoaphat.com.vn/assets/img/icon/icon-fix-3.png" alt="">
+                </a>
+            </div>
+            <div class="item-tooltip">Chat với chúng tôi</div>
+        </div>
+        <div class="item">
+            <div class="item-image">
+                <a href="#" data-gototop>
+                    <img src="https://thep.hoaphat.com.vn/assets/img/icon/icon-fix-4.png" alt="">
+                </a>
+            </div>
+            <div class="item-tooltip">Về đầu trang</div>
+        </div>
+    </section>
+
+    <section class="icon-fix icon-fix-left">
+        <div class="item">
+            <div class="item-image">
+                <a href="https://thep.hoaphat.com.vn/san-pham#phoi-thep">
+                    <img src="https://storage.sudospaces.com/hoaphat-com-vn/2024/05/phoi-thep-3-1-copy.jpg" alt="">
+                </a>
+            </div>
+            <div class="item-tooltip">Phôi thép</div>
+        </div>
+        <div class="item">
+            <div class="item-image">
+                <a href="https://thep.hoaphat.com.vn/san-pham#thep-cuon">
+                    <img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/12/thep-cuon-2.jpg" alt="">
+                </a>
+            </div>
+            <div class="item-tooltip">Thép cuộn</div>
+        </div>
+        <div class="item">
+            <div class="item-image">
+                <a href="https://thep.hoaphat.com.vn/san-pham#thep-thanh">
+                    <img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/12/thep-thanh.jpg" alt="">
+                </a>
+            </div>
+            <div class="item-tooltip">Thép thanh</div>
+        </div>
+        <div class="item">
+            <div class="item-image">
+                <a href="https://thep.hoaphat.com.vn/san-pham#thep-cuon-can-nong">
+                    <img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/12/hot-rolled-coil-1.jpg" alt="">
+                </a>
+            </div>
+            <div class="item-tooltip">Thép cuộn cán nóng</div>
+        </div>
+        <div class="item">
+            <div class="item-image">
+                <a href="https://thep.hoaphat.com.vn/san-pham#thep-dac-biet">
+                    <img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/12/mat-bich.jpg" alt="">
+                </a>
+            </div>
+            <div class="item-tooltip">Thép đặc biệt</div>
+        </div>
+        <div class="item">
+            <div class="item-image">
+                <a href="https://thep.hoaphat.com.vn/san-pham#san-pham-lien-quan">
+                    <img src="https://storage.sudospaces.com/hoaphat-com-vn/2019/12/s95-1.jpg" alt="">
+                </a>
+            </div>
+            <div class="item-tooltip">Sản phẩm liên quan</div>
+        </div>
+    </section>
+
+    <section id="loading_box">
+        <div id="loading_image"></div>
+    </section>
+    <script type="text/javascript">
+        $('.fancybox-media').fancybox({
+            helpers: {
+                thumbs: {
+                    width: 75,
+                    height: 50
+                }
+            }
+        });
+    </script>
+    <script type="text/javascript" src="https://thep.hoaphat.com.vn/assets/js/functions.min.js"></script>
+    <script type="text/javascript" src="https://thep.hoaphat.com.vn/assets/js/main.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.item-messenger').on('click', function (e) {
+                e.preventDefault();
+                $('.fb-button').css('display', 'none');
+                $('.fb-widget').css('display', 'block');
+                $('.fb-widget').css('opacity', 1);
+                $('.fb-overlay').css('display', 'block');
+                $('textarea._58an').focus();
+            });
+        });
+    </script>
+
+
+    <!-- Image Domain Replace Package -->
+    <script src="/vendor/image-domain-replace/js/script.js"></script>
+</body>
+
+</html>
