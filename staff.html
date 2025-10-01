@@ -173,7 +173,7 @@
 		.menu {
 			display: flex;
 			gap: 20px;
-			background: #f0f0f0;
+			/* background: #f0f0f0; */
 			padding: 10px;
 		}
 
@@ -230,6 +230,33 @@
 		.menu-child__item:hover .submenu {
 			display: block;
 		}
+
+		.btn-login {
+			display: inline-block;
+			padding: 6px 24px;
+			/* tăng padding để button to hơn */
+			font-size: 20px;
+			/* chữ lớn hơn */
+			background-color: #3498db;
+			/* màu nền button */
+			color: #fff;
+			/* màu chữ */
+			border-radius: 8px;
+			/* bo góc mềm */
+			text-decoration: none;
+			/* bỏ gạch chân */
+			font-weight: 600;
+			transition: all 0.2s ease;
+		}
+
+		.btn-login:hover {
+			background-color: #1a73e8;
+			/* màu hover nổi bật */
+			color: #fff;
+			transform: translateY(-2px);
+			/* nhích nhẹ khi hover */
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+		}
 	</style>
 
 	<div class="fb-livechat">
@@ -255,6 +282,7 @@
 	<script type="text/javascript"
 		src="https://thep.hoaphat.com.vn/assets/libs/lightgallery/lightgallery-all.min.js"></script>
 	<script type="text/javascript" src="https://thep.hoaphat.com.vn/assets/libs/select2/select2.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 	<!-- Global site tag (gtag.js) - Google Analytics -->
 	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-164923763-1"></script>
@@ -306,12 +334,11 @@
 	<script async defer crossorigin="anonymous"
 		src="https://connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v4.0&appId=385713232082700&autoLogAppEvents=1"></script>
 
-
 	<header class="header">
 		<div class="container">
 			<div class="logo">
 				<h1>
-					<a href="https://thep.hoaphat.com.vn">
+					<a href="./index.html">
 						<img src="https://storage.sudospaces.com/hoaphat-com-vn/2022/02/logo-gang-thep.jpg" alt="">
 					</a>
 				</h1>
@@ -324,16 +351,18 @@
 							<!-- <li><a href="https://www.youtube.com/channel/UCvcoWopzzKDaWrwUSZN7tsA?view_as=subscriber" target="_blank"><i class="fa fa-youtube-play"></i></a></li> -->
 							<li class="hidden"><a href="https://thep.hoaphat.com.vn"><img
 										src="https://thep.hoaphat.com.vn/assets/img/icon/icon-vi.png" alt=""></a></li>
-							<li><a href="https://thep.hoaphat.com.vn/en"><img
-										src="https://thep.hoaphat.com.vn/assets/img/icon/icon-en.png" alt=""></a></li>
+							<!-- <li><a href="https://thep.hoaphat.com.vn/en"><img
+										src="https://thep.hoaphat.com.vn/assets/img/icon/icon-en.png" alt=""></a></li> -->
+							<li>
+								<a href="./loginpage.html" class="btn-login">Nhân viên A</a>
+							</li>
 						</ul>
 					</div>
 					<div class="search">
-						<form action="https://thep.hoaphat.com.vn/tim-kiem" method="GET">
+						<form action="#" method="GET">
 							<input type="text" name="keyword" class="search-input" placeholder="Tìm kiếm..." value="">
 							<button type="submit" class="search-btn">
-
-								<!-- <i class="fa fa-search"></i> -->
+								<i class="fa fa-search"></i>
 							</button>
 						</form>
 					</div>
@@ -398,23 +427,11 @@
 							<li class="menu-item">
 								<a href="/he-thong-phan-phoi" title="">Hệ thống phân phối</a>
 							</li>
-							<li class="menu-item">
+							<!-- <li class="menu-item">
 								<a href="/xuat-khau" title="">Xuất khẩu</a>
-							</li>
+							</li> -->
 							<li class="menu-item">
-								<a href="/cong-trinh" title="">Công trình</a>
-							</li>
-							<li class="menu-item">
-								<a href="/tin-tuc" title="">Tin tứcđ</a>
-								<ul class="menu-child">
-									<li class="menu-child__item"><a
-											href="https://thep.hoaphat.com.vn/tin-tuc/tin-cong-ty">Tin công ty</a></li>
-									<li class="menu-child__item"><a href="https://www.hoaphat.com.vn/tin-tuc">Tin Tập
-											đoàn</a></li>
-									<li class="menu-child__item"><a
-											href="https://thep.hoaphat.com.vn/tin-cong-nghe/tin-cong-nghe">Tin công
-											nghệ</a></li>
-								</ul>
+								<a href="./phatthai.html" title="">Kiểm tra phát thải</a>
 							</li>
 						</ul>
 					</nav>
@@ -465,23 +482,11 @@
 					<li class="menu-fix__item">
 						<a href="/he-thong-phan-phoi" title="">Hệ thống phân phối</a>
 					</li>
-					<li class="menu-fix__item">
+					<!-- <li class="menu-fix__item">
 						<a href="/xuat-khau" title="">Xuất khẩu</a>
-					</li>
+					</li> -->
 					<li class="menu-fix__item">
-						<a href="/cong-trinh" title="">Công trình</a>
-					</li>
-					<li class="menu-fix__item">
-						<a href="/tin-tuc" title="">Tin tức</a>
-						<ul class="menu-fix__child">
-							<li class="menu-fix__child-item"><a
-									href="https://thep.hoaphat.com.vn/tin-tuc/tin-cong-ty">Tin công ty</a></li>
-							<li class="menu-fix__child-item"><a href="https://www.hoaphat.com.vn/tin-tuc">Tin Tập
-									đoàn</a></li>
-							<li class="menu-fix__child-item"><a
-									href="https://thep.hoaphat.com.vn/tin-cong-nghe/tin-cong-nghe">Tin công nghệ</a>
-							</li>
-						</ul>
+						<a href="./phatthai.html" title="">Kiểm tra phát thải</a>
 					</li>
 				</ul>
 			</div>
