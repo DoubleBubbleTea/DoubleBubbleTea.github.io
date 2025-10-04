@@ -6,17 +6,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bảng dữ liệu sản lượng, phát thải và cường độ theo quý</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script defer src="https://app.fastbots.ai/embed.js" data-bot-id="cmgbstwhn00brqv1lv77weyr0"></script>
-	<script>
-		window.addEventListener('load', () => {
-			setTimeout(() => {
-				const frame = document.querySelector('iframe[src*="fastbots"]');
-				if (frame) {
-					frame.style.transform = "scale(0.8)";
-				}
-			}, 2000); 
-		});
-	</script>
+  <!-- <script defer src="https://app.fastbots.ai/embed.js" data-bot-id="cmgbstwhn00brqv1lv77weyr0"></script>
+  <script>
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const frame = document.querySelector('iframe[src*="fastbots"]');
+        if (frame) {
+          frame.style.transform = "scale(0.8)";
+        }
+      }, 2000);
+    });
+  </script> -->
   <style>
     body {
       font-family: "Segoe UI", sans-serif;
@@ -129,9 +129,9 @@
 
   <header>
     <a href="./index.html">
-    <img src="https://storage.sudospaces.com/hoaphat-com-vn/2022/02/logo-gang-thep.jpg" alt="Logo Hòa Phát"
-      style="width:350px; height:auto;">
-      </a>
+      <img src="https://storage.sudospaces.com/hoaphat-com-vn/2022/02/logo-gang-thep.jpg" alt="Logo Hòa Phát"
+        style="width: 18%; height: auto;">
+    </a>
     <h2>Bảng dữ liệu sản lượng, phát thải và cường độ theo quý</h2>
   </header>
 
@@ -274,34 +274,34 @@
               display: false // tắt chú thích
             }
           },
-scales: {
-        y: {
-          beginAtZero: true,
-          title: { 
-            display: true, 
-            text: "Cường độ",
-            font: { size: 18, weight: 'bold' } // tăng kích thước + in đậm
-          },
-          ticks: {
-            font: { size: 16, weight: 'bold' } // tăng size các số trên trục y
-          }
-        },
-        x: {
-          title: { 
-            display: true, 
-            text: "Các quý",
-            font: { size: 18, weight: 'bold' } // tăng size + in đậm
-          },
-          ticks: {
-            font: { size: 16, weight: 'bold' } // tăng size chữ các nhãn quý
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "Cường độ",
+                font: { size: 18, weight: 'bold' } // tăng kích thước + in đậm
+              },
+              ticks: {
+                font: { size: 16, weight: 'bold' } // tăng size các số trên trục y
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: "Các quý",
+                font: { size: 18, weight: 'bold' } // tăng size + in đậm
+              },
+              ticks: {
+                font: { size: 16, weight: 'bold' } // tăng size chữ các nhãn quý
+              }
+            }
           }
         }
-      }
-    }
-  });
+      });
 
-  document.getElementById("chart-container").style.display = "block";
-}
+      document.getElementById("chart-container").style.display = "block";
+    }
   </script>
 
 </body>
