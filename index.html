@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Booking Login</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<h2>Login</h2>
+<input id="email" type="email" placeholder="Email"><br>
+<input id="password" type="password" placeholder="Password"><br>
+<button onclick="login()">Login</button>
+
+<h2>Register</h2>
+<input id="r_student_id" type="number" placeholder="Student ID (132184)"><br>
+<input id="r_name" type="text" placeholder="Full Name"><br>
+<input id="r_email" type="email" placeholder="Email"><br>
+<input id="r_password" type="password" placeholder="Password"><br>
+<button onclick="register()">Register</button>
+
+<script>
+  const SUPABASE_URL = "https://oxaimnemcnqudtdguoyk.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_6p-lVAZg_ATPz1a1cDjlOg_9vIcR42c";
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  async function register() {
+    const student_id = parseInt(document.getElementById("r_student_id").value);
+    const name = document.getElementById("r_name").value;
+    const email = document.getElementById("r_email").value;
+    const password = document.getElementById("r_password").value;
+
+    if (!student_id) {
+      alert("Student ID must be a number!");
+      return;
+    }
+
+    // 1. Đăng ký user trong Supabase Auth
+    const { error: authError } = await client.auth.signUp({
+      email: email,
+      password: password
+    });
+
+    if (authError) {
+      alert("Auth Error: " + authError.message);
+      return;
+    }
+
+    // 2. Insert vào bảng students
+    const { error } = await client
+      .from('students')
+      .insert([{ student_id, name, email }]);
+
+    if (error) alert("DB Error: " + error.message);
+    else alert("Register Success!");
+  }
+
+  async function login() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    const { error } = await client.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+    if (error) alert("Login Error: " + error.message);
+    else alert("Login Success!");
+  }
+</script>
+
+</body>
+</html>

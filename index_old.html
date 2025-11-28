@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Hệ thống đăng ký chỗ ngồi phòng tự học (demo)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f3f4f6;
+      color: #111827;
+    }
+    .app {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 16px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+    }
+    .app-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .title-block {
+      max-width: 70%;
+      min-width: 260px;
+    }
+    .app-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .app-sub {
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+    .badge {
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      background: #ecfeff;
+      color: #0e7490;
+      border: 1px solid #a5f3fc;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      height: fit-content;
+    }
+    .badge-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34,197,94,0.3);
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.9; }
+      50% { transform: scale(1.15); opacity: 0.3; }
+      100% { transform: scale(0.9); opacity: 0.9; }
+    }
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      margin-bottom: 16px;
+    }
+    .top-bar-item {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.8rem;
+      min-width: 180px;
+      flex: 1;
+    }
+    .top-bar-label {
+      color: #6b7280;
+      margin-bottom: 2px;
+    }
+    .top-bar-value {
+      font-weight: 600;
+    }
+    .top-bar input, .top-bar select {
+      padding: 6px 9px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      font-size: 0.85rem;
+      outline: none;
+      background: #ffffff;
+    }
+    .top-bar input:focus, .top-bar select:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 1px rgba(37,99,235,0.2);
+    }
+    .small {
+      font-size: 0.76rem;
+      color: #9ca3af;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(360px, 1.2fr) minmax(280px, 0.9fr);
+      gap: 16px;
+    }
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .title-block {
+        max-width: 100%;
+      }
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      padding: 14px 16px;
+    }
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title span.icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 0.78rem;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      margin-right: 4px;
+    }
+    .dot-free { background: #22c55e; }
+    .dot-using { background: #6b7280; }
+    .dot-warning { background: #fbbf24; }
+
+    .map-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+      font-size: 0.75rem;
+    }
+    .tag {
+      display: inline-flex;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #4f46e5;
+    }
+
+    .seat-grid {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(10, minmax(0, 1fr));
+      grid-auto-rows: 64px;
+      grid-auto-flow: dense;
+      gap: 6px;
+      padding: 8px;
+      border-radius: 12px;
+      background: radial-gradient(circle at top left, #ecfdf5, #e5e7eb);
+    }
+    .zone-label {
+      position: absolute;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #6b7280;
+      opacity: 0.7;
+      pointer-events: none;
+    }
+    .zone-private { top: 6px; left: 10px; }
+    .zone-window { top: 6px; right: 10px; }
+    .zone-group { bottom: 6px; right: 10px; }
+
+    .seat {
+      position: relative;
+      border-radius: 10px;
+      padding: 6px 4px 6px;
+      border: 1px solid #d1d5db;
+      background: #f9fafb;
+      cursor: pointer;
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.08s;
+    }
+    .seat:hover {
+      box-shadow: 0 3px 8px rgba(15,23,42,0.12);
+      transform: translateY(-1px);
+    }
+    .seat.free {
+      background: #ecfdf5;
+      border-color: #bbf7d0;
+    }
+    .seat.using {
+      background: #e5e7eb;
+      border-color: #9ca3af;
+      color: #111827;
+    }
+    .seat.warning {
+      background: #fffbeb;
+      border-color: #fed7aa;
+      color: #78350f;
+    }
+    .seat.selected-outline {
+      box-shadow: 0 0 0 2px #2563eb;
+    }
+
+    .seat.group-small {
+      grid-column: span 2;
+      grid-row: span 2;
+      align-items: flex-start;
+      padding-left: 6px;
+    }
+    .seat.group-large {
+      grid-column: span 3;
+      grid-row: span 2;
+      align-items: flex-start;
+      padding-left: 6px;
+    }
+
+    .seat-label {
+      font-weight: 700;
+      margin-bottom: 2px;
+      font-size: 0.78rem;
+    }
+    .seat-type-pill {
+      font-size: 0.65rem;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      margin-bottom: 2px;
+      white-space: nowrap;
+    }
+    .seat-remaining {
+      font-size: 0.68rem;
+      color: #4b5563;
+    }
+    .seat-tag-status {
+      position: absolute;
+      top: 3px;
+      right: 4px;
+      font-size: 0.6rem;
+      padding: 1px 5px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      color: #111827;
+    }
+    .seat-tag-status.warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .seat-tag-status.free {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .info-row {
+      font-size: 0.84rem;
+      margin-bottom: 4px;
+      color: #4b5563;
+    }
+    .info-row strong {
+      color: #111827;
+    }
+    .divider {
+      height: 1px;
+      background: #e5e7eb;
+      margin: 10px 0;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      margin-bottom: 2px;
+    }
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #2563eb;
+      color: #ffffff;
+      white-space: nowrap;
+      transition: background 0.15s, transform 0.08s, box-shadow 0.08s;
+    }
+    .btn.secondary {
+      background: #6b7280;
+    }
+    .btn.outline {
+      background: #ffffff;
+      color: #2563eb;
+      border: 1px solid #bfdbfe;
+    }
+    .btn:disabled {
+      background: #9ca3af;
+      color: #f9fafb;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .btn:active:not(:disabled) {
+      transform: translateY(1px);
+      box-shadow: 0 2px 6px rgba(37,99,235,0.35);
+    }
+    .feedback {
+      font-size: 0.8rem;
+      margin-top: 4px;
+      min-height: 18px;
+    }
+    .feedback.error { color: #b91c1c; }
+    .feedback.success { color: #15803d; }
+
+    .list {
+      font-size: 0.8rem;
+      max-height: 230px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .list-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 6px 8px;
+      margin-bottom: 6px;
+      background: #f9fafb;
+    }
+    .list-item-title {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .list-item-meta {
+      font-size: 0.76rem;
+      color: #6b7280;
+    }
+    .empty {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      font-style: italic;
+    }
+    textarea {
+      width: 100%;
+      min-height: 60px;
+      resize: vertical;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      font-size: 0.8rem;
+      outline: none;
+    }
+    textarea:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 1px rgba(37,99,235,0.2);
+    }
+    input[type="time"], input[type="number"], select {
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      font-size: 0.8rem;
+      outline: none;
+      width: 100%;
+    }
+    input[type="time"]:focus, input[type="number"]:focus, select:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 1px rgba(37,99,235,0.2);
+    }
+    .field {
+      margin-bottom: 6px;
+    }
+    .field label {
+      display: block;
+      font-size: 0.78rem;
+      color: #4b5563;
+      margin-bottom: 2px;
+    }
+    .field-inline {
+      display: flex;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="app-header">
+      <div class="title-block">
+        <div class="app-title">Hệ thống đăng ký chỗ ngồi phòng tự học (demo)</div>
+        <div class="app-sub">
+          Ghế cá nhân: mỗi lần check-in tối đa <strong>2 tiếng</strong>, mỗi sinh viên tối đa <strong>2 slot/ngày</strong> (có thể gia hạn +1h hoặc +2h nếu còn slot & chưa quá <strong>20:00</strong>).<br>
+          Khu hội nhóm: 5–8 người (30.000đ/giờ), 8–15 người (60.000đ/giờ), thuê máy chiếu +15.000đ, không gia hạn – muốn dùng thêm phải đăng ký lại.
+        </div>
+      </div>
+      <div class="badge">
+        <span class="badge-dot"></span>
+        <span>Trạng thái cập nhật theo thời gian thực</span>
+      </div>
+    </div>
+
+    <div class="top-bar">
+      <div class="top-bar-item">
+        <span class="top-bar-label">Thời gian hiện tại</span>
+        <span class="top-bar-value" id="currentTime">--:--:--</span>
+        <span class="small">Đóng cửa lúc 20:00, sau 20:00 không thể check-in / gia hạn.</span>
+      </div>
+      <div class="top-bar-item">
+        <span class="top-bar-label">Chọn phòng tự học</span>
+        <select id="roomSelect">
+          <option value="1">Phòng 1</option>
+          <option value="2">Phòng 2</option>
+          <option value="3">Phòng 3</option>
+          <option value="4">Phòng 4</option>
+          <option value="5">Phòng 5</option>
+        </select>
+      </div>
+      <div class="top-bar-item">
+        <span class="top-bar-label">Mã số sinh viên (MSSV)</span>
+        <input type="text" id="studentIdInput" placeholder="vd: 21520001">
+        <span class="small">Mọi quy định slot/ngày sẽ tính theo MSSV này.</span>
+      </div>
+    </div>
+
+    <div class="layout">
+      <!-- LEFT: MAP -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">🗺</span>
+          Sơ đồ vị trí (map)
+        </div>
+        <div class="status-row">
+          <span><span class="status-dot dot-free"></span>Trống (xanh)</span>
+          <span><span class="status-dot dot-using"></span>Đang sử dụng (xám)</span>
+          <span><span class="status-dot dot-warning"></span>Còn ≤ 10 phút (vàng)</span>
+        </div>
+        <div class="map-legend">
+          <span class="tag">A: Gần cửa sổ</span>
+          <span class="tag">B–C: Hàng dài</span>
+          <span class="tag">D: Bàn 4 người</span>
+          <span class="tag">E: Bàn 2 người</span>
+          <span class="tag">GS: Khu nhóm 5–8</span>
+          <span class="tag">GL: Khu nhóm 8–15</span>
+        </div>
+        <div id="seatGrid" class="seat-grid">
+          <div class="zone-label zone-private">PRIVATE ZONE</div>
+          <div class="zone-label zone-window">WINDOW ZONE</div>
+          <div class="zone-label zone-group">GROUP ZONE</div>
+          <!-- Seats render by JS -->
+        </div>
+      </div>
+
+      <!-- RIGHT: INFO -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">📌</span>
+          Thông tin vị trí đang chọn
+        </div>
+        <div id="seatInfo">
+          <div class="empty">Hãy chọn một ghế hoặc khu nhóm trên map để xem chi tiết và thao tác.</div>
+        </div>
+        <div id="seatFeedback" class="feedback"></div>
+
+        <div class="divider"></div>
+
+        <div class="card-title">
+          <span class="icon">🧑‍🎓</span>
+          Lịch sử sử dụng hôm nay của MSSV
+        </div>
+        <div id="usageInfo" class="info-row small">
+          Chưa có MSSV nào được nhập.
+        </div>
+        <div id="usageList" class="list">
+          <div class="empty">Nhập MSSV và thực hiện check-in/đặt khu nhóm để xem lịch sử.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====== CONSTANTS ======
+    const CLOSING_HOUR = 20; // 20:00
+    const SLOT_LIMIT_PER_DAY = 2;
+    const INITIAL_SLOT_HOURS = 2; // ghế cá nhân mặc định 2 tiếng
+    const MS_PER_MIN = 60 * 1000;
+    const MS_PER_HOUR = 60 * MS_PER_MIN;
+
+    const GROUP_SMALL_RATE = 30000;  // 5–8 người
+    const GROUP_LARGE_RATE = 60000;  // 8–15 người
+    const PROJECTOR_FEE = 15000;
+
+    // ====== SEAT DEFINITIONS (map) ======
+    // mode: 'individual' | 'groupSmall' | 'groupLarge'
+    const seatDefinitions = [];
+
+    function addIndividual(id, type) {
+      seatDefinitions.push({ id, type, mode: 'individual' });
+    }
+    function addGroup(id, type, groupMode) {
+      seatDefinitions.push({ id, type, mode: groupMode });
+    }
+
+    // Hàng A: gần cửa sổ
+    for (let i = 1; i <= 10; i++) addIndividual(`A${i}`, 'Gần cửa sổ');
+
+    // Hàng B–C: hàng dài
+    for (let i = 1; i <= 10; i++) addIndividual(`B${i}`, 'Hàng dài');
+    for (let i = 1; i <= 10; i++) addIndividual(`C${i}`, 'Hàng dài');
+
+    // Hàng D: bàn 4 người (cluster)
+    for (let i = 1; i <= 10; i++) addIndividual(`D${i}`, 'Bàn 4 người');
+
+    // Hàng E: bàn 2 người
+    for (let i = 1; i <= 8; i++) addIndividual(`E${i}`, 'Bàn 2 người');
+
+    // Khu nhóm (map block to cho giống trong hình)
+    addGroup('GS1', 'Nhóm 5–8 #1', 'groupSmall');
+    addGroup('GS2', 'Nhóm 5–8 #2', 'groupSmall');
+    addGroup('GL1', 'Nhóm 8–15 #1', 'groupLarge');
+    addGroup('GL2', 'Nhóm 8–15 #2', 'groupLarge');
+
+    // ====== STATE ======
+    // allSessions: cả ghế cá nhân & nhóm
+    // mode: 'individual' | 'group'
+    // For individual: {mode:'individual', roomId, seatId, studentId, startTime, endTime, slotsUsed, dateKey}
+    // For group:      {mode:'group', roomId, seatId, studentId, startTime, endTime, dateKey,
+    //                  groupType:'small'|'large', peopleCount, peopleList, cost}
+    const allSessions = [];
+    let selectedSeatId = null;
+
+    const seatGridEl = document.getElementById("seatGrid");
+    const seatInfoEl = document.getElementById("seatInfo");
+    const seatFeedbackEl = document.getElementById("seatFeedback");
+    const usageInfoEl = document.getElementById("usageInfo");
+    const usageListEl = document.getElementById("usageList");
+    const currentTimeEl = document.getElementById("currentTime");
+    const roomSelectEl = document.getElementById("roomSelect");
+    const studentIdInputEl = document.getElementById("studentIdInput");
+
+    // ====== TIME HELPERS ======
+    function getTodayKey(dateObj = new Date()) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+      const d = String(dateObj.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+    function getClosingTime(dateObj = new Date()) {
+      const d = new Date(dateObj);
+      d.setHours(CLOSING_HOUR, 0, 0, 0);
+      return d;
+    }
+    function formatTimeShort(d) {
+      return d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+    }
+    function formatDuration(ms) {
+      if (ms <= 0) return "0 phút";
+      const totalMin = Math.round(ms / MS_PER_MIN);
+      const h = Math.floor(totalMin / 60);
+      const m = totalMin % 60;
+      if (h > 0 && m > 0) return `${h}h${m}p`;
+      if (h > 0) return `${h}h`;
+      return `${m} phút`;
+    }
+    function getRemainingMs(session, now = new Date()) {
+      return session.endTime.getTime() - now.getTime();
+    }
+    function combineTodayTime(timeStr) {
+      const [hh, mm] = timeStr.split(":").map(Number);
+      const d = new Date();
+      d.setHours(hh, mm, 0, 0);
+      return d;
+    }
+
+    // Active session (đang diễn ra) cho 1 ghế/khu
+    function getActiveSessionForSeat(roomId, seatId, now = new Date()) {
+      const todayKey = getTodayKey(now);
+      return allSessions.find(s =>
+        s.roomId === roomId &&
+        s.seatId === seatId &&
+        s.dateKey === todayKey &&
+        now >= s.startTime &&
+        now < s.endTime
+      );
+    }
+
+    // Usage theo MSSV – CHỈ tính slot cho ghế cá nhân
+    function getStudentUsageToday(studentId, dateObj = new Date()) {
+      const todayKey = getTodayKey(dateObj);
+      const sessionsAll = allSessions.filter(
+        s => s.studentId === studentId && s.dateKey === todayKey
+      );
+      const sessionsIndividual = sessionsAll.filter(s => s.mode === "individual");
+      const slots = sessionsIndividual.reduce((sum, s) => sum + s.slotsUsed, 0);
+      const totalMs = sessionsIndividual.reduce(
+        (sum, s) => sum + (s.endTime - s.startTime),
+        0
+      );
+      return { slots, totalMs, sessionsAll, sessionsIndividual };
+    }
+
+    // ====== RENDER MAP ======
+    function renderSeatGrid() {
+      const roomId = Number(roomSelectEl.value);
+      const now = new Date();
+
+      seatGridEl.querySelectorAll(".seat").forEach(el => el.remove());
+
+      seatDefinitions.forEach(def => {
+        const seatEl = document.createElement("div");
+        const activeSession = getActiveSessionForSeat(roomId, def.id, now);
+
+        let statusClass = "free";
+        let statusTagText = "Trống";
+        let statusTagClass = "free";
+        let remainingText = "Trống";
+
+        if (activeSession) {
+          const remainingMs = getRemainingMs(activeSession, now);
+          const remainingMin = Math.max(
+            0,
+            Math.round(remainingMs / MS_PER_MIN)
+          );
+          if (remainingMin <= 10) {
+            statusClass = "warning";
+            statusTagText = "≤ 10 phút";
+            statusTagClass = "warning";
+          } else {
+            statusClass = "using";
+            statusTagText = "Đang dùng";
+            statusTagClass = "";
+          }
+          remainingText = `Còn ${formatDuration(remainingMs)}`;
+        }
+
+        let extraClass = "";
+        if (def.mode === "groupSmall") extraClass = " group-small";
+        if (def.mode === "groupLarge") extraClass = " group-large";
+
+        seatEl.className = `seat ${statusClass}${extraClass}`;
+        if (def.id === selectedSeatId) seatEl.classList.add("selected-outline");
+
+        const label = document.createElement("div");
+        label.className = "seat-label";
+        label.textContent = def.id;
+
+        const typePill = document.createElement("div");
+        typePill.className = "seat-type-pill";
+        let typeText = def.type;
+        if (def.mode === "groupSmall") typeText = "Khu nhóm 5–8";
+        if (def.mode === "groupLarge") typeText = "Khu nhóm 8–15";
+        typePill.textContent = typeText;
+
+        const remaining = document.createElement("div");
+        remaining.className = "seat-remaining";
+        remaining.textContent = remainingText;
+
+        const tag = document.createElement("div");
+        tag.className = "seat-tag-status " + statusTagClass;
+        tag.textContent = statusTagText;
+
+        seatEl.appendChild(label);
+        seatEl.appendChild(typePill);
+        seatEl.appendChild(remaining);
+        seatEl.appendChild(tag);
+
+        seatEl.addEventListener("click", () => {
+          selectedSeatId = def.id;
+          clearSeatFeedback();
+          renderSeatGrid();
+          renderSeatInfo();
+        });
+
+        seatGridEl.appendChild(seatEl);
+      });
+    }
+
+    // ====== SEAT INFO PANEL ======
+    function clearSeatFeedback() {
+      seatFeedbackEl.textContent = "";
+      seatFeedbackEl.className = "feedback";
+    }
+    function showSeatFeedback(msg, type = "error") {
+      seatFeedbackEl.textContent = msg;
+      seatFeedbackEl.className = "feedback " + type;
+    }
+
+    function renderSeatInfo() {
+      const roomId = Number(roomSelectEl.value);
+      const now = new Date();
+      const studentId = studentIdInputEl.value.trim();
+
+      if (!selectedSeatId) {
+        seatInfoEl.innerHTML =
+          `<div class="empty">Hãy chọn một ghế hoặc khu nhóm trên map để xem chi tiết và thao tác.</div>`;
+        return;
+      }
+
+      const def = seatDefinitions.find(s => s.id === selectedSeatId);
+      const activeSession = getActiveSessionForSeat(roomId, selectedSeatId, now);
+
+      if (def.mode === "groupSmall" || def.mode === "groupLarge") {
+        renderGroupSeatInfo(def, roomId, activeSession, studentId, now);
+      } else {
+        renderIndividualSeatInfo(def, roomId, activeSession, studentId, now);
+      }
+    }
+
+    // ----- Individual seat -----
+    function renderIndividualSeatInfo(def, roomId, activeSession, studentId, now) {
+      const usage = studentId ? getStudentUsageToday(studentId, now) : null;
+      let html = "";
+      html += `<div class="info-row"><strong>Ghế cá nhân:</strong> ${def.id} (${def.type})</div>`;
+      html += `<div class="info-row"><strong>Phòng:</strong> ${roomId}</div>`;
+
+      if (!studentId) {
+        html += `<div class="divider"></div>`;
+        html += `<div class="info-row"><strong>Trạng thái:</strong> ${activeSession ? "Đang sử dụng" : "Đang trống"}</div>`;
+        html += `<div class="info-row small">Nhập MSSV để check-in, check-out hoặc gia hạn.</div>`;
+        seatInfoEl.innerHTML = html;
+        return;
+      }
+
+      html += `<div class="info-row"><strong>MSSV hiện tại:</strong> ${studentId}</div>`;
+      html += `<div class="info-row">Đã dùng ghế cá nhân hôm nay: <strong>${usage.slots}/${SLOT_LIMIT_PER_DAY} slot</strong> (${formatDuration(usage.totalMs)})</div>`;
+
+      if (!activeSession) {
+        html += `<div class="divider"></div>`;
+        html += `<div class="info-row"><strong>Trạng thái ghế:</strong> Trống</div>`;
+
+        const closing = getClosingTime(now);
+        if (now >= closing) {
+          html += `<div class="info-row">Đã quá giờ đóng cửa (${formatTimeShort(closing)}). Không thể check-in.</div>`;
+          seatInfoEl.innerHTML = html;
+          return;
+        }
+
+        if (usage.slots >= SLOT_LIMIT_PER_DAY) {
+          html += `<div class="info-row">Bạn đã dùng đủ <strong>${SLOT_LIMIT_PER_DAY} slot</strong> ghế cá nhân hôm nay.</div>`;
+          seatInfoEl.innerHTML = html;
+          return;
+        }
+
+        const startTime = now;
+        const desiredEnd = new Date(startTime.getTime() + INITIAL_SLOT_HOURS * MS_PER_HOUR);
+        const realEnd = desiredEnd > closing ? closing : desiredEnd;
+        const realDuration = realEnd - startTime;
+
+        html += `<div class="info-row">Nếu check-in bây giờ, bạn sẽ dùng <strong>${formatDuration(realDuration)}</strong> (từ ${formatTimeShort(startTime)} đến ${formatTimeShort(realEnd)}).</div>`;
+        html += `<div class="btn-row">
+          <button class="btn" id="btnCheckIn">✅ Check-in 2 tiếng (tối đa)</button>
+        </div>`;
+        html += `<div class="small">Mỗi lần check-in tính là <strong>1 slot</strong>, kể cả khi bạn check-out sớm.</div>`;
+
+        seatInfoEl.innerHTML = html;
+
+        const btnCheckIn = document.getElementById("btnCheckIn");
+        if (btnCheckIn) {
+          btnCheckIn.addEventListener("click", () => {
+            handleCheckInIndividual(roomId, def.id, studentId);
+          });
+        }
+      } else {
+        const remainingMs = getRemainingMs(activeSession, now);
+        const remainingText = remainingMs <= 0 ? "Hết giờ" : formatDuration(remainingMs);
+        const isOwner = activeSession.studentId === studentId;
+
+        html += `<div class="divider"></div>`;
+        html += `<div class="info-row"><strong>Trạng thái ghế:</strong> Đang sử dụng</div>`;
+        html += `<div class="info-row">MSSV đang dùng: <strong>${activeSession.studentId}</strong></div>`;
+        html += `<div class="info-row">Thời gian: ${formatTimeShort(activeSession.startTime)} - ${formatTimeShort(activeSession.endTime)} (${formatDuration(activeSession.endTime - activeSession.startTime)})</div>`;
+        html += `<div class="info-row">Còn lại: <strong>${remainingText}</strong></div>`;
+
+        if (!isOwner) {
+          html += `<div class="info-row small">Bạn không phải người đang sử dụng ghế này, nên không thể check-out / gia hạn.</div>`;
+          seatInfoEl.innerHTML = html;
+          return;
+        }
+
+        const closing = getClosingTime(now);
+        const usage = getStudentUsageToday(studentId, now);
+        const canExtendBase = now < closing && remainingMs > 0;
+        const canUseMoreSlot = usage.slots < SLOT_LIMIT_PER_DAY;
+
+        html += `<div class="divider"></div>`;
+        html += `<div class="info-row"><strong>Thao tác:</strong></div>`;
+        html += `<div class="btn-row">
+          <button class="btn secondary" id="btnCheckout">⏹ Check-out sớm</button>
+        `;
+
+        if (canExtendBase && canUseMoreSlot) {
+          html += `
+            <button class="btn outline" id="btnExtend1h">⏩ Gia hạn +1h</button>
+            <button class="btn outline" id="btnExtend2h">⏩ Gia hạn +2h</button>
+          `;
+        }
+
+        html += `</div>`;
+
+        if (!canUseMoreSlot) {
+          html += `<div class="small">Bạn đã dùng đủ ${SLOT_LIMIT_PER_DAY} slot ghế cá nhân nên không thể gia hạn thêm.</div>`;
+        } else if (!canExtendBase) {
+          html += `<div class="small">Đã gần/qua giờ đóng cửa, chỉ có thể check-out, không thể gia hạn.</div>`;
+        } else {
+          html += `<div class="small">Mỗi lần gia hạn sẽ cộng thêm <strong>1 slot</strong> vào hạn mức ngày.</div>`;
+        }
+
+        seatInfoEl.innerHTML = html;
+
+        const btnCheckout = document.getElementById("btnCheckout");
+        const btnExtend1h = document.getElementById("btnExtend1h");
+        const btnExtend2h = document.getElementById("btnExtend2h");
+
+        if (btnCheckout) btnCheckout.addEventListener("click", () => handleCheckoutIndividual(activeSession));
+        if (btnExtend1h) btnExtend1h.addEventListener("click", () => handleExtendIndividual(activeSession, 1));
+        if (btnExtend2h) btnExtend2h.addEventListener("click", () => handleExtendIndividual(activeSession, 2));
+      }
+    }
+
+    // ----- Group zone -----
+    function renderGroupSeatInfo(def, roomId, activeSession, studentId, now) {
+      const todayKey = getTodayKey(now);
+      const isSmall = def.mode === "groupSmall";
+      const minPeople = isSmall ? 5 : 8;
+      const maxPeople = isSmall ? 8 : 15;
+      const rate = isSmall ? GROUP_SMALL_RATE : GROUP_LARGE_RATE;
+
+      let html = "";
+      html += `<div class="info-row"><strong>Khu hội nhóm:</strong> ${def.id} (${def.type})</div>`;
+      html += `<div class="info-row"><strong>Phòng:</strong> ${roomId}</div>`;
+      html += `<div class="info-row">Phù hợp cho <strong>${minPeople}–${maxPeople} người</strong>. Giá: <strong>${rate.toLocaleString("vi-VN")}đ/giờ</strong>, thuê máy chiếu +${PROJECTOR_FEE.toLocaleString("vi-VN")}đ.</div>`;
+
+      if (!studentId) {
+        html += `<div class="divider"></div>`;
+        html += `<div class="info-row small">Nhập MSSV người đại diện để đăng ký khu này và khai báo danh sách các MSSV tham gia.</div>`;
+        seatInfoEl.innerHTML = html;
+        return;
+      }
+
+      html += `<div class="info-row"><strong>MSSV đại diện:</strong> ${studentId}</div>`;
+
+      if (activeSession) {
+        const remainingMs = getRemainingMs(activeSession, now);
+        const remainingText = remainingMs <= 0 ? "Hết giờ" : formatDuration(remainingMs);
+
+        html += `<div class="divider"></div>`;
+        html += `<div class="info-row"><strong>Trạng thái khu:</strong> Đang được đặt</div>`;
+        html += `<div class="info-row">Người đại diện: <strong>${activeSession.studentId}</strong></div>`;
+        html += `<div class="info-row">Số người đăng ký: <strong>${activeSession.peopleCount}</strong></div>`;
+        html += `<div class="info-row">Thời gian: ${formatTimeShort(activeSession.startTime)} - ${formatTimeShort(activeSession.endTime)} (${formatDuration(activeSession.endTime - activeSession.startTime)})</div>`;
+        html += `<div class="info-row">Còn lại: <strong>${remainingText}</strong></div>`;
+        html += `<div class="info-row">Tiền phải trả: <strong>${activeSession.cost.toLocaleString("vi-VN")}đ</strong> (đã bao gồm máy chiếu nếu có).</div>`;
+        html += `<div class="info-row small">Khu hội nhóm <strong>không cho gia hạn</strong>. Nếu muốn dùng thêm thời gian, bạn phải đăng ký lại từ đầu sau khi hết giờ.</div>`;
+        seatInfoEl.innerHTML = html;
+        return;
+      }
+
+      // Không có activeSession -> form đăng ký
+      const closing = getClosingTime(now);
+      html += `<div class="divider"></div>`;
+      html += `<div class="info-row"><strong>Đặt khu hội nhóm mới</strong></div>`;
+      html += `<div class="info-row small">Chọn giờ bắt đầu (hôm nay) và số giờ họp. Không được vượt quá giờ đóng cửa ${formatTimeShort(closing)} và không được gia hạn thêm.</div>`;
+
+      html += `
+        <div class="field">
+          <label for="groupStartTime_${def.id}">Giờ bắt đầu</label>
+          <input type="time" id="groupStartTime_${def.id}" step="900">
+        </div>
+        <div class="field field-inline">
+          <div class="field" style="flex:1;">
+            <label for="groupDuration_${def.id}">Số giờ họp</label>
+            <select id="groupDuration_${def.id}">
+              <option value="1">1 giờ</option>
+              <option value="2">2 giờ</option>
+              <option value="3">3 giờ</option>
+              <option value="4">4 giờ</option>
+            </select>
+          </div>
+          <div class="field" style="flex:1;">
+            <label for="groupPeople_${def.id}">Số lượng người</label>
+            <input type="number" id="groupPeople_${def.id}" min="${minPeople}" max="${maxPeople}" value="${minPeople}">
+          </div>
+        </div>
+        <div class="field">
+          <label><input type="checkbox" id="groupProjector_${def.id}"> Thuê máy chiếu (+${PROJECTOR_FEE.toLocaleString("vi-VN")}đ)</label>
+        </div>
+        <div class="field">
+          <label for="groupList_${def.id}">Danh sách MSSV tham gia</label>
+          <textarea id="groupList_${def.id}" placeholder="Nhập MSSV, mỗi người 1 dòng hoặc cách nhau bởi dấu phẩy."></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn" id="btnGroupBook_${def.id}">✅ Đăng ký khu nhóm</button>
+        </div>
+      `;
+
+      seatInfoEl.innerHTML = html;
+
+      const btnBook = document.getElementById(`btnGroupBook_${def.id}`);
+      if (btnBook) {
+        btnBook.addEventListener("click", () => {
+          handleGroupBooking(def, roomId, studentId);
+        });
+      }
+    }
+
+    // ====== ACTIONS: INDIVIDUAL ======
+    function handleCheckInIndividual(roomId, seatId, studentId) {
+      const now = new Date();
+      const closing = getClosingTime(now);
+      const todayKey = getTodayKey(now);
+
+      if (now >= closing) {
+        showSeatFeedback("Đã quá giờ đóng cửa, không thể check-in.", "error");
+        return;
+      }
+
+      const usage = getStudentUsageToday(studentId, now);
+      if (usage.slots >= SLOT_LIMIT_PER_DAY) {
+        showSeatFeedback(`Bạn đã dùng đủ ${SLOT_LIMIT_PER_DAY} slot ghế cá nhân hôm nay.`, "error");
+        return;
+      }
+
+      const activeSession = getActiveSessionForSeat(roomId, seatId, now);
+      if (activeSession) {
+        showSeatFeedback("Ghế này đang được sử dụng, không thể check-in.", "error");
+        return;
+      }
+
+      const startTime = now;
+      const desiredEnd = new Date(startTime.getTime() + INITIAL_SLOT_HOURS * MS_PER_HOUR);
+      const realEnd = desiredEnd > closing ? closing : desiredEnd;
+
+      if (realEnd <= startTime) {
+        showSeatFeedback("Không đủ thời gian sử dụng trước giờ đóng cửa.", "error");
+        return;
+      }
+
+      const session = {
+        mode: "individual",
+        roomId,
+        seatId,
+        studentId,
+        startTime,
+        endTime: realEnd,
+        slotsUsed: 1,
+        dateKey: todayKey
+      };
+
+      allSessions.push(session);
+      showSeatFeedback(`Check-in thành công. Bạn được dùng đến ${formatTimeShort(realEnd)}.`, "success");
+      renderSeatGrid();
+      renderSeatInfo();
+      renderUsagePanel();
+    }
+
+    function handleCheckoutIndividual(session) {
+      const now = new Date();
+      session.endTime = now < session.startTime ? session.startTime : now;
+      showSeatFeedback("Check-out thành công. Slot đã dùng vẫn tính vào hạn mức ngày.", "success");
+      renderSeatGrid();
+      renderSeatInfo();
+      renderUsagePanel();
+    }
+
+    function handleExtendIndividual(session, hoursToExtend) {
+      const now = new Date();
+      const closing = getClosingTime(now);
+      const studentId = session.studentId;
+      const usage = getStudentUsageToday(studentId, now);
+
+      if (usage.slots >= SLOT_LIMIT_PER_DAY) {
+        showSeatFeedback(`Bạn đã dùng đủ ${SLOT_LIMIT_PER_DAY} slot ghế cá nhân hôm nay.`, "error");
+        return;
+      }
+      if (now >= closing) {
+        showSeatFeedback("Đã quá giờ đóng cửa, không thể gia hạn.", "error");
+        return;
+      }
+      if (now >= session.endTime) {
+        showSeatFeedback("Lượt sử dụng này đã hết giờ, không thể gia hạn.", "error");
+        return;
+      }
+
+      const desiredEnd = new Date(session.endTime.getTime() + hoursToExtend * MS_PER_HOUR);
+      const realEnd = desiredEnd > closing ? closing : desiredEnd;
+
+      if (realEnd <= session.endTime) {
+        showSeatFeedback("Không đủ thời gian để gia hạn trước giờ đóng cửa.", "error");
+        return;
+      }
+
+      session.endTime = realEnd;
+      session.slotsUsed += 1;
+      showSeatFeedback(`Gia hạn thành công. Thời gian mới đến ${formatTimeShort(realEnd)}.`, "success");
+      renderSeatGrid();
+      renderSeatInfo();
+      renderUsagePanel();
+    }
+
+    // ====== ACTIONS: GROUP ZONE ======
+    function handleGroupBooking(def, roomId, studentId) {
+      const now = new Date();
+      const closing = getClosingTime(now);
+      const todayKey = getTodayKey(now);
+      const isSmall = def.mode === "groupSmall";
+      const minPeople = isSmall ? 5 : 8;
+      const maxPeople = isSmall ? 8 : 15;
+      const rate = isSmall ? GROUP_SMALL_RATE : GROUP_LARGE_RATE;
+
+      const startInput = document.getElementById(`groupStartTime_${def.id}`);
+      const durationSelect = document.getElementById(`groupDuration_${def.id}`);
+      const peopleInput = document.getElementById(`groupPeople_${def.id}`);
+      const projectorCheckbox = document.getElementById(`groupProjector_${def.id}`);
+      const listTextarea = document.getElementById(`groupList_${def.id}`);
+
+      const startStr = startInput.value;
+      const durationHours = Number(durationSelect.value);
+      const peopleCount = Number(peopleInput.value);
+      const projector = projectorCheckbox.checked;
+      const peopleList = listTextarea.value.trim();
+
+      if (!startStr) {
+        showSeatFeedback("Vui lòng chọn giờ bắt đầu cho cuộc họp nhóm.", "error");
+        return;
+      }
+      if (isNaN(peopleCount) || peopleCount < minPeople || peopleCount > maxPeople) {
+        showSeatFeedback(`Số người phải nằm trong khoảng ${minPeople}–${maxPeople}.`, "error");
+        return;
+      }
+      if (!peopleList) {
+        showSeatFeedback("Vui lòng nhập danh sách MSSV của các thành viên tham gia.", "error");
+        return;
+      }
+
+      const startTime = combineTodayTime(startStr);
+      if (startTime < now) {
+        showSeatFeedback("Chỉ cho phép đặt khu nhóm từ thời điểm hiện tại trở đi.", "error");
+        return;
+      }
+
+      const endTime = new Date(startTime.getTime() + durationHours * MS_PER_HOUR);
+      if (endTime > closing) {
+        showSeatFeedback(`Thời gian họp vượt quá giờ đóng cửa (${formatTimeShort(closing)}). Hãy giảm số giờ hoặc chọn giờ sớm hơn.`, "error");
+        return;
+      }
+
+      // Kiểm tra trùng giờ trong khu nhóm này (theo phòng & cùng ngày)
+      const conflict = allSessions.some(s =>
+        s.roomId === roomId &&
+        s.seatId === def.id &&
+        s.dateKey === todayKey &&
+        startTime < s.endTime &&
+        endTime > s.startTime
+      );
+      if (conflict) {
+        showSeatFeedback("Khu nhóm này đã có người đặt trùng khoảng thời gian đó.", "error");
+        return;
+      }
+
+      const cost = rate * durationHours + (projector ? PROJECTOR_FEE : 0);
+
+      const session = {
+        mode: "group",
+        roomId,
+        seatId: def.id,
+        studentId,
+        startTime,
+        endTime,
+        dateKey: todayKey,
+        groupType: isSmall ? "small" : "large",
+        peopleCount,
+        peopleList,
+        cost
+      };
+
+      allSessions.push(session);
+      showSeatFeedback(
+        `Đặt khu nhóm thành công. Từ ${formatTimeShort(startTime)} đến ${formatTimeShort(endTime)}. Số tiền: ${cost.toLocaleString("vi-VN")}đ.`,
+        "success"
+      );
+      renderSeatGrid();
+      renderSeatInfo();
+      renderUsagePanel();
+    }
+
+    // ====== USAGE PANEL ======
+    function renderUsagePanel() {
+      const studentId = studentIdInputEl.value.trim();
+      const now = new Date();
+
+      if (!studentId) {
+        usageInfoEl.textContent = "Chưa có MSSV nào được nhập.";
+        usageListEl.innerHTML =
+          `<div class="empty">Nhập MSSV và thực hiện check-in/đặt khu nhóm để xem lịch sử.</div>`;
+        return;
+      }
+
+      const usage = getStudentUsageToday(studentId, now);
+      usageInfoEl.innerHTML =
+        `MSSV <strong>${studentId}</strong> đã dùng ghế cá nhân <strong>${usage.slots}/${SLOT_LIMIT_PER_DAY} slot</strong> hôm nay (${formatDuration(usage.totalMs)}).`;
+
+      if (usage.sessionsAll.length === 0) {
+        usageListEl.innerHTML = `<div class="empty">Chưa có lượt sử dụng nào hôm nay.</div>`;
+        return;
+      }
+
+      const sorted = [...usage.sessionsAll].sort((a, b) => a.startTime - b.startTime);
+      usageListEl.innerHTML = "";
+
+      const nowTime = new Date();
+
+      sorted.forEach(s => {
+        const item = document.createElement("div");
+        item.className = "list-item";
+
+        const isIndividual = s.mode === "individual";
+        const typeText = isIndividual ? "Ghế cá nhân" : "Khu nhóm";
+
+        const title = document.createElement("div");
+        title.className = "list-item-title";
+        title.textContent = `${typeText} – Phòng ${s.roomId} • ${s.seatId}`;
+
+        const meta = document.createElement("div");
+        meta.className = "list-item-meta";
+
+        const isActive = nowTime >= s.startTime && nowTime < s.endTime;
+        let statusStr = isActive ? "Đang diễn ra" : (nowTime < s.startTime ? "Sắp diễn ra" : "Đã kết thúc");
+        let extra = "";
+
+        if (!isIndividual) {
+          extra = ` • ${s.peopleCount} người • ${s.cost.toLocaleString("vi-VN")}đ`;
+        }
+
+        meta.textContent =
+          `${formatTimeShort(s.startTime)} - ${formatTimeShort(s.endTime)} (${formatDuration(s.endTime - s.startTime)}) • ${statusStr}${extra}`;
+
+        item.appendChild(title);
+        item.appendChild(meta);
+        usageListEl.appendChild(item);
+      });
+    }
+
+    // ====== CLOCK & AUTO REFRESH ======
+    function tick() {
+      const now = new Date();
+      currentTimeEl.textContent = now.toLocaleString("vi-VN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+      });
+
+      renderSeatGrid();
+      renderSeatInfo();
+      renderUsagePanel();
+    }
+
+    // ====== EVENTS ======
+    roomSelectEl.addEventListener("change", () => {
+      clearSeatFeedback();
+      selectedSeatId = null;
+      renderSeatGrid();
+      renderSeatInfo();
+    });
+    studentIdInputEl.addEventListener("input", () => {
+      clearSeatFeedback();
+      renderSeatInfo();
+      renderUsagePanel();
+    });
+
+    // ====== INIT ======
+    renderSeatGrid();
+    renderSeatInfo();
+    renderUsagePanel();
+    tick();
+    setInterval(tick, 1000);
+  </script>
+</body>
+</html>
