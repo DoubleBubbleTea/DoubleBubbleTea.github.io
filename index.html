@@ -172,6 +172,32 @@
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
 
+      // ===== 🟦 KIỂM TRA ADMIN TRƯỚC =====
+      if (email === "admin@gmail.com") {
+
+        const { data: adminData } = await db
+          .from("students")
+          .select("*")
+          .eq("email", email)
+          .eq("password", password)
+          .limit(1);
+
+        if (adminData.length === 0) {
+          showPopup("Admin Login Failed", "Wrong admin password!");
+          return;
+        }
+
+        // -----> Admin đăng nhập thành công
+        showPopup("Welcome Admin!", "Redirecting to dashboard...");
+
+        setTimeout(() => {
+          window.location.href = "./dashboard.html";
+        }, 1500);
+
+        return; // Dừng ở đây, không kiểm tra login student nữa
+      }
+
+      // ===== 🟩 LOGIN STUDENT BÌNH THƯỜNG =====
       const { data } = await db
         .from("students")
         .select("*")
@@ -189,6 +215,7 @@
         }, 1500);
       }
     }
+
 
     async function register() {
       const student_id = parseInt(document.getElementById("r_student_id").value);
@@ -227,6 +254,6 @@
       document.getElementById("popupModal").style.display = "none";
     }
   </script>
-
 </body>
+
 </html>
