@@ -1,73 +1,195 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
+
 <head>
   <meta charset="UTF-8">
-  <title>Booking Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>USSH - Booking Login</title>
+
+  <!-- CSS ngoài -->
+  <link rel="stylesheet" href="./test.css">
+
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body>
 
-<h2>Login</h2>
-<input id="email" type="email" placeholder="Email"><br>
-<input id="password" type="password" placeholder="Password"><br>
-<button onclick="login()">Login</button>
+  <!-- Ambient background -->
+  <div class="area">
+    <ul class="circles">
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+  </div>
 
-<h2>Register</h2>
-<input id="r_student_id" type="number" placeholder="Student ID (132184)"><br>
-<input id="r_name" type="text" placeholder="Full Name"><br>
-<input id="r_email" type="email" placeholder="Email"><br>
-<input id="r_password" type="password" placeholder="Password"><br>
-<button onclick="register()">Register</button>
+  <!-- HEADER -->
+  <header class="ussh-header">
+    <div class="header-content">
+      <div class="header-left">
+        <img src="./img/VNUHCM_logo.svg.png" class="logo-vnu" alt="VNUHCM">
+        <img src="./img/logo.png" class="logo-ussh" alt="USSH">
+      </div>
 
-<script>
-  const SUPABASE_URL = "https://oxaimnemcnqudtdguoyk.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_6p-lVAZg_ATPz1a1cDjlOg_9vIcR42c";
-  const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      <div class="header-text">
+        <h1>ĐẠI HỌC QUỐC GIA THÀNH PHỐ HỒ CHÍ MINH</h1>
+        <h2>TRƯỜNG ĐẠI HỌC KHOA HỌC XÃ HỘI VÀ NHÂN VĂN</h2>
+      </div>
+    </div>
+  </header>
 
-  async function register() {
-    const student_id = parseInt(document.getElementById("r_student_id").value);
-    const name = document.getElementById("r_name").value;
-    const email = document.getElementById("r_email").value;
-    const password = document.getElementById("r_password").value;
+  <!-- MAIN CONTENT -->
+  <div class="content fade-in-up">
 
-    if (!student_id) {
-      alert("Student ID must be a number!");
-      return;
-    }
+    <div class="content-wrapper">
+      <h1>Welcome to USSH</h1>
 
-    // 1. Đăng ký user trong Supabase Auth
-    const { error: authError } = await client.auth.signUp({
-      email: email,
-      password: password
+      <!-- LOGIN -->
+      <div class="login-card">
+      <h2>Login</h2>
+        <div class="form-group">
+          <input id="email" type="email" class="input-box" placeholder="Email">
+        </div>
+
+        <div class="form-group">
+          <input id="password" type="password" class="input-box" placeholder="Password">
+        </div>
+
+        <button onclick="login()">Login</button>
+        <div class="after-login-space"></div>
+
+        <!-- REGISTER -->
+        <h2>Register</h2>
+
+        <div class="form-group">
+          <input id="r_student_id" type="number" class="input-box" placeholder="Student ID (132184)">
+        </div>
+
+        <div class="form-group">
+          <input id="r_name" type="text" class="input-box" placeholder="Full Name">
+        </div>
+
+        <div class="form-group">
+          <input id="r_email" type="email" class="input-box" placeholder="Email">
+        </div>
+
+        <!-- GENDER -->
+        <div class="form-group">
+          <label><b>GENDER</b></label>
+          <div class="gender-group">
+            <div class="gender-btn" data-value="Male">Male</div>
+            <div class="gender-btn" data-value="Female">Female</div>
+            <div class="gender-btn" data-value="Others">Others</div>
+          </div>
+        </div>
+
+        <!-- DOB -->
+        <div class="form-group">
+          <input id="r_dob" type="date" class="input-box" placeholder="Date of Birth">
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="form-group">
+          <label><b>PASSWORD</b></label><br>
+          <div class="input-wrapper">
+            <input id="r_password" type="password" class="input-box" placeholder="Password">
+            <span class="toggle-eye" onclick="togglePassword('r_password', this)">👁️</span>
+          </div>
+        </div>
+
+        <!-- CONFIRM PASSWORD -->
+        <div class="form-group">
+          <label><b>REPEAT YOUR PASSWORD</b></label><br>
+          <div class="input-wrapper">
+            <input id="r_confirm" type="password" class="input-box" placeholder="Repeat Password"
+              oninput="checkPasswordMatch()">
+            <span id="pwd_error" class="error-icon">✖</span>
+            <span class="toggle-eye" onclick="togglePassword('r_confirm', this)">👁️</span>
+          </div>
+        </div>
+
+        <button onclick="register()">Register</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer fade-in">
+    © 2025 - USSH VNUHCM
+  </div>
+
+  <!-- JAVASCRIPT Supabase + Function -->
+  <script>
+    const db = supabase.createClient(
+      "https://oxaimnemcnqudtdguoyk.supabase.co",
+      "sb_publishable_6p-lVAZg_ATPz1a1cDjlOg_9vIcR42c"
+    );
+
+    let selectedGender = null;
+    document.querySelectorAll(".gender-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".gender-btn").forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        selectedGender = btn.dataset.value;
+      });
     });
 
-    if (authError) {
-      alert("Auth Error: " + authError.message);
-      return;
+    function checkPasswordMatch() {
+      const pwd = document.getElementById("r_password").value;
+      const conf = document.getElementById("r_confirm").value;
+      document.getElementById("pwd_error").style.display = (pwd !== conf && conf !== "") ? "inline" : "none";
     }
 
-    // 2. Insert vào bảng students
-    const { error } = await client
-      .from('students')
-      .insert([{ student_id, name, email }]);
+    function togglePassword(id, eyeIcon) {
+      const input = document.getElementById(id);
+      input.type = input.type === "password" ? "text" : "password";
+      eyeIcon.textContent = input.type === "password" ? "👁️" : "🙈";
+    }
 
-    if (error) alert("DB Error: " + error.message);
-    else alert("Register Success!");
-  }
+    async function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
 
-  async function login() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+      const { data } = await db
+        .from("students")
+        .select("*")
+        .eq("email", email)
+        .eq("password", password)
+        .limit(1);
 
-    const { error } = await client.auth.signInWithPassword({
-      email: email,
-      password: password
-    });
+      if (data.length === 0) alert("Login Failed!");
+      else alert("Login Success!");
+    }
 
-    if (error) alert("Login Error: " + error.message);
-    else alert("Login Success!");
-  }
-</script>
+    async function register() {
+      const student_id = parseInt(document.getElementById("r_student_id").value);
+      const name = document.getElementById("r_name").value;
+      const email = document.getElementById("r_email").value;
+      const dob = document.getElementById("r_dob").value;
+      const password = document.getElementById("r_password").value;
+      const confirm = document.getElementById("r_confirm").value;
+
+      if (!selectedGender) return alert("Please select gender!");
+      if (password !== confirm) return alert("Passwords do not match!");
+
+      let { data: exists } =
+        await db.from("students").select("*").or(`email.eq.${email},student_id.eq.${student_id}`);
+      if (exists.length) return alert("Student already exists!");
+
+      await db.from("students").insert([{ student_id, name, email, gender: selectedGender, dob, password }]);
+
+      alert("Register Success!");
+    }
+  </script>
 
 </body>
+
 </html>
