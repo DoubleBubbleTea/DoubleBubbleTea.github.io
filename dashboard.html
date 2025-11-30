@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>USSH Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- ICONS (FontAwesome) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+    }
+
+    body {
+      display: flex;
+      min-height: 100vh;
+      background: #f3f4f6;
+    }
+
+    /* ===================== SIDEBAR ===================== */
+ .sidebar {
+  width: 260px;
+  background: #1f2937;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+
+  /* thêm khoảng trắng phía trên */
+  padding-top: 20px;
+}
+
+    /* Header xanh */
+.sidebar-header {
+  background: #003B7A;
+  padding: 18px;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+
+  /* bo góc + khoảng trắng 2 bên cho đẹp */
+  border-radius: 8px;
+  margin: 0 12px;
+}
+
+
+    /* User box */
+    .user-box {
+      padding: 20px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .user-avatar {
+      margin-bottom: 10px;
+    }
+
+    .user-avatar img {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: white;
+      padding: 5px;
+    }
+
+    .user-name {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-top: 6px;
+    }
+
+    .user-email {
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+
+    /* Menu items */
+    .menu {
+      margin-top: 12px;
+    }
+
+    .menu-item {
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+      border-left: 4px solid transparent;
+      transition: 0.2s;
+    }
+
+    .menu-item:hover {
+      background: #111827;
+    }
+
+    .menu-item.active {
+      background: #111827;
+      border-left: 4px solid #0ea5e9; /* xanh nhạt */
+    }
+
+    .menu-item i {
+      font-size: 1.1rem;
+    }
+
+    /* ===================== MAIN CONTENT ===================== */
+    .main {
+      margin-left: 260px;
+      padding: 20px;
+      flex: 1;
+    }
+
+    .header-top {
+      background: #003B7A;
+      color: white;
+      padding: 14px 20px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    @media(max-width: 800px) {
+      .sidebar {
+        width: 220px;
+      }
+      .main {
+        margin-left: 220px;
+      }
+    }
+
+    @media(max-width: 600px) {
+      .sidebar {
+        position: absolute;
+        left: -260px;
+        transition: 0.3s;
+        z-index: 10;
+      }
+      .sidebar.show {
+        left: 0;
+      }
+      .menu-toggle {
+        display: block;
+      }
+      .main {
+        margin-left: 0;
+      }
+    }
+
+    .menu-toggle {
+      display: none;
+      background: #003B7A;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 5px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      width: max-content;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      HCMUSSH
+    </div>
+
+    <div class="user-box">
+      <div class="user-avatar">
+        <!-- Logo USSH -->
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Logo_DH_KHXH%26NV.png/512px-Logo_DH_KHXH%26NV.png" alt="">
+      </div>
+
+      <!-- Chưa thêm chữ theo yêu cầu -->
+      <div class="user-name"></div>
+      <div class="user-email"></div>
+    </div>
+
+    <!-- MENU ITEMS CHƯA THÊM CHỮ -->
+    <div class="menu">
+      <div class="menu-item active">
+        <i class="fa-solid fa-user"></i>
+        <!-- chưa thêm text -->
+      </div>
+      <div class="menu-item">
+        <i class="fa-solid fa-credit-card"></i>
+      </div>
+      <div class="menu-item">
+        <i class="fa-solid fa-briefcase-medical"></i>
+      </div>
+      <div class="menu-item">
+        <i class="fa-solid fa-book"></i>
+      </div>
+      <div class="menu-item">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <div class="menu-item">
+        <i class="fa-solid fa-file-lines"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN AREA -->
+  <div class="main">
+
+    <div class="menu-toggle" onclick="toggleSidebar()">
+      <i class="fa-solid fa-bars"></i> Menu
+    </div>
+
+    <div class="header-top">
+      Dashboard sinh viên
+    </div>
+
+    <p>Giao diện dashboard,…</p>
+
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("show");
+    }
+  </script>
+  
+
+</body>
+</html>
