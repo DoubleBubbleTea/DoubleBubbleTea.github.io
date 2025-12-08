@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #e9edf3;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            height: 60px;
+            background: #003b73;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* ===== MAIN LAYOUT ===== */
+        .main {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 260px;
+            background: #003b73;
+            color: white;
+            padding-top: 20px;
+        }
+
+        .sidebar-logo {
+            width: 160px;
+            height: 140px;
+            background: white;
+            margin: 0 auto 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: black;
+            font-size: 20px;
+            border-radius: 4px;
+        }
+
+        .sidebar-title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 17px;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px 25px;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            transition: 0.2s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .sidebar a:hover {
+            background: #004c99;
+        }
+
+        /* ===== CONTENT ===== */
+        .content {
+            flex: 1;
+            padding: 40px 60px;
+            background: #f4f6fa;
+        }
+
+        .content h2 {
+            font-size: 26px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        .info-box {
+            background: white;
+            max-width: 600px;
+            padding: 20px 30px;
+            border-radius: 6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        .info-item {
+            margin-bottom: 12px;
+        }
+
+        .info-item label {
+            font-weight: bold;
+            display: inline-block;
+            width: 120px;
+        }
+
+        .info-edit {
+            width: 100%;
+            padding: 8px;
+            margin-top: 4px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .btn-edit, .btn-save, .btn-cancel {
+            margin-top: 20px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-edit {
+            background: #003b73;
+            color: white;
+        }
+
+        .btn-save {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #dc2626;
+            color: white;
+            margin-left: 10px;
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 20px;
+            width: 350px;
+            border-radius: 6px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div>Dashboard</div>
+        <div id="header-user">Đang tải...</div>
+    </div>
+
+    <div class="main">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-logo">Logo</div>
+            <div class="sidebar-title">Administrator</div>
+
+            <a href="./dashboard.html">Thông tin cá nhân</a>
+            <a href="./load_student.html">Danh sách sinh viên</a>
+            <a href="./load_history.html">Lịch sử đặt phòng</a>
+            <a href="./load_seat.html">Danh sách phòng</a>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <h2>Thông tin quản trị viên</h2>
+
+            <div class="info-box">
+
+                <!-- VIEW MODE -->
+                <div id="view-mode">
+                    <div class="info-item">
+                        <label>Họ tên:</label>
+                        <span id="view-fullname">...</span>
+                    </div>
+
+                    <div class="info-item">
+                        <label>Email:</label>
+                        <span id="view-email">...</span>
+                    </div>
+
+                    <div class="info-item">
+                        <label>Vai trò:</label>
+                        <span id="view-role">...</span>
+                    </div>
+
+                    <div class="info-item">
+                        <label>Trạng thái:</label>
+                        <span id="view-status">...</span>
+                    </div>
+
+                    <button class="btn-edit" onclick="enableEdit()">Sửa</button>
+                </div>
+
+                <!-- EDIT MODE -->
+                <div id="edit-mode" style="display:none;">
+                    <div class="info-item">
+                        <label>Họ tên:</label>
+                        <input id="edit-fullname" class="info-edit">
+                    </div>
+
+                    <div class="info-item">
+                        <label>Email:</label>
+                        <input id="edit-email" class="info-edit">
+                    </div>
+
+                    <div class="info-item">
+                        <label>Vai trò:</label>
+                        <input id="edit-role" class="info-edit">
+                    </div>
+
+                    <div class="info-item">
+                        <label>Trạng thái:</label>
+                        <input id="edit-status" class="info-edit">
+                    </div>
+
+                    <button class="btn-save" onclick="saveAdmin()">Lưu</button>
+                    <button class="btn-cancel" onclick="cancelEdit()">Hủy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal-box">
+            <h3 id="modal-title"></h3>
+            <p id="modal-message"></p>
+            <button onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
+    <!-- SUPABASE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        const db = supabase.createClient(
+            "https://oxaimnemcnqudtdguoyk.supabase.co",
+            "sb_publishable_6p-lVAZg_ATPz1a1cDjlOg_9vIcR42c"
+        );
+
+        function showModal(title, msg) {
+            document.getElementById("modal-title").innerText = title;
+            document.getElementById("modal-message").innerText = msg;
+            document.getElementById("modal").style.display = "flex";
+        }
+        function closeModal() { document.getElementById("modal").style.display = "none"; }
+
+        async function loadHeader() {
+            const adminId = localStorage.getItem("adminid");
+            const { data } = await db.from("admin").select("fullname").eq("adminid", adminId).single();
+
+            document.getElementById("header-user").innerText =
+                data ? `Xin chào, ${data.fullname}` : "Không tìm thấy admin";
+        }
+
+        async function loadAdminInfo() {
+            const adminId = localStorage.getItem("adminid");
+
+            const { data } = await db
+                .from("admin")
+                .select("*")
+                .eq("adminid", adminId)
+                .single();
+
+            if (!data) return;
+
+            document.getElementById("view-fullname").innerText = data.fullname;
+            document.getElementById("view-email").innerText = data.email;
+            document.getElementById("view-role").innerText = data.role;
+            document.getElementById("view-status").innerText = data.status;
+
+            document.getElementById("edit-fullname").value = data.fullname;
+            document.getElementById("edit-email").value = data.email;
+            document.getElementById("edit-role").value = data.role;
+            document.getElementById("edit-status").value = data.status;
+        }
+
+        function enableEdit() {
+            document.getElementById("view-mode").style.display = "none";
+            document.getElementById("edit-mode").style.display = "block";
+        }
+
+        function cancelEdit() {
+            document.getElementById("edit-mode").style.display = "none";
+            document.getElementById("view-mode").style.display = "block";
+        }
+
+        async function saveAdmin() {
+            const adminId = localStorage.getItem("adminid");
+
+            const updated = {
+                fullname: document.getElementById("edit-fullname").value,
+                email: document.getElementById("edit-email").value,
+                role: document.getElementById("edit-role").value,
+                status: document.getElementById("edit-status").value
+            };
+
+            const { error } = await db.from("admin").update(updated).eq("adminid", adminId);
+
+            if (error) return showModal("Lỗi", "Không thể lưu dữ liệu!");
+
+            showModal("Thành công", "Đã cập nhật thông tin!");
+            loadAdminInfo();
+            cancelEdit();
+        }
+
+        loadHeader();
+        loadAdminInfo();
+    </script>
+
+</body>
+</html>

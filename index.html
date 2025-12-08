@@ -65,7 +65,6 @@
     <div class="content-wrapper">
       <h1>Welcome to USSH</h1>
 
-      <!-- LOGIN -->
       <div class="login-card">
         <h2>Login</h2>
         <div class="form-group">
@@ -77,60 +76,9 @@
         </div>
 
         <button onclick="login()">Login</button>
+
         <div class="after-login-space"></div>
 
-        <!-- REGISTER -->
-        <h2>Register</h2>
-
-        <div class="form-group">
-          <input id="r_student_id" type="number" class="input-box" placeholder="Student ID (132184)">
-        </div>
-
-        <div class="form-group">
-          <input id="r_name" type="text" class="input-box" placeholder="Full Name">
-        </div>
-
-        <div class="form-group">
-          <input id="r_email" type="email" class="input-box" placeholder="Email">
-        </div>
-
-        <!-- GENDER -->
-        <div class="form-group">
-          <label><b>GENDER</b></label>
-          <div class="gender-group">
-            <div class="gender-btn" data-value="Male">Male</div>
-            <div class="gender-btn" data-value="Female">Female</div>
-            <div class="gender-btn" data-value="Others">Others</div>
-          </div>
-        </div>
-
-        <!-- DOB -->
-        <div class="form-group">
-          <label><b>DAY OF BIRTH </b></label>
-          <input id="r_dob" type="date" class="input-box" placeholder="Date of Birth">
-        </div>
-
-        <!-- PASSWORD -->
-        <div class="form-group">
-          <label><b>PASSWORD</b></label><br>
-          <div class="input-wrapper">
-            <input id="r_password" type="password" class="input-box" placeholder="Password">
-            <span class="toggle-eye" onclick="togglePassword('r_password', this)">👁️</span>
-          </div>
-        </div>
-
-        <!-- CONFIRM PASSWORD -->
-        <div class="form-group">
-          <label><b>REPEAT YOUR PASSWORD</b></label><br>
-          <div class="input-wrapper">
-            <input id="r_confirm" type="password" class="input-box" placeholder="Repeat Password"
-              oninput="checkPasswordMatch()">
-            <span id="pwd_error" class="error-icon">✖</span>
-            <span class="toggle-eye" onclick="togglePassword('r_confirm', this)">👁️</span>
-          </div>
-        </div>
-
-        <button onclick="register()">Register</button>
       </div>
     </div>
   </div>
@@ -147,15 +95,6 @@
       "sb_publishable_6p-lVAZg_ATPz1a1cDjlOg_9vIcR42c"
     );
 
-    let selectedGender = null;
-    document.querySelectorAll(".gender-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".gender-btn").forEach(b => b.classList.remove("selected"));
-        btn.classList.add("selected");
-        selectedGender = btn.dataset.value;
-      });
-    });
-
     function checkPasswordMatch() {
       const pwd = document.getElementById("r_password").value;
       const conf = document.getElementById("r_confirm").value;
@@ -168,75 +107,104 @@
       eyeIcon.textContent = input.type === "password" ? "👁️" : "🙈";
     }
 
+    function saveStudentId(id) {
+      localStorage.setItem("studentid", id);
+    }
+    function saveAdminId(id) {
+      localStorage.setItem("adminid", id);
+    }
+
+    // 🔵 LOGIN (STUDENT + ADMIN)
     async function login() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
 
-      // ===== 🟦 KIỂM TRA ADMIN TRƯỚC =====
-      if (email === "admin@gmail.com") {
+      // -------- ADMIN LOGIN --------
+      // -------- CHECK IF EMAIL IS ADMIN --------
+      const { data: adminEmail } = await db
+        .from("admin")
+        .select("*")
+        .eq("email", email)
+        .limit(1);
 
+      // Nếu email tồn tại trong bảng admin → xử lý login admin
+      if (adminEmail && adminEmail.length > 0) {
+
+        // Kiểm tra password admin
         const { data: adminData } = await db
-          .from("students")
+          .from("admin")
           .select("*")
           .eq("email", email)
           .eq("password", password)
           .limit(1);
 
-        if (adminData.length === 0) {
+        if (!adminData || adminData.length === 0) {
           showPopup("Admin Login Failed", "Wrong admin password!");
           return;
         }
+        // ⭐ LƯU ADMIN ID VÀO LOCALSTORAGE
+        saveAdminId(adminData[0].adminid);
+        console.log("Save adminid:", adminData[0].adminid);
 
-        // -----> Admin đăng nhập thành công
-        showPopup("Welcome Admin!", "Redirecting to dashboard...");
+        // Đăng nhập admin thành công
+        showPopup("Welcome Admin!", "Redirecting...");
 
-        setTimeout(() => {
-          window.location.href = "./dashboard.html";
-        }, 1500);
-
-        return; // Dừng ở đây, không kiểm tra login student nữa
+        setTimeout(() => window.location.href = "./admin/dashboard.html", 1500);
+        return;
       }
 
-      // ===== 🟩 LOGIN STUDENT BÌNH THƯỜNG =====
+      // -------- STUDENT LOGIN --------
       const { data } = await db
-        .from("students")
+        .from("student")
         .select("*")
         .eq("email", email)
         .eq("password", password)
         .limit(1);
 
-      if (data.length === 0) {
+      if (!data || data.length === 0) {
         showPopup("Login Failed", "Wrong email or password!");
-      } else {
-        showPopup("Login Success", "Welcome back!");
-
-        setTimeout(() => {
-          window.location.href = "./realtimebooking.html";
-        }, 1500);
+        return;
       }
+
+      showPopup("Login Success", "Welcome back!");
+
+      saveStudentId(data[0].studentid);
+
+      setTimeout(() => {
+        window.location.href = "./student/pre_booking.html";
+      }, 1500);
     }
 
-
+    // 🔵 REGISTER (MATCH DB MỚI)
     async function register() {
-      const student_id = parseInt(document.getElementById("r_student_id").value);
-      const name = document.getElementById("r_name").value;
+      const studentid = parseInt(document.getElementById("r_student_id").value);
+      const fullname = document.getElementById("r_name").value;
       const email = document.getElementById("r_email").value;
-      const dob = document.getElementById("r_dob").value;
+      const phonenumber = document.getElementById("r_phone").value;
+      const major = document.getElementById("r_major").value;
       const password = document.getElementById("r_password").value;
       const confirm = document.getElementById("r_confirm").value;
 
-      if (!selectedGender) return showPopup("Error", "Please select gender!");
-      if (password !== confirm) return showPopup("Error", "Passwords do not match!");
+      if (password !== confirm)
+        return showPopup("Error", "Passwords do not match!");
 
-      let { data: exists } = await db
-        .from("students")
+      const { data: exists } = await db
+        .from("student")
         .select("*")
-        .or(`email.eq.${email},student_id.eq.${student_id}`);
+        .or(`email.eq.${email},studentid.eq.${studentid}`);
 
-      if (exists.length) return showPopup("Error", "Student already exists!");
+      if (exists.length)
+        return showPopup("Error", "Student already exists!");
 
-      await db.from("students").insert([
-        { student_id, name, email, gender: selectedGender, dob, password }
+      await db.from("student").insert([
+        {
+          studentid,
+          fullname,
+          email,
+          phonenumber,
+          major,
+          password
+        }
       ]);
 
       showPopup("Completed", "Your account has been created!");
@@ -246,7 +214,6 @@
     function showPopup(title, message) {
       document.getElementById("modal-title").innerText = title;
       document.getElementById("modal-message").innerText = message;
-
       document.getElementById("popupModal").style.display = "flex";
     }
 
@@ -254,6 +221,7 @@
       document.getElementById("popupModal").style.display = "none";
     }
   </script>
+
 </body>
 
 </html>

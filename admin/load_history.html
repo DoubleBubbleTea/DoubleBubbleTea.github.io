@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Booking History</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #e9edf3;
+    }
+
+    .header {
+      height: 60px;
+      background: #003b73;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 25px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .main {
+      display: flex;
+      height: calc(100vh - 60px);
+    }
+
+    .sidebar {
+      width: 260px;
+      background: #003b73;
+      color: white;
+      padding-top: 20px;
+    }
+
+    .sidebar-logo {
+      width: 160px;
+      height: 140px;
+      background: white;
+      margin: 0 auto 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: black;
+      font-size: 20px;
+      border-radius: 4px;
+    }
+
+    .sidebar-title {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: bold;
+      font-size: 17px;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 12px 25px;
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar a:hover {
+      background: #004c99;
+    }
+
+    .content {
+      flex: 1;
+      padding: 30px 50px;
+      background: #f4f6fa;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    th,
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background: #003b73;
+      color: white;
+    }
+
+    tr:hover {
+      background: #eef3ff;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <div>Dashboard</div>
+    <div id="header-user">Đang tải...</div>
+  </div>
+
+  <div class="main">
+    <div class="sidebar">
+      <div class="sidebar-logo">Logo</div>
+      <div class="sidebar-title">Administrator</div>
+
+      <a href="./load_admin.html">Thông tin quản trị</a>
+      <a href="./load_student.html">Danh sách sinh viên</a>
+      <a href="./load_history.html">Lịch sử đặt phòng</a>
+      <a href="./manage_rooms.html">Danh sách phòng</a>
+    </div>
+
+    <div class="content">
+      <h2>Toàn bộ lịch sử đặt phòng</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Booking ID</th>
+            <th>MSSV</th>
+            <th>Room</th>
+            <th>Seat</th>
+            <th>Facilities</th>
+            <th>Hold Time</th>
+            <th>Status</th>
+            <th>Start</th>
+            <th>End</th>
+          </tr>
+        </thead>
+        <tbody id="history-table"></tbody>
+      </table>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const db = supabase.createClient(
+      "https://oxaimnemcnqudtdguoyk.supabase.co",
+      "sb_publishable_6p-lVAZg_ATPz1a1cDjlOg_9vIcR42c"
+    );
+
+    function formatDate(dt) {
+      if (!dt) return "—";
+      return new Date(dt).toLocaleString("vi-VN");
+    }
+
+    async function loadHeader() {
+      const adminId = localStorage.getItem("adminid");
+      const { data } = await db.from("admin").select("fullname").eq("adminid", adminId).single();
+      document.getElementById("header-user").innerText =
+        data ? `Xin chào, ${data.fullname}` : "Không tìm thấy admin";
+    }
+
+    async function loadHistory() {
+      const { data, error } = await db
+        .from("booking")
+        .select("*")     // LẤY TẤT CẢ DỮ LIỆU
+        .order("bookingid", { ascending: false });
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      const table = document.getElementById("history-table");
+      table.innerHTML = "";
+
+      data.forEach(row => {
+        table.innerHTML += `
+          <tr>
+            <td>${row.bookingid}</td>
+            <td>${row.studentid}</td>
+            <td>${row.roomid}</td>
+            <td>${row.seatid || "—"}</td>
+            <td>${row.facilities || "—"}</td>
+            <td>${formatDate(row.holdtime)}</td>
+            <td>${row.booking_status}</td>
+            <td>${formatDate(row.starttime)}</td>
+            <td>${formatDate(row.endtime)}</td>
+          </tr>
+        `;
+      });
+    }
+
+    loadHeader();
+    loadHistory();
+  </script>
+
+</body>
+
+</html>

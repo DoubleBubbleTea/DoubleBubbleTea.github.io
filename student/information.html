@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>USSH - Thông tin cá nhân</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* HEADER */
+        .header {
+            width: 100%;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+            box-sizing: border-box;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        #header-user {
+            font-size: 16px;
+            color: #111827;
+            font-weight: bold;
+        }
+
+        /* MAIN */
+        .main {
+            display: flex;
+            flex: 1;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px;
+            background: #ffffff;
+            border-right: 1px solid #e5e7eb;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 8px 0;
+            color: #111827;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .sidebar a:hover {
+            font-weight: bold;
+        }
+
+        /* CONTENT */
+        .content {
+            flex: 1;
+            padding: 40px 80px;
+            box-sizing: border-box;
+        }
+
+        .info-box {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 25px;
+            border-radius: 12px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+        }
+
+        .info-item {
+            margin-bottom: 15px;
+        }
+
+        .info-item label {
+            font-weight: bold;
+            display: block;
+        }
+
+        .info-edit {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            margin-top: 5px;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .btn-edit, .btn-save, .btn-cancel {
+            margin-top: 25px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .btn-edit {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-save {
+            background: #16a34a;
+            color: white;
+            margin-right: 10px;
+        }
+
+        .btn-cancel {
+            background: #dc2626;
+            color: white;
+        }
+
+        /* MODAL POPUP */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 25px;
+            width: 350px;
+            border-radius: 12px;
+            text-align: center;
+            animation: fadeIn 0.25s ease-out;
+        }
+
+        .modal-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .modal-buttons button {
+            padding: 8px 16px;
+            border: none;
+            margin-top: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #2563eb;
+            color: white;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+
+<!-- ========= MODAL POPUP ========= -->
+<div id="popupModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-icon">✔</div>
+        <h3 id="modal-title">Completed</h3>
+        <p id="modal-message">Message here</p>
+
+        <div class="modal-buttons">
+            <button onclick="closeModal()">OK</button>
+        </div>
+    </div>
+</div>
+
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-title">Thông tin cá nhân</div>
+        <div id="header-user">Đang tải...</div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <h3>Danh sách</h3>
+            <a href="./information.html">Thông tin cá nhân</a>
+            <a href="./pre_booking.html">Đặt phòng</a>
+            <a href="./booking_history.html">Lịch sử đặt phòng</a>
+            <a href="#">Sự kiện của tôi</a>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <h2>Thông tin sinh viên</h2>
+
+            <div class="info-box">
+
+                <!-- VIEW MODE -->
+                <div id="info-view-mode">
+
+                    <div class="info-item">
+                        <label>Mã số sinh viên:</label>
+                        <span id="info-studentid">...</span>
+                    </div>
+
+                    <div class="info-item">
+                        <label>Họ và tên:</label>
+                        <span id="info-fullname">...</span>
+                    </div>
+
+                    <div class="info-item">
+                        <label>Email:</label>
+                        <span id="info-email">...</span>
+                    </div>
+
+                    <div class="info-item">
+                        <label>Số điện thoại:</label>
+                        <span id="info-phonenumber">—</span>
+                    </div>
+
+                    <div class="info-item">
+                        <label>Ngành học:</label>
+                        <span id="info-major">—</span>
+                    </div>
+
+                    <div class="info-item">
+                        <label>Điểm uy tín:</label>
+                        <span id="info-trust">—</span>
+                    </div>
+
+                    <button class="btn-edit" onclick="enableEdit()">Chỉnh sửa thông tin</button>
+
+                </div>
+
+                <!-- EDIT MODE -->
+                <div id="info-edit-mode" style="display:none">
+
+                    <div class="info-item">
+                        <label>Mã số sinh viên:</label>
+                        <input class="info-edit" id="edit-studentid" disabled />
+                    </div>
+
+                    <div class="info-item">
+                        <label>Họ và tên:</label>
+                        <input class="info-edit" id="edit-fullname" />
+                    </div>
+
+                    <div class="info-item">
+                        <label>Email:</label>
+                        <input class="info-edit" id="edit-email" />
+                    </div>
+
+                    <div class="info-item">
+                        <label>Số điện thoại:</label>
+                        <input class="info-edit" id="edit-phonenumber" />
+                    </div>
+
+                    <div class="info-item">
+                        <label>Ngành học:</label>
+                        <input class="info-edit" id="edit-major" />
+                    </div>
+
+                    <!-- Không cho chỉnh điểm uy tín -->
+                    <div class="info-item">
+                        <label>Điểm uy tín (không thể chỉnh sửa):</label>
+                        <input class="info-edit" id="edit-trust" disabled />
+                    </div>
+
+                    <button class="btn-save" onclick="saveInfo()">Lưu</button>
+                    <button class="btn-cancel" onclick="cancelEdit()">Hủy</button>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SUPABASE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        const db = supabase.createClient(
+            "https://oxaimnemcnqudtdguoyk.supabase.co",
+            "sb_publishable_6p-lVAZg_ATPz1a1cDjlOg_9vIcR42c"
+        );
+
+        function showPopup(title, message) {
+            document.getElementById("modal-title").innerText = title;
+            document.getElementById("modal-message").innerText = message;
+            document.getElementById("popupModal").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("popupModal").style.display = "none";
+        }
+
+        async function loadHeaderName() {
+            const studentId = localStorage.getItem("studentid");
+            const { data } = await db.from("student").select("fullname").eq("studentid", studentId).single();
+            document.getElementById("header-user").innerText =
+                data ? `Xin chào, ${data.fullname}` : "Không tìm thấy sinh viên";
+        }
+
+        async function loadStudentInfo() {
+            const studentId = localStorage.getItem("studentid");
+
+            const { data } = await db
+                .from("student")
+                .select("*")
+                .eq("studentid", studentId)
+                .single();
+
+            if (!data) return;
+
+            document.getElementById("info-studentid").innerText = data.studentid;
+            document.getElementById("info-fullname").innerText = data.fullname;
+            document.getElementById("info-email").innerText = data.email;
+            document.getElementById("info-phonenumber").innerText = data.phonenumber || "—";
+            document.getElementById("info-major").innerText = data.major || "—";
+            document.getElementById("info-trust").innerText = data.trust_score ?? "—";
+
+            // Fill edit
+            document.getElementById("edit-studentid").value = data.studentid;
+            document.getElementById("edit-fullname").value = data.fullname;
+            document.getElementById("edit-email").value = data.email;
+            document.getElementById("edit-phonenumber").value = data.phonenumber || "";
+            document.getElementById("edit-major").value = data.major || "";
+            document.getElementById("edit-trust").value = data.trust_score ?? "";
+        }
+
+        function enableEdit() {
+            document.getElementById("info-view-mode").style.display = "none";
+            document.getElementById("info-edit-mode").style.display = "block";
+        }
+
+        function cancelEdit() {
+            document.getElementById("info-view-mode").style.display = "block";
+            document.getElementById("info-edit-mode").style.display = "none";
+        }
+
+        async function saveInfo() {
+            const studentId = localStorage.getItem("studentid");
+
+            const updated = {
+                fullname: document.getElementById("edit-fullname").value,
+                email: document.getElementById("edit-email").value,
+                phonenumber: document.getElementById("edit-phonenumber").value,
+                major: document.getElementById("edit-major").value,
+            };
+
+            const { error } = await db
+                .from("student")
+                .update(updated)
+                .eq("studentid", studentId);
+
+            if (error) {
+                return showPopup("Lỗi", "Không thể lưu thông tin!");
+            }
+
+            showPopup("Thành công", "Thông tin đã được cập nhật!");
+            loadStudentInfo();
+            cancelEdit();
+        }
+
+        loadHeaderName();
+        loadStudentInfo();
+    </script>
+
+</body>
+</html>

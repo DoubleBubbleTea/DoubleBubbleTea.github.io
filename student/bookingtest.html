@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Realtime Seat Booking</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #eef2f7;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(10, 80px);
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .seat {
+            width: 80px;
+            height: 60px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-weight: bold;
+            color: #fff;
+            transition: 0.2s;
+        }
+
+        .available {
+            background: #22c55e;
+        }
+
+        .in-use {
+            background: #9ca3af;
+        }
+
+        .ending {
+            background: #fbbf24;
+        }
+
+        .group-block {
+            border: 2px solid #4b5563;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 30px;
+            width: fit-content;
+            background: #fff;
+        }
+
+        .group-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        /* ---------- Modal Popup ---------- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.55);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .modal-box {
+            background: #fff;
+            width: 360px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .modal-header {
+            font-size: 20px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .modal-row {
+            margin: 10px 0;
+            text-align: left;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .btn {
+            margin-top: 10px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .btn-confirm {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #9ca3af;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Realtime Seat Booking – Supabase</h1>
+
+    <!-- INDIVIDUAL -->
+    <div id="individualGrid" class="grid"></div>
+
+    <!-- GROUP -->
+    <div id="groupContainer"></div>
+
+
+    <!-- MODAL BOOKING FORM -->
+    <div id="bookingModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">Booking <span id="modalSeatId"></span></div>
+
+            <div class="modal-row">
+                <label>MSSV</label>
+                <input id="modalStudentId" type="number" placeholder="Nhập MSSV">
+            </div>
+
+            <div class="modal-row">
+                <label>Loại thời gian</label>
+                <select id="modalDurationType">
+                    <option value="hours">Hours</option>
+                    <option value="minutes">Minutes</option>
+                </select>
+            </div>
+
+            <div class="modal-row">
+                <label>Thời lượng</label>
+                <input id="modalDurationValue" type="number" min="1" placeholder="Nhập giá trị">
+            </div>
+
+            <button onclick="confirmBooking()" class="btn btn-confirm">Xác nhận</button>
+            <button onclick="closeModal()" class="btn btn-cancel">Hủy</button>
+        </div>
+    </div>
+
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        // ---------- Supabase ----------
+        const SUPABASE_URL = "https://oxaimnemcnqudtdguoyk.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_6p-lVAZg_ATPz1a1cDjlOg_9vIcR42c";
+        const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+
+        // ---------- SAVE MSSV ----------
+        function saveStudentId(mssv) {
+            localStorage.setItem("studentId", mssv);
+        }
+
+        function getSavedStudentId() {
+            return localStorage.getItem("studentId") || "";
+        }
+
+
+        // ---------- Seats Definition ----------
+        const seats = [
+            ...Array.from({ length: 20 }, (_, i) => ({
+                seat_id: `I${i + 1}`,
+                room_id: "I",
+                mode: "individual"
+            })),
+
+            { seat_id: "GS101", room_id: "GS1", mode: "groupSmall" },
+            { seat_id: "GS102", room_id: "GS1", mode: "groupSmall" },
+
+            { seat_id: "GS201", room_id: "GS2", mode: "groupSmall" },
+            { seat_id: "GS202", room_id: "GS2", mode: "groupSmall" },
+            { seat_id: "GS203", room_id: "GS2", mode: "groupSmall" },
+
+            ...["101", "102", "103", "104", "105"].map(n => ({
+                seat_id: `GL${n}`, room_id: "GL1", mode: "groupLarge"
+            })),
+
+            ...["201", "202", "203", "204", "205", "206", "207", "208"].map(n => ({
+                seat_id: `GL${n}`, room_id: "GL2", mode: "groupLarge"
+            }))
+        ];
+
+        const groupRooms = ["GS1", "GS2", "GL1", "GL2"];
+
+        let currentBookings = [];
+        let selectedSeat = null;
+        let selectedGroup = null;
+
+
+        // ---------- Render UI ----------
+        function renderUI() {
+            const now = new Date();
+
+            document.getElementById("individualGrid").innerHTML = "";
+            document.getElementById("groupContainer").innerHTML = "";
+
+            // INDIVIDUAL seats
+            seats.filter(s => s.room_id === "I").forEach(seat => {
+                const booking = currentBookings.find(b => b.seat_id === seat.seat_id);
+                renderSeat(seat, booking, "individualGrid", now);
+            });
+
+            // GROUP ROOMS
+            groupRooms.forEach(room => {
+                const block = document.createElement("div");
+                block.className = "group-block";
+
+                const title = document.createElement("div");
+                title.className = "group-title";
+                title.innerText = room;
+                title.onclick = () => openGroupBooking(room);
+
+                block.appendChild(title);
+
+                seats.filter(s => s.room_id === room).forEach(seat => {
+                    const booking = currentBookings.find(b => b.seat_id === seat.seat_id);
+                    renderSeat(seat, booking, block, now);
+                });
+
+                document.getElementById("groupContainer").appendChild(block);
+            });
+        }
+
+
+        function renderSeat(seat, booking, container, now) {
+            const div = document.createElement("div");
+            div.classList.add("seat");
+            div.innerText = seat.seat_id;
+
+            if (!booking) {
+                div.classList.add("available");
+            } else {
+                const end = new Date(booking.end_time);
+                console.log("booking.end_time:", booking.end_time);
+
+                const diffMin = (end - now) / 60000;
+                console.log("now:", now);
+                console.log("end:", end);
+
+                console.log("diffMin:", diffMin);
+
+                div.classList.add(diffMin <= 15 ? "ending" : "in-use");
+            }
+
+            div.onclick = () => {
+                if (!booking) openBookingModal(seat);
+            };
+
+            if (typeof container === "string") {
+                document.getElementById(container).appendChild(div);
+            } else {
+                container.appendChild(div);
+            }
+        }
+
+
+        // ---------- Modal Logic ----------
+        function openBookingModal(seat) {
+            selectedSeat = seat;
+            selectedGroup = null;
+
+            document.getElementById("modalSeatId").innerText = seat.seat_id;
+            document.getElementById("modalStudentId").value = getSavedStudentId();
+            document.getElementById("modalDurationValue").value = "";
+
+            document.getElementById("bookingModal").style.display = "flex";
+        }
+
+        function openGroupBooking(roomId) {
+            selectedGroup = roomId;
+            selectedSeat = null;
+
+            document.getElementById("modalSeatId").innerText = roomId + " (Group)";
+            document.getElementById("modalStudentId").value = getSavedStudentId();
+            document.getElementById("modalDurationValue").value = "";
+
+            document.getElementById("bookingModal").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("bookingModal").style.display = "none";
+        }
+
+        function formatVNDate(date) {
+            // Lấy yyyy-mm-dd hh:mm:ss theo giờ local
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+
+            const hour = String(date.getHours()).padStart(2, "0");
+            const minute = String(date.getMinutes()).padStart(2, "0");
+            const second = String(date.getSeconds()).padStart(2, "0");
+
+            return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+        }
+
+
+        // ---------- Confirm Booking ----------
+        async function confirmBooking() {
+            const studentId = document.getElementById("modalStudentId").value.trim();
+            const durationType = document.getElementById("modalDurationType").value;
+            const durationValue = Number(document.getElementById("modalDurationValue").value);
+            console.log("=== CONFIRM BOOKING CALLED ===");
+
+            if (!studentId || !durationValue) {
+                alert("Vui lòng nhập đầy đủ thông tin!");
+                return;
+            }
+
+            saveStudentId(studentId);
+
+            const start = new Date();
+            let end = new Date(start);
+
+
+            if (durationType === "hours") {
+                end.setMinutes(end.getMinutes() + durationValue * 60);
+            } else {
+                end.setMinutes(end.getMinutes() + durationValue);
+            }
+
+            console.log("start input:", start);
+            console.log("end input:", end);
+
+            // --------------------------------------------------------
+            // CASE 1 — GROUP BOOKING
+            // --------------------------------------------------------
+            if (selectedGroup) {
+                const seatsInGroup = seats.filter(s => s.room_id === selectedGroup);
+
+                const rows = seatsInGroup.map(s => ({
+                    student_id: Number(studentId),
+                    room_id: selectedGroup,
+                    seat_id: s.seat_id,
+                    mode: "group",
+                    start_time: formatVNDate(start),
+                    end_time: formatVNDate(end),
+
+                    // NEW COLUMNS
+                    people_list: studentId,        // tạm thời chỉ ghi 1 MSSV
+                    cost: 0                        // tuỳ bạn muốn tính tiền thế nào
+                }));
+
+                await db.from("bookings").insert(rows);
+
+                selectedGroup = null;
+                closeModal();
+                loadBookings();
+                alert("Group booking successful!");
+                return;
+            }
+
+            // --------------------------------------------------------
+            // CASE 2 — INDIVIDUAL BOOKING
+            // --------------------------------------------------------
+            await db.from("bookings").insert({
+                student_id: Number(studentId),
+                room_id: selectedSeat.room_id,
+                seat_id: selectedSeat.seat_id,
+                mode: selectedSeat.mode === "individual" ? "individual" : "group",
+                start_time: formatVNDate(start),
+                end_time: formatVNDate(end),
+
+                // NEW COLUMNS
+                people_list: studentId,
+                cost: 0
+            });
+
+            const payload = {
+                student_id: Number(studentId),
+                room_id: selectedSeat.room_id,
+                seat_id: selectedSeat.seat_id,
+                mode: selectedSeat.mode === "individual" ? "individual" : "group",
+                start_time: formatVNDate(start),
+                end_time: formatVNDate(end),
+                people_list: studentId,
+                cost: 0
+            };
+
+            console.log("INSERT PAYLOAD:", payload);  // 👉 Xem nội dung chuẩn bị gửi
+
+            selectedSeat = null;
+            closeModal();
+            loadBookings();
+            alert("Booking successful!");
+        }
+
+
+        // ---------- Load Bookings ----------
+        async function loadBookings() {
+            const { data } = await db.from("bookings").select("*");
+            currentBookings = data || [];
+            renderUI();
+        }
+
+        // Realtime
+        db.channel("rt-bookings")
+            .on("postgres_changes", { event: "*", table: "bookings" }, loadBookings)
+            .subscribe();
+
+        loadBookings();
+        setInterval(loadBookings, 10000);
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách sinh viên</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #e9edf3;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            height: 60px;
+            background: #003b73;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* ===== MAIN LAYOUT ===== */
+        .main {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 260px;
+            background: #003b73;
+            color: white;
+            padding-top: 20px;
+        }
+
+        .sidebar-logo {
+            width: 160px;
+            height: 140px;
+            background: white;
+            margin: 0 auto 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: black;
+            font-size: 20px;
+            border-radius: 4px;
+        }
+
+        .sidebar-title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 17px;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px 25px;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            transition: 0.2s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .sidebar a:hover {
+            background: #004c99;
+        }
+
+        /* ===== CONTENT ===== */
+        .content {
+            flex: 1;
+            padding: 30px 50px;
+            background: #f4f6fa;
+        }
+
+        .content h2 {
+            font-size: 26px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        /* ===== TABLE ===== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #003b73;
+            color: white;
+        }
+
+        tr:hover {
+            background: #eef3ff;
+        }
+
+        .btn-add {
+            padding: 10px 18px;
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .btn-edit {
+            background: #003b73;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-delete {
+            background: #dc2626;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 25px;
+            width: 380px;
+            border-radius: 6px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 8px;
+            margin: 6px 0;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .modal-buttons button {
+            padding: 8px 16px;
+            border: none;
+            margin-top: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-save {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #6b7280;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div>Dashboard</div>
+        <div id="header-user">Đang tải...</div>
+    </div>
+
+    <div class="main">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-logo">Logo</div>
+            <div class="sidebar-title">Administrator</div>
+
+            <a href="./dashboard.html">Thông tin cá nhân</a>
+            <a href="./load_student.html">Danh sách sinh viên</a>
+            <a href="./load_history.html">Lịch sử đặt phòng</a>
+            <a href="./load_seat.html">Danh sách phòng</a>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+
+            <h2>Danh sách sinh viên</h2>
+
+            <button class="btn-add" onclick="openAddModal()">+ Thêm sinh viên</button>
+
+            <!-- TABLE -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>MSSV</th>
+                        <th>Họ tên</th>
+                        <th>Email</th>
+                        <th>SĐT</th>
+                        <th>Ngành</th>
+                        <th>Uy tín</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody id="student-table"></tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <!-- POPUP ADD / EDIT -->
+    <div id="modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modal-title">Thêm sinh viên</h3>
+
+            <input id="st-id" class="modal-input" placeholder="Mã số sinh viên">
+            <input id="st-name" class="modal-input" placeholder="Họ tên">
+            <input id="st-email" class="modal-input" placeholder="Email">
+            <input id="st-phone" class="modal-input" placeholder="Số điện thoại">
+            <input id="st-major" class="modal-input" placeholder="Ngành học">
+            <input id="st-trust" class="modal-input" placeholder="Điểm uy tín">
+
+            <div class="modal-buttons">
+                <button class="btn-save" onclick="saveStudent()">Lưu</button>
+                <button class="btn-cancel" onclick="closeModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUPABASE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        const db = supabase.createClient(
+            "https://oxaimnemcnqudtdguoyk.supabase.co",
+            "sb_publishable_6p-lVAZg_ATPz1a1cDjlOg_9vIcR42c"
+        );
+
+        let editingId = null;
+
+        function openAddModal() {
+            editingId = null;
+            document.getElementById("modal-title").innerText = "Thêm sinh viên";
+            clearForm();
+            document.getElementById("modal").style.display = "flex";
+        }
+
+        function openEditModal(student) {
+            editingId = student.studentid;
+            document.getElementById("modal-title").innerText = "Sửa thông tin";
+
+            document.getElementById("st-id").value = student.studentid;
+            document.getElementById("st-name").value = student.fullname;
+            document.getElementById("st-email").value = student.email;
+            document.getElementById("st-phone").value = student.phonenumber;
+            document.getElementById("st-major").value = student.major;
+            document.getElementById("st-trust").value = student.trust_score;
+
+            document.getElementById("modal").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("modal").style.display = "none";
+        }
+
+        function clearForm() {
+            document.getElementById("st-id").value = "";
+            document.getElementById("st-name").value = "";
+            document.getElementById("st-email").value = "";
+            document.getElementById("st-phone").value = "";
+            document.getElementById("st-major").value = "";
+            document.getElementById("st-trust").value = "";
+        }
+
+        async function saveStudent() {
+            const newData = {
+                studentid: document.getElementById("st-id").value,
+                fullname: document.getElementById("st-name").value,
+                email: document.getElementById("st-email").value,
+                phonenumber: document.getElementById("st-phone").value,
+                major: document.getElementById("st-major").value,
+                trust_score: document.getElementById("st-trust").value
+            };
+
+            let result;
+
+            if (editingId) {
+                result = await db.from("student").update(newData).eq("studentid", editingId);
+            } else {
+                result = await db.from("student").insert(newData);
+            }
+
+            closeModal();
+            loadStudents();
+        }
+
+        async function deleteStudent(id) {
+            if (!confirm("Bạn có chắc muốn xóa sinh viên này?")) return;
+
+            await db.from("student").delete().eq("studentid", id);
+            loadStudents();
+        }
+
+        async function loadStudents() {
+            const { data } = await db.from("student").select("*");
+
+            const table = document.getElementById("student-table");
+            table.innerHTML = "";
+
+            data.forEach(st => {
+                table.innerHTML += `
+                    <tr>
+                        <td>${st.studentid}</td>
+                        <td>${st.fullname}</td>
+                        <td>${st.email}</td>
+                        <td>${st.phonenumber || "—"}</td>
+                        <td>${st.major || "—"}</td>
+                        <td>${st.trust_score ?? "—"}</td>
+
+                        <td>
+                            <button class="btn-edit" onclick='openEditModal(${JSON.stringify(st)})'>Sửa</button>
+                            <button class="btn-delete" onclick="deleteStudent('${st.studentid}')">Xóa</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function loadHeader() {
+            const adminId = localStorage.getItem("adminid");
+            const { data } = await db.from("admin").select("fullname").eq("adminid", adminId).single();
+            document.getElementById("header-user").innerText = data ? `Xin chào, ${data.fullname}` : "";
+        }
+
+        loadHeader();
+        loadStudents();
+    </script>
+
+</body>
+</html>

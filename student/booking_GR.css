@@ -1,0 +1,327 @@
+/* RESET */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* KHUNG NỘI DUNG CHÍNH TRONG LAYOUT */
+.content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 40px;
+    box-sizing: border-box;
+}
+
+/* TIÊU ĐỀ TRANG */
+.page-title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    color: #111827;
+}
+
+/* ------------------- PHÒNG NHÓM ------------------- */
+
+.room-row {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 30px;
+    margin-bottom: 30px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+}
+
+.room-image {
+    border: 2px solid #000;
+    border-radius: 4px;
+    min-height: 220px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f9fafb;
+    overflow: hidden;
+}
+
+.room-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.room-info {
+    border: 2px solid #000;
+    border-radius: 4px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.room-info h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.room-info p {
+    margin: 2px 0;
+    font-size: 14px;
+}
+
+.room-info-bottom {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 15px;
+}
+
+.room-btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: 1px solid #111827;
+    background: #fff;
+    cursor: pointer;
+}
+
+.room-btn:hover {
+    background: #111827;
+    color: #fff;
+}
+
+/* ------------------- MODAL ------------------- */
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.modal-box {
+    background: white;
+    padding: 24px 28px;
+    border-radius: 10px;
+    animation: fadeIn 0.25s ease-out;
+    box-sizing: border-box;
+}
+
+/* BOOKING MODAL */
+.booking-box {
+    width: 900px;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.booking-title {
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* ------------------- CALENDAR ------------------- */
+
+.calendar-wrapper {
+    margin-top: 10px;
+    border: 1px solid #000;
+    padding: 10px;
+    overflow-x: auto;
+    background: #f9fafb;
+}
+
+table.calendar {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 700px;
+    font-size: 12px;
+}
+
+table.calendar th,
+table.calendar td {
+    border: 1px solid #d1d5db;
+    text-align: center;
+    padding: 3px;
+}
+
+table.calendar thead th {
+    background: #e5e7eb;
+    font-weight: 600;
+}
+
+.time-col {
+    width: 90px;
+    background: #f3f4f6;
+    font-weight: 600;
+}
+
+/* SLOT */
+.slot {
+    height: 24px;
+    background: #ffffff;
+    cursor: pointer;
+    user-select: none;
+}
+
+.slot.booked {
+    background: #d1d5db;
+    cursor: not-allowed;
+}
+
+.slot.selected {
+    background: #22c55e;
+}
+
+.slot:hover:not(.booked) {
+    outline: 1px solid #16a34a;
+}
+
+/* ------------------- EXTRA OPTIONS ------------------- */
+
+.extra-options {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.extra-options h3 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+}
+
+.extra-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 20px;
+}
+
+.extra-column label {
+    font-weight: 600;
+    display: block;
+    margin-top: 6px;
+    font-size: 14px;
+}
+
+.facility-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 12px;
+    font-size: 13px;
+}
+
+.note-fee {
+    margin-top: 6px;
+    font-size: 12px;
+    color: #4b5563;
+}
+
+/* ------------------- BUTTONS ------------------- */
+
+.booking-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.btn-outline {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: 1px solid #111827;
+    background: #fff;
+    cursor: pointer;
+}
+
+.btn-primary {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    background: #2563eb;
+    color: #fff;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+}
+
+/* ------------------- PAYMENT BOX ------------------- */
+
+.payment-box {
+    width: 420px;
+}
+
+.payment-header {
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 8px;
+}
+
+.payment-details {
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.payment-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 4px 0;
+}
+
+.payment-total {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px dashed #d1d5db;
+    text-align: right;
+    font-size: 15px;
+}
+
+.small-popup {
+    width: 360px;
+    text-align: center;
+}
+
+/* ------------------- ANIMATION ------------------- */
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* ------------------- RESPONSIVE ------------------- */
+
+@media (max-width: 900px) {
+    .room-row {
+        grid-template-columns: 1fr;
+    }
+    .booking-box {
+        width: 95vw;
+    }
+    .extra-grid {
+        grid-template-columns: 1fr;
+    }
+}
+/* Slot màu xám = đã qua */
+.slot.past {
+    background: #d1d5db !important;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+/* Slot màu vàng = đang sử dụng */
+.slot.using-now {
+    background: #facc15 !important;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+/* Slot màu đỏ = phòng đã giữ trước */
+.slot.pending {
+    background: #f87171 !important;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}

@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>USSH - Đặt Phòng Lớn (Group Room)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="./booking_GR.css">
+    <link rel="stylesheet" href="./layout.css">
+</head>
+
+<body>
+
+    <!-- ================= HEADER ================= -->
+    <div class="header">
+        <div class="header-title">Đặt phòng nhóm</div>
+        <div id="header-user">Đang tải...</div>
+    </div>
+
+    <!-- ================= MAIN LAYOUT ================= -->
+    <div class="main">
+
+        <!-- ============= SIDEBAR ============= -->
+        <div class="sidebar">
+            <h3>Danh sách</h3>
+            <a href="./information.html">Thông tin cá nhân</a>
+            <a href="./pre_booking.html">Đặt phòng</a>
+            <a href="./booking_history.html">Lịch sử đặt phòng</a>
+            <a href="#">Sự kiện của tôi</a>
+        </div>
+
+        <!-- ==================== PAGE CONTENT ==================== -->
+        <div class="content">
+
+            <div class="page-container">
+
+                <div class="page-title">Danh sách phòng nhóm</div>
+
+                <!-- ROOM A -->
+                <div class="room-row">
+                    <div class="room-image">
+                        <img id="roomA-img" src="./img/VNUHCM_logo.svg.png" alt="Phòng A">
+                    </div>
+
+                    <div class="room-info">
+                        <h2 id="roomA-name">Phòng A</h2>
+                        <p><strong>Mã phòng:</strong> <span id="roomA-id">G1</span></p>
+                        <p><strong>Loại phòng:</strong> <span id="roomA-type">Phòng nhóm</span></p>
+                        <p><strong>Vị trí:</strong> <span id="roomA-location">...</span></p>
+                        <p><strong>Sức chứa:</strong> <span id="roomA-capacity">...</span></p>
+                        <p><strong>Mô tả:</strong> <span id="roomA-desc">...</span></p>
+                        <p><strong>Giá phòng:</strong> <span id="roomA-cost">...</span> đ/giờ</p>
+
+                        <div class="room-info-bottom">
+                            <button class="room-btn" onclick="openBookingModal(currentRooms[0])">Chọn phòng</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROOM B -->
+                <div class="room-row">
+                    <div class="room-image">
+                        <img id="roomB-img" src="./img/VNUHCM_logo.svg.png" alt="Phòng B">
+                    </div>
+
+                    <div class="room-info">
+                        <h2 id="roomB-name">Phòng B</h2>
+                        <p><strong>Mã phòng:</strong> <span id="roomB-id">G2</span></p>
+                        <p><strong>Loại phòng:</strong> <span id="roomB-type">Phòng nhóm</span></p>
+                        <p><strong>Vị trí:</strong> <span id="roomB-location">...</span></p>
+                        <p><strong>Sức chứa:</strong> <span id="roomB-capacity">...</span></p>
+                        <p><strong>Mô tả:</strong> <span id="roomB-desc">...</span></p>
+                        <p><strong>Giá phòng:</strong> <span id="roomB-cost">...</span> đ/giờ</p>
+
+                        <div class="room-info-bottom">
+                            <button class="room-btn" onclick="openBookingModal(currentRooms[1])">Chọn phòng</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROOM C -->
+                <div class="room-row">
+                    <div class="room-image">
+                        <img id="roomC-img" src="./img/VNUHCM_logo.svg.png" alt="Phòng C">
+                    </div>
+
+                    <div class="room-info">
+                        <h2 id="roomC-name">Phòng C</h2>
+                        <p><strong>Mã phòng:</strong> <span id="roomB-id">G2</span></p>
+                        <p><strong>Loại phòng:</strong> <span id="roomB-type">Phòng nhóm</span></p>
+                        <p><strong>Vị trí:</strong> <span id="roomB-location">...</span></p>
+                        <p><strong>Sức chứa:</strong> <span id="roomB-capacity">...</span></p>
+                        <p><strong>Mô tả:</strong> <span id="roomB-desc">...</span></p>
+                        <p><strong>Giá phòng:</strong> <span id="roomB-cost">...</span> đ/giờ</p>
+
+                        <div class="room-info-bottom">
+                            <button class="room-btn" onclick="openBookingModal(currentRooms[1])">Chọn phòng</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div> <!-- END CONTENT -->
+
+    </div> <!-- END MAIN -->
+
+    <!-- ==================== BOOKING MODAL ==================== -->
+    <div id="bookingModal" class="modal-overlay">
+        <div class="modal-box booking-box">
+
+            <div class="booking-title">Đặt phòng</div>
+
+            <div class="booking-top-row">
+                <label>Ngày:</label>
+                <select id="daySelect"></select>
+            </div>
+
+            <div class="calendar-wrapper">
+                <table id="calendarTable" class="calendar"></table>
+            </div>
+
+            <!-- FORM DƯỚI LỊCH -->
+            <div class="extra-options">
+                <h3>Thông tin thêm</h3>
+
+                <div class="extra-grid">
+                    <div class="extra-column">
+                        <label>Tiện ích:</label>
+                        <div id="facilityContainer" class="facility-list">
+                            <!-- Checkbox tiện ích sẽ được load từ DB -->
+                        </div>
+                    </div>
+
+                    <div class="extra-column">
+                        <label>Mục đích sử dụng:</label>
+                        <input type="text" id="purpose" placeholder="VD: Họp nhóm, thảo luận..." />
+
+                        <label>Số người tham gia:</label>
+                        <input type="number" id="memberCount" min="1" max="50" placeholder="Nhập số người" />
+                    </div>
+                </div>
+
+                <p class="note-fee" id="feeNote">Đang tải...</p>
+
+            </div>
+
+            <div class="booking-actions">
+                <button class="btn-outline" onclick="closeBookingModal()">Hủy</button>
+                <button class="btn-primary" onclick="calculatePayment()">Xác nhận</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ==================== PAYMENT MODAL ==================== -->
+    <div id="paymentModal" class="modal-overlay">
+        <div class="modal-box payment-box">
+            <div class="payment-header">
+                <h3>Chi tiết thanh toán</h3>
+            </div>
+
+            <div id="paymentDetails" class="payment-details"></div>
+
+            <div class="booking-actions payment-actions">
+                <button class="btn-outline" onclick="closePaymentModal()">Hủy</button>
+                <button class="btn-primary" onclick="finalizeBooking()">Xác nhận thanh toán</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== POPUP ==================== -->
+    <div id="popupModal" class="modal-overlay">
+        <div class="modal-box small-popup">
+            <h3 id="popupTitle"></h3>
+            <p id="popupMessage"></p>
+            <button class="btn-primary" onclick="closePopup()">OK</button>
+        </div>
+    </div>
+
+    <script>
+        /* ================= INIT SUPABASE ================= */
+        const db = supabase.createClient(
+            "https://oxaimnemcnqudtdguoyk.supabase.co",
+            "sb_publishable_6p-lVAZg_ATPz1a1cDjlOg_9vIcR42c"
+        );
+
+        /* ===================================================================
+            GLOBAL VARIABLES
+        =================================================================== */
+        let currentRooms = [];
+        let roomDataMap = {};      // roomid -> room object
+        let facilityData = [];     // danh sách tiện ích từ DB
+        let selectedRoomId = null;
+
+        let weekDates = [];
+        let slotDefs = [];
+        let currentBookings = [];  // {start, end, status}
+        let mergedIntervals = [];
+        let selectedFacilities = [];
+
+        /* ===================================================================
+            UTIL: FORMAT LOCAL TIMESTAMP (LƯU ĐÚNG GIỜ VN VÀO DB)
+            -> trả về dạng 'YYYY-MM-DDTHH:MM:SS' (không có Z, không timezone)
+        =================================================================== */
+        function toLocalTimestampString(date) {
+            const pad = (n) => n.toString().padStart(2, "0");
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+                `T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+        }
+
+        /* ===================================================================
+            HEADER NAME
+        =================================================================== */
+        async function loadStudentName() {
+            const studentId = localStorage.getItem("studentid");
+            const header = document.getElementById("header-user");
+
+            if (!studentId) {
+                header.innerText = "Chưa đăng nhập";
+                return;
+            }
+
+            const { data, error } = await db.from("student")
+                .select("fullname")
+                .eq("studentid", studentId)
+                .single();
+
+            if (error || !data) {
+                header.innerText = "Không tìm thấy sinh viên";
+            } else {
+                header.innerText = `Xin chào, ${data.fullname}`;
+            }
+        }
+
+        /* ===================================================================
+            LOAD ROOMS FROM DATABASE
+        =================================================================== */
+        async function loadRooms() {
+            const { data, error } = await db
+                .from("room")
+                .select("*")
+                .like("roomid", "G%")
+                .order("roomid");
+
+            if (error || !data || data.length === 0) return;
+
+            currentRooms = data.map(r => r.roomid);
+
+            data.forEach((room, index) => {
+                roomDataMap[room.roomid] = room;
+
+                const prefix = index === 0 ? "roomA" : "roomB";
+
+                document.getElementById(`${prefix}-id`).innerText = room.roomid;
+                document.getElementById(`${prefix}-type`).innerText = room.roomtype || "Phòng nhóm";
+                document.getElementById(`${prefix}-location`).innerText = room.location || "—";
+                document.getElementById(`${prefix}-capacity`).innerText = room.capacity ?? "—";
+                document.getElementById(`${prefix}-desc`).innerText = room.description || "—";
+                document.getElementById(`${prefix}-cost`).innerText = (room.cost || 0).toLocaleString();
+                document.getElementById(`${prefix}-name`).innerText = room.roomid;
+            });
+        }
+
+        /* ===================================================================
+            LOAD FACILITIES FROM DATABASE
+        =================================================================== */
+        async function loadFacilities() {
+            const container = document.getElementById("facilityContainer");
+            container.innerHTML = "<p>Đang tải...</p>";
+
+            const { data, error } = await db
+                .from("facilities")
+                .select("*")
+                .order("facility_id");
+
+            if (error) {
+                container.innerHTML = "<p>Lỗi tải tiện ích!</p>";
+                return;
+            }
+
+            facilityData = data || [];
+            container.innerHTML = "";
+
+            facilityData.forEach(f => {
+                const label = document.createElement("label");
+                label.innerHTML = `
+                    <input type="checkbox" class="facility"
+                           value="${f.facility_type}"
+                           data-cost="${f.cost}">
+                    ${f.facility_type} (+${f.cost.toLocaleString()}đ/giờ)
+                `;
+                container.appendChild(label);
+            });
+        }
+
+        /* ===================================================================
+            WEEK + SLOTS
+        =================================================================== */
+        function initWeekDates() {
+            const today = new Date();
+            const dow = today.getDay();          // 0 = CN, 1 = T2, ...
+            const diff = (dow === 0 ? -6 : 1 - dow); // lùi về thứ 2
+
+            const monday = new Date(today);
+            monday.setDate(today.getDate() + diff);
+            monday.setHours(0, 0, 0, 0);
+
+            weekDates = [];
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(monday);
+                d.setDate(monday.getDate() + i);
+                weekDates.push(d);
+            }
+
+            const select = document.getElementById("daySelect");
+            select.innerHTML = "";
+
+            const names = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "CN"];
+
+            weekDates.forEach((d, i) => {
+                const opt = document.createElement("option");
+                opt.value = i;
+                opt.textContent = `${names[i]} - ${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1).toString().padStart(2, "0")}`;
+                select.appendChild(opt);
+            });
+
+            // chọn đúng hôm nay
+            const idx = Math.min(Math.max(dow - 1, 0), 6);
+            select.value = String(idx);
+        }
+
+        function initSlots() {
+            slotDefs = [];
+            for (let m = 7 * 60; m < 20 * 60; m += 30) { // 7h -> 20h, mỗi 30'
+                slotDefs.push({
+                    startMinutes: m,
+                    endMinutes: m + 30,
+                    label: `${formatTime(m)} - ${formatTime(m + 30)}`
+                });
+            }
+        }
+
+        function formatTime(min) {
+            const h = Math.floor(min / 60);
+            const m = min % 60;
+            return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+        }
+
+        /* ===================================================================
+            LOAD BOOKINGS FOR SELECTED ROOM
+        =================================================================== */
+        async function loadBookingsForRoom() {
+            currentBookings = [];
+            if (!selectedRoomId) return;
+
+            const { data, error } = await db
+                .from("booking")
+                .select("starttime,endtime,booking_status")
+                .eq("roomid", selectedRoomId);
+
+            if (error || !data) return;
+
+            currentBookings = data.map(b => ({
+                start: new Date(b.starttime),  // b.starttime là 'YYYY-MM-DDTHH:MM:SS' (giờ local)
+                end: new Date(b.endtime),
+                status: b.booking_status
+            }));
+        }
+
+        /* ===================================================================
+            SLOT STATUS (ĐỂ TÔ MÀU)
+            - past: slot đã qua (end <= now) -> xám, không cho chọn
+            - using: trong khoảng booking DangSuDung, now giữa start-end -> vàng
+            - hold: trong khoảng booking DangGiuCho (tương lai) -> đỏ
+            - booked: có booking nhưng ko match 2 case trên -> xám
+            - free: chưa book, còn tương lai -> trắng, được chọn
+        =================================================================== */
+        function getSlotStatus(slotStart, slotEnd) {
+            const now = new Date();
+
+            if (slotEnd <= now) {
+                return "past";
+            }
+
+            for (const b of currentBookings) {
+                if (slotStart < b.end && slotEnd > b.start) {
+                    if (b.status === "DangSuDung" && now >= b.start && now < b.end) {
+                        return "using";
+                    }
+                    if (b.status === "DangGiuCho" && now < b.start) {
+                        return "hold";
+                    }
+                    return "booked";
+                }
+            }
+            return "free";
+        }
+
+        /* ===================================================================
+            RENDER CALENDAR
+        =================================================================== */
+        function renderCalendar() {
+            const table = document.getElementById("calendarTable");
+            table.innerHTML = "";
+
+            const thead = document.createElement("thead");
+            const headerRow = document.createElement("tr");
+
+            headerRow.innerHTML = `<th>Tiết</th>`;
+
+            const shortNames = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+            weekDates.forEach((d, i) => {
+                const th = document.createElement("th");
+                th.innerHTML = `${shortNames[i]}<br>${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1).toString().padStart(2, "0")}`;
+                headerRow.appendChild(th);
+            });
+
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            const tbody = document.createElement("tbody");
+
+            slotDefs.forEach(slot => {
+                const tr = document.createElement("tr");
+
+                const tdTime = document.createElement("td");
+                tdTime.classList.add("time-col");
+                tdTime.innerText = slot.label;
+                tr.appendChild(tdTime);
+
+                for (let col = 0; col < 7; col++) {
+                    const td = document.createElement("td");
+                    const div = document.createElement("div");
+                    div.className = "slot";
+
+                    const start = new Date(weekDates[col]);
+                    start.setHours(0, 0, 0, 0);
+                    start.setMinutes(slot.startMinutes);
+
+                    const end = new Date(start);
+                    end.setMinutes(start.getMinutes() + 30);
+
+                    // lưu theo local (VN), không có Z
+                    div.dataset.start = toLocalTimestampString(start);
+                    div.dataset.end = toLocalTimestampString(end);
+
+                    const status = getSlotStatus(start, end);
+                    if (status === "past") {
+                        div.classList.add("past");
+                    } else if (status === "using") {
+                        div.classList.add("booked", "using");
+                    } else if (status === "hold") {
+                        div.classList.add("booked", "hold");
+                    } else if (status === "booked") {
+                        div.classList.add("booked");
+                    }
+                    // free -> giữ nguyên .slot
+
+                    td.appendChild(div);
+                    tr.appendChild(td);
+                }
+
+                tbody.appendChild(tr);
+            });
+
+            table.appendChild(tbody);
+
+            enableSlotSelection();
+        }
+
+        /* ===================================================================
+            SLOT SELECT
+        =================================================================== */
+        function enableSlotSelection() {
+            const table = document.getElementById("calendarTable");
+            let mouseDown = false;
+            let mode = true;
+
+            table.onmousedown = e => {
+                if (
+                    e.target.classList.contains("slot") &&
+                    !e.target.classList.contains("booked") &&
+                    !e.target.classList.contains("past")
+                ) {
+                    mouseDown = true;
+                    mode = !e.target.classList.contains("selected");
+                    toggleSlot(e.target, mode);
+                }
+            };
+
+            table.onmouseover = e => {
+                if (
+                    mouseDown &&
+                    e.target.classList.contains("slot") &&
+                    !e.target.classList.contains("booked") &&
+                    !e.target.classList.contains("past")
+                ) {
+                    toggleSlot(e.target, mode);
+                }
+            };
+
+            document.onmouseup = () => {
+                mouseDown = false;
+            };
+        }
+
+        function toggleSlot(el, select) {
+            if (select) el.classList.add("selected");
+            else el.classList.remove("selected");
+        }
+
+        /* ===================================================================
+            OPEN/CLOSE MODALS
+        =================================================================== */
+        async function openBookingModal(roomId) {
+            selectedRoomId = roomId;
+
+            const room = roomDataMap[roomId];
+            if (!room) {
+                showPopup("Lỗi", "Không tìm thấy thông tin phòng.");
+                return;
+            }
+
+            document.getElementById("feeNote").innerHTML =
+                `Giá phòng: <strong>${(room.cost || 0).toLocaleString()}đ/giờ</strong><br>` +
+                `Phí tiện ích: tính theo từng loại tiện ích (VND/giờ).`;
+
+            // reset form
+            document.getElementById("purpose").value = "";
+            document.getElementById("memberCount").value = "";
+            document.querySelectorAll(".facility").forEach(f => f.checked = false);
+            document.querySelectorAll(".slot.selected").forEach(s => s.classList.remove("selected"));
+
+            initWeekDates();
+            initSlots();
+            await loadBookingsForRoom();
+            renderCalendar();
+
+            document.getElementById("bookingModal").style.display = "flex";
+        }
+
+        function closeBookingModal() {
+            document.getElementById("bookingModal").style.display = "none";
+        }
+
+        function closePaymentModal() {
+            document.getElementById("paymentModal").style.display = "none";
+        }
+
+        /* ===================================================================
+            CALCULATE PAYMENT
+        =================================================================== */
+        function calculatePayment() {
+            const studentid = localStorage.getItem("studentid");
+            if (!studentid) {
+                return showPopup("Lỗi", "Không tìm thấy studentid! Có thể bạn chưa đăng nhập.");
+            }
+
+            const selected = [...document.querySelectorAll(".slot.selected")];
+            if (selected.length === 0) {
+                return showPopup("Lỗi", "Bạn chưa chọn giờ!");
+            }
+
+            // gom slot liên tiếp
+            const intervals = selected.map(s => ({
+                start: new Date(s.dataset.start),
+                end: new Date(s.dataset.end)
+            })).sort((a, b) => a.start - b.start);
+
+            mergedIntervals = [];
+            let cur = intervals[0];
+
+            for (let i = 1; i < intervals.length; i++) {
+                if (intervals[i].start.getTime() === cur.end.getTime()) {
+                    cur.end = intervals[i].end;
+                } else {
+                    mergedIntervals.push(cur);
+                    cur = intervals[i];
+                }
+            }
+            mergedIntervals.push(cur);
+
+            // tổng thời lượng
+            let minutes = 0;
+            mergedIntervals.forEach(itv => {
+                minutes += (itv.end - itv.start) / 60000;
+            });
+            const hours = minutes / 60;
+
+            const room = roomDataMap[selectedRoomId];
+            const roomCost = (room.cost || 0) * hours;
+
+            selectedFacilities = [...document.querySelectorAll(".facility:checked")].map(f => ({
+                name: f.value,
+                cost: Number(f.dataset.cost)
+            }));
+
+            let facilityCost = 0;
+            selectedFacilities.forEach(f => {
+                facilityCost += f.cost * hours;
+            });
+
+            const total = roomCost + facilityCost;
+
+            const purpose = document.getElementById("purpose").value.trim() || "Không ghi";
+            const memberCount = document.getElementById("memberCount").value.trim() || "Không rõ";
+
+            const facText = selectedFacilities.length
+                ? selectedFacilities.map(f => `${f.name} (+${f.cost.toLocaleString()}đ/giờ)`).join(", ")
+                : "Không sử dụng";
+
+            document.getElementById("paymentDetails").innerHTML = `
+                <div class="payment-row"><span>Phòng:</span> <strong>${room.roomid}</strong></div>
+                <div class="payment-row"><span>Thời lượng:</span> <strong>${hours.toFixed(1)} giờ</strong></div>
+                <div class="payment-row"><span>Mục đích:</span> <strong>${purpose}</strong></div>
+                <div class="payment-row"><span>Số người:</span> <strong>${memberCount}</strong></div>
+                <div class="payment-row"><span>Tiện ích:</span> <strong>${facText}</strong></div>
+                <hr>
+                <div class="payment-row"><span>Phí phòng:</span> <strong>${roomCost.toLocaleString()} đ</strong></div>
+                <div class="payment-row"><span>Phí tiện ích:</span> <strong>${facilityCost.toLocaleString()} đ</strong></div>
+                <div class="payment-total">Tổng cộng: <strong>${total.toLocaleString()} đ</strong></div>
+            `;
+
+            document.getElementById("paymentModal").style.display = "flex";
+        }
+
+        /* ===================================================================
+            FINAL BOOKING (LƯU GIỜ THEO GIỜ VIỆT NAM)
+        =================================================================== */
+        async function finalizeBooking() {
+            const studentid = localStorage.getItem("studentid");
+            if (!studentid) {
+                return showPopup("Lỗi", "Không tìm thấy studentid! Có thể bạn chưa đăng nhập.");
+            }
+
+            if (!mergedIntervals.length) {
+                return showPopup("Lỗi", "Không có khung giờ hợp lệ.");
+            }
+
+            const facilitiesString = selectedFacilities.map(f => f.name).join(",");
+            const now = new Date();
+
+            // tạo row theo từng khoảng thời gian, lưu giờ theo local VN
+            const rows = mergedIntervals.map(itv => {
+                const status = now < itv.start ? "DangGiuCho" : "DangSuDung";
+                return {
+                    studentid,
+                    roomid: selectedRoomId,
+                    facilities: facilitiesString,
+                    starttime: toLocalTimestampString(itv.start),
+                    endtime: toLocalTimestampString(itv.end),
+                    booking_status: status
+                };
+            });
+
+            const { error } = await db.from("booking").insert(rows);
+
+            if (error) {
+                return showPopup("Lỗi", "Đặt phòng thất bại: " + error.message);
+            }
+
+            // clear input sau khi thanh toán
+            document.getElementById("purpose").value = "";
+            document.getElementById("memberCount").value = "";
+            document.querySelectorAll(".facility").forEach(f => f.checked = false);
+            document.querySelectorAll(".slot.selected").forEach(s => s.classList.remove("selected"));
+            mergedIntervals = [];
+            selectedFacilities = [];
+
+            document.getElementById("paymentModal").style.display = "none";
+            document.getElementById("bookingModal").style.display = "none";
+
+            showPopup("Thành công", "Đặt phòng và thanh toán (mô phỏng) thành công!");
+
+            // reload lại lịch với dữ liệu mới
+            await loadBookingsForRoom();
+            renderCalendar();
+        }
+
+        /* ===================================================================
+            POPUP
+        =================================================================== */
+        function showPopup(title, msg) {
+            document.getElementById("popupTitle").innerText = title;
+            document.getElementById("popupMessage").innerText = msg;
+            document.getElementById("popupModal").style.display = "flex";
+        }
+        function closePopup() {
+            document.getElementById("popupModal").style.display = "none";
+        }
+
+        /* ===================================================================
+            INIT PAGE
+        =================================================================== */
+        window.onload = async () => {
+            await loadStudentName();
+            await loadRooms();
+            await loadFacilities();
+        };
+    </script>
+
+</body>
+
+</html>

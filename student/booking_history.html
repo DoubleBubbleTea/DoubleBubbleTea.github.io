@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>USSH - Lịch sử đặt phòng</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* HEADER */
+        .header {
+            width: 100%;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+            box-sizing: border-box;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        #header-user {
+            font-size: 16px;
+            font-weight: bold;
+            color: #111827;
+        }
+
+        /* MAIN LAYOUT */
+        .main {
+            display: flex;
+            flex: 1;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px;
+            background: #ffffff;
+            border-right: 1px solid #e5e7eb;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .sidebar h3 {
+            margin-top: 0;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 8px 0;
+            color: #111827;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .sidebar a:hover {
+            font-weight: bold;
+        }
+
+        /* CONTENT */
+        .content {
+            flex: 1;
+            padding: 40px 80px;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 25px;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        table th {
+            background: #f3f4f6;
+            padding: 10px;
+            text-align: left;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        table td {
+            padding: 10px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .status {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 12px;
+            display: inline-block;
+        }
+        .DangGiuCho { background: #fffbeb; color: #b45309; }
+        .DangSuDung { background: #ecfdf5; color: #065f46; }
+        .HoanThanh { background: #eff6ff; color: #1d4ed8; }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-title">Lịch sử đặt phòng</div>
+        <div id="header-user">Đang tải...</div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <h3>Danh sách</h3>
+            <a href="./information.html">Thông tin cá nhân</a>
+            <a href="./pre_booking.html">Đặt phòng</a>
+            <a href="./booking_history.html" style="font-weight:bold;">Lịch sử đặt phòng</a>
+            <a href="#">Sự kiện của tôi</a>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <h2>Lịch sử đặt phòng của bạn</h2>
+
+            <table id="historyTable">
+                <thead>
+                    <tr>
+                        <th>Mã phòng</th>
+                        <th>Thời gian bắt đầu</th>
+                        <th>Thời gian kết thúc</th>
+                        <th>Tiện ích</th>
+                        <!-- <th>Trạng thái</th> -->
+                    </tr>
+                </thead>
+                <tbody id="historyBody">
+                    <tr><td colspan="5" style="text-align:center;">Đang tải...</td></tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <script>
+        // Supabase init
+        const db = supabase.createClient(
+            "https://oxaimnemcnqudtdguoyk.supabase.co",
+            "sb_publishable_6p-lVAZg_ATPz1a1cDjlOg_9vIcR42c"
+        );
+
+        /* ==================== LOAD USER NAME ==================== */
+        async function loadStudentName() {
+            const studentId = localStorage.getItem("studentid");
+
+            if (!studentId) {
+                document.getElementById("header-user").innerText = "Chưa đăng nhập";
+                return;
+            }
+
+            const { data, error } = await db
+                .from("student")
+                .select("fullname")
+                .eq("studentid", studentId)
+                .single();
+
+            if (error || !data) {
+                document.getElementById("header-user").innerText = "Không tìm thấy sinh viên";
+                return;
+            }
+
+            document.getElementById("header-user").innerText = `Xin chào, ${data.fullname}`;
+        }
+
+        /* ==================== LOAD BOOKING HISTORY ==================== */
+        async function loadBookingHistory() {
+            const studentId = localStorage.getItem("studentid");
+            const body = document.getElementById("historyBody");
+
+            if (!studentId) {
+                body.innerHTML = "<tr><td colspan='5'>Không tìm thấy studentid.</td></tr>";
+                return;
+            }
+
+            const { data, error } = await db
+                .from("booking")
+                .select("*")
+                .eq("studentid", studentId)
+                .order("starttime", { ascending: false });
+
+            if (error) {
+                body.innerHTML = "<tr><td colspan='5'>Lỗi tải dữ liệu.</td></tr>";
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                body.innerHTML = "<tr><td colspan='5'>Bạn chưa có lịch sử đặt phòng.</td></tr>";
+                return;
+            }
+
+            body.innerHTML = "";
+
+            data.forEach(b => {
+                const tr = document.createElement("tr");
+
+                const start = new Date(b.starttime).toLocaleString("vi-VN");
+                const end = new Date(b.endtime).toLocaleString("vi-VN");
+
+                tr.innerHTML = `
+                    <td>${b.roomid}</td>
+                    <td>${start}</td>
+                    <td>${end}</td>
+                    <td>${b.facilities || "Không"}</td>
+                `;
+
+                body.appendChild(tr);
+            });
+        }
+
+        /* ==================== INIT ==================== */
+        loadStudentName();
+        loadBookingHistory();
+    </script>
+
+</body>
+</html>
