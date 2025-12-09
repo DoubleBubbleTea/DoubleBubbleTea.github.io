@@ -3,76 +3,14 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>USSH - Chọn loại đặt phòng</title>
+    <title>Chọn loại đặt phòng</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <!-- CSS chung -->
+    <link rel="stylesheet" href="./layout.css">
+
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background: #ffffff;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        /* HEADER TRANG CHỦ + USER NAME */
-        .header {
-            width: 100%;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 25px;
-            background: #f9fafb;
-            border-bottom: 1px solid #e5e7eb;
-            box-sizing: border-box;
-        }
-
-        .header-title {
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        #header-user {
-            font-size: 16px;
-            color: #111827;
-            font-weight: bold;
-        }
-
-        /* MAIN LAYOUT: SIDEBAR + CONTENT */
-        .main {
-            display: flex;
-            flex: 1;
-        }
-
-        /* SIDEBAR */
-        .sidebar {
-            width: 260px;
-            background: #ffffff;
-            border-right: 1px solid #e5e7eb;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .sidebar h3 {
-            margin-top: 0;
-        }
-
-        .sidebar a {
-            display: block;
-            padding: 8px 0;
-            color: #111827;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .sidebar a:hover {
-            font-weight: bold;
-        }
-
-        /* CONTENT */
+        /* CSS RIÊNG CỦA TRANG NÀY */
         .content {
             flex: 1;
             padding: 40px 80px;
@@ -116,25 +54,53 @@
             color: #6b7280;
             margin-top: -5px;
         }
+
+        .divider {
+            width: 1px;
+            height: 400px;
+            background: linear-gradient(to bottom,
+                    rgba(0, 0, 0, 0) 0%,
+                    rgba(0, 0, 0, 0.15) 50%,
+                    rgba(0, 0, 0, 0) 100%);
+        }
     </style>
 </head>
 
 <body>
 
-    <!-- ================= HEADER ================= -->
+    <!-- HEADER -->
     <div class="header">
-        <div class="header-title">Đặt phòng</div>
-        <div id="header-user">Đang tải...</div>
+        <div class="header-title">ĐẶT PHÒNG</div>
+        <div class="header-right">
+            <!-- ICON NOTIFICATION -->
+            <div class="icon notification-icon" onclick="toggleNotification()">
+                <img src="../img/notification_new.png" class="icon-img">
+                <div id="notif-count" class="notif-count" style="display:none;">0</div>
+            </div>
+
+            <!-- ICON LOGOUT -->
+            <div class="icon logout-icon" onclick="openLogoutModal()">
+                <img src="../img/logout_new.png" class="icon-img">
+            </div>
+
+            <div id="header-user">Đang tải...</div>
+
+            <!-- DROPDOWN NOTIFICATION -->
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-title">Thông báo</div>
+                <div id="notif-list" class="notif-list">Không có thông báo!</div>
+            </div>
+        </div>
     </div>
 
-    <!-- ================= MAIN ================= -->
+    <!-- MAIN -->
     <div class="main">
 
         <!-- SIDEBAR -->
         <div class="sidebar">
             <h3>Danh sách</h3>
             <a href="./information.html">Thông tin cá nhân</a>
-            <a href="./pre_booking.html">Đặt phòng</a>
+            <a href="./pre_booking.html" class="active">Đặt phòng</a>
             <a href="./booking_history.html">Lịch sử đặt phòng</a>
             <a href="#">Sự kiện của tôi</a>
         </div>
@@ -143,61 +109,39 @@
         <div class="content">
             <div class="choice-wrapper">
 
-                <!-- BOOK SINGLE -->
                 <div class="choice-box" onclick="location.href='./bookingtest.html'">
-                    <img src="../img/single_study.png" alt="Booking cá nhân">
+                    <img src="../img/single.png" alt="Booking cá nhân">
                     <h2>Đặt phòng cá nhân</h2>
                     <p>Nhấn để đặt phòng tự học cá nhân.</p>
                 </div>
+                <div class="divider"></div> <!-- VẠCH MỜ Ở GIỮA -->
 
-                <!-- BOOK GROUP -->
                 <div class="choice-box" onclick="location.href='./booking_GR.html'">
-                    <img src="../img/group_study.png" alt="Booking nhóm">
+                    <img src="../img/group.jpg" alt="Booking nhóm">
                     <h2>Đặt phòng nhóm</h2>
                     <p>Nhấn để đặt phòng học nhóm.</p>
                 </div>
 
             </div>
         </div>
+
+    </div>
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
+        </div>
     </div>
 
-    <!-- SUPABASE -->
+    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <script>
-        // Tạo client Supabase
-        const db = supabase.createClient(
-            "https://oxaimnemcnqudtdguoyk.supabase.co",
-            "sb_publishable_6p-lVAZg_ATPz1a1cDjlOg_9vIcR42c"
-        );
-
-        // Load tên sinh viên
-        async function loadStudentName() {
-            const studentId = localStorage.getItem("studentid");
-            console.log("studentId:", studentId);
-
-            if (!studentId) {
-                document.getElementById("header-user").innerText = "Chưa đăng nhập";
-                return;
-            }
-
-            const { data, error } = await db
-                .from("student")
-                .select("fullname")
-                .eq("studentid", studentId)
-                .single();
-
-            if (error || !data) {
-                console.log(error);
-                document.getElementById("header-user").innerText = "Không tìm thấy sinh viên";
-                return;
-            }
-
-            document.getElementById("header-user").innerText = `Xin chào, ${data.fullname}`;
-        }
-
-        loadStudentName();
-    </script>
+    <!-- JS load header -->
+    <script src="./student_header.js"></script>
 
 </body>
 

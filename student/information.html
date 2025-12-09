@@ -3,71 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>USSH - Thông tin cá nhân</title>
+    <title>Thông tin cá nhân</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./layout.css">
 
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background: #ffffff;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        /* HEADER */
-        .header {
-            width: 100%;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 25px;
-            background: #f9fafb;
-            border-bottom: 1px solid #e5e7eb;
-            box-sizing: border-box;
-        }
-
-        .header-title {
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        #header-user {
-            font-size: 16px;
-            color: #111827;
-            font-weight: bold;
-        }
-
-        /* MAIN */
-        .main {
-            display: flex;
-            flex: 1;
-        }
-
-        /* SIDEBAR */
-        .sidebar {
-            width: 260px;
-            background: #ffffff;
-            border-right: 1px solid #e5e7eb;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .sidebar a {
-            display: block;
-            padding: 8px 0;
-            color: #111827;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .sidebar a:hover {
-            font-weight: bold;
-        }
-
         /* CONTENT */
         .content {
             flex: 1;
@@ -102,7 +42,9 @@
             font-size: 15px;
         }
 
-        .btn-edit, .btn-save, .btn-cancel {
+        .btn-edit,
+        .btn-save,
+        .btn-change-pass {
             margin-top: 25px;
             padding: 10px 16px;
             border: none;
@@ -116,19 +58,25 @@
             color: white;
         }
 
+        .btn-change-pass {
+            background: #6b7280;
+            color: white;
+            margin-right: 10px;
+        }
+
         .btn-save {
             background: #16a34a;
             color: white;
             margin-right: 10px;
         }
 
-        .btn-cancel {
+        /* .btn-cancel {
             background: #dc2626;
             color: white;
-        }
+        } */
 
-        /* MODAL POPUP */
-        .modal-overlay {
+        /* MODAL */
+        /* .modal-overlay {
             display: none;
             position: fixed;
             inset: 0;
@@ -141,54 +89,103 @@
         .modal-box {
             background: white;
             padding: 25px;
-            width: 350px;
-            border-radius: 12px;
+            width: 340px;
+            border-radius: 6px;
             text-align: center;
             animation: fadeIn 0.25s ease-out;
-        }
-
-        .modal-icon {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-
-        .modal-buttons button {
-            padding: 8px 16px;
-            border: none;
-            margin-top: 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            background: #2563eb;
-            color: white;
-        }
+        } */
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* PASSWORD INPUT ICONS */
+        .input-wrapper {
+            position: relative;
+        }
+
+        .toggle-emoji {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            user-select: none;
+            font-size: 20px;
+            opacity: 0.7;
+        }
+
+        .toggle-emoji:hover {
+            opacity: 1;
+        }
+
+        .error-x {
+            position: absolute;
+            right: 40px;
+            /* nằm trước icon 🙈 */
+            top: 50%;
+            transform: translateY(-50%);
+            color: red;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+        }
+
+        #popupModal {
+            z-index: 10000 !important;
+        }
+
+        #passModal {
+            z-index: 9999 !important;
         }
     </style>
 </head>
 
-<!-- ========= MODAL POPUP ========= -->
+
+<!-- POPUP SUCCESS -->
 <div id="popupModal" class="modal-overlay">
     <div class="modal-box">
-        <div class="modal-icon">✔</div>
+        <div class="modal-icon" style="font-size:40px; margin-bottom:10px;">✔</div>
         <h3 id="modal-title">Completed</h3>
         <p id="modal-message">Message here</p>
-
-        <div class="modal-buttons">
-            <button onclick="closeModal()">OK</button>
-        </div>
+        <button onclick="closeModal()">OK</button>
     </div>
 </div>
+
 
 <body>
 
     <!-- HEADER -->
     <div class="header">
-        <div class="header-title">Thông tin cá nhân</div>
-        <div id="header-user">Đang tải...</div>
+        <div class="header-title">THÔNG TIN CÁ NHÂN</div>
+
+        <div class="header-right">
+            <div class="icon notification-icon" onclick="toggleNotification()">
+                <img src="../img/notification_new.png" class="icon-img">
+                <div id="notif-count" class="notif-count" style="display:none;">0</div>
+            </div>
+
+            <div class="icon logout-icon" onclick="openLogoutModal()">
+                <img src="../img/logout_new.png" class="icon-img">
+            </div>
+
+            <div id="header-user">Đang tải...</div>
+
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-title">Thông báo</div>
+                <div id="notif-list" class="notif-list">Không có thông báo!</div>
+            </div>
+        </div>
     </div>
+
 
     <!-- MAIN -->
     <div class="main">
@@ -196,11 +193,12 @@
         <!-- SIDEBAR -->
         <div class="sidebar">
             <h3>Danh sách</h3>
-            <a href="./information.html">Thông tin cá nhân</a>
+            <a href="./information.html" class="active">Thông tin cá nhân</a>
             <a href="./pre_booking.html">Đặt phòng</a>
             <a href="./booking_history.html">Lịch sử đặt phòng</a>
             <a href="#">Sự kiện của tôi</a>
         </div>
+
 
         <!-- CONTENT -->
         <div class="content">
@@ -210,78 +208,34 @@
 
                 <!-- VIEW MODE -->
                 <div id="info-view-mode">
+                    <div class="info-item"><label>Mã số sinh viên:</label><span id="info-studentid">...</span></div>
+                    <div class="info-item"><label>Họ và tên:</label><span id="info-fullname">...</span></div>
+                    <div class="info-item"><label>Email:</label><span id="info-email">...</span></div>
+                    <div class="info-item"><label>Số điện thoại:</label><span id="info-phonenumber">—</span></div>
+                    <div class="info-item"><label>Ngành học:</label><span id="info-major">—</span></div>
+                    <div class="info-item"><label>Điểm uy tín:</label><span id="info-trust">—</span></div>
 
-                    <div class="info-item">
-                        <label>Mã số sinh viên:</label>
-                        <span id="info-studentid">...</span>
+                    <div style="margin-top: 25px;">
+                        <button class="btn-change-pass" onclick="openPasswordModal()">Đổi mật khẩu</button>
+                        <button class="btn-edit" onclick="enableEdit()">Chỉnh sửa thông tin</button>
                     </div>
-
-                    <div class="info-item">
-                        <label>Họ và tên:</label>
-                        <span id="info-fullname">...</span>
-                    </div>
-
-                    <div class="info-item">
-                        <label>Email:</label>
-                        <span id="info-email">...</span>
-                    </div>
-
-                    <div class="info-item">
-                        <label>Số điện thoại:</label>
-                        <span id="info-phonenumber">—</span>
-                    </div>
-
-                    <div class="info-item">
-                        <label>Ngành học:</label>
-                        <span id="info-major">—</span>
-                    </div>
-
-                    <div class="info-item">
-                        <label>Điểm uy tín:</label>
-                        <span id="info-trust">—</span>
-                    </div>
-
-                    <button class="btn-edit" onclick="enableEdit()">Chỉnh sửa thông tin</button>
-
                 </div>
+
 
                 <!-- EDIT MODE -->
                 <div id="info-edit-mode" style="display:none">
-
-                    <div class="info-item">
-                        <label>Mã số sinh viên:</label>
-                        <input class="info-edit" id="edit-studentid" disabled />
+                    <div class="info-item"><label>Mã số sinh viên:</label><input id="edit-studentid" class="info-edit"
+                            disabled></div>
+                    <div class="info-item"><label>Họ và tên:</label><input id="edit-fullname" class="info-edit"></div>
+                    <div class="info-item"><label>Email:</label><input id="edit-email" class="info-edit"></div>
+                    <div class="info-item"><label>Số điện thoại:</label><input id="edit-phonenumber" class="info-edit">
                     </div>
-
-                    <div class="info-item">
-                        <label>Họ và tên:</label>
-                        <input class="info-edit" id="edit-fullname" />
-                    </div>
-
-                    <div class="info-item">
-                        <label>Email:</label>
-                        <input class="info-edit" id="edit-email" />
-                    </div>
-
-                    <div class="info-item">
-                        <label>Số điện thoại:</label>
-                        <input class="info-edit" id="edit-phonenumber" />
-                    </div>
-
-                    <div class="info-item">
-                        <label>Ngành học:</label>
-                        <input class="info-edit" id="edit-major" />
-                    </div>
-
-                    <!-- Không cho chỉnh điểm uy tín -->
-                    <div class="info-item">
-                        <label>Điểm uy tín (không thể chỉnh sửa):</label>
-                        <input class="info-edit" id="edit-trust" disabled />
+                    <div class="info-item"><label>Ngành học:</label><input id="edit-major" class="info-edit"></div>
+                    <div class="info-item"><label>Điểm uy tín:</label><input id="edit-trust" class="info-edit" disabled>
                     </div>
 
                     <button class="btn-save" onclick="saveInfo()">Lưu</button>
                     <button class="btn-cancel" onclick="cancelEdit()">Hủy</button>
-
                 </div>
 
             </div>
@@ -289,15 +243,55 @@
 
     </div>
 
-    <!-- SUPABASE -->
+
+    <!-- MODAL ĐỔI MẬT KHẨU -->
+    <div id="passModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Đổi mật khẩu</h3>
+
+            <div class="input-wrapper">
+                <input id="pass-old" type="password" class="info-edit" placeholder="Mật khẩu hiện tại">
+                <span class="toggle-emoji" onclick="togglePassword('pass-old', this)">🙈</span>
+            </div>
+
+            <div class="input-wrapper">
+                <input id="pass-new" type="password" class="info-edit" placeholder="Mật khẩu mới">
+                <span class="toggle-emoji" onclick="togglePassword('pass-new', this)">🙈</span>
+            </div>
+
+            <div class="input-wrapper">
+                <input id="pass-confirm" type="password" class="info-edit" placeholder="Nhập lại mật khẩu"
+                    oninput="checkPasswordMatch()">
+                <span class="error-x" id="pw-error">✖</span>
+                <span class="toggle-emoji" onclick="togglePassword('pass-confirm', this)">🙈</span>
+            </div>
+
+            <button class="btn-save" onclick="savePassword()">Lưu mật khẩu</button>
+            <button class="btn-cancel" onclick="closePasswordModal()">Hủy</button>
+        </div>
+    </div>
+
+
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+            <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+        </div>
+    </div>
+
+
+    <!-- SUPABASE + HEADER SCRIPT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./student_header.js"></script>
+
 
     <script>
-        const db = supabase.createClient(
-            "https://oxaimnemcnqudtdguoyk.supabase.co",
-            "sb_publishable_6p-lVAZg_ATPz1a1cDjlOg_9vIcR42c"
-        );
 
+        /* ============================
+           POPUP SUCCESS
+        ============================ */
         function showPopup(title, message) {
             document.getElementById("modal-title").innerText = title;
             document.getElementById("modal-message").innerText = message;
@@ -308,24 +302,49 @@
             document.getElementById("popupModal").style.display = "none";
         }
 
-        async function loadHeaderName() {
-            const studentId = localStorage.getItem("studentid");
-            const { data } = await db.from("student").select("fullname").eq("studentid", studentId).single();
-            document.getElementById("header-user").innerText =
-                data ? `Xin chào, ${data.fullname}` : "Không tìm thấy sinh viên";
+
+        /* ============================
+           PASSWORD TOGGLE
+        ============================ */
+        function togglePassword(id, eyeIcon) {
+            const input = document.getElementById(id);
+            const isHidden = input.type === "password";
+
+            input.type = isHidden ? "text" : "password";
+            eyeIcon.textContent = isHidden ? "👁️" : "🙈";
         }
 
-        async function loadStudentInfo() {
-            const studentId = localStorage.getItem("studentid");
 
+        /* ============================
+           REALTIME CHECK MATCH
+        ============================ */
+        function checkPasswordMatch() {
+            const newPass = document.getElementById("pass-new").value;
+            const confirm = document.getElementById("pass-confirm").value;
+            const errorIcon = document.getElementById("pw-error");
+
+            if (confirm === "") {
+                errorIcon.style.display = "none";
+                return;
+            }
+
+            errorIcon.style.display = (newPass !== confirm) ? "block" : "none";
+        }
+
+
+        /* ============================
+           LOAD STUDENT INFO
+        ============================ */
+        async function loadStudentInfo() {
             const { data } = await db
                 .from("student")
                 .select("*")
-                .eq("studentid", studentId)
+                .eq("studentid", localStorage.getItem("studentid"))
                 .single();
 
             if (!data) return;
 
+            // Fill view mode
             document.getElementById("info-studentid").innerText = data.studentid;
             document.getElementById("info-fullname").innerText = data.fullname;
             document.getElementById("info-email").innerText = data.email;
@@ -333,7 +352,7 @@
             document.getElementById("info-major").innerText = data.major || "—";
             document.getElementById("info-trust").innerText = data.trust_score ?? "—";
 
-            // Fill edit
+            // Fill edit mode
             document.getElementById("edit-studentid").value = data.studentid;
             document.getElementById("edit-fullname").value = data.fullname;
             document.getElementById("edit-email").value = data.email;
@@ -342,6 +361,10 @@
             document.getElementById("edit-trust").value = data.trust_score ?? "";
         }
 
+
+        /* ============================
+           EDIT MODE SWITCH
+        ============================ */
         function enableEdit() {
             document.getElementById("info-view-mode").style.display = "none";
             document.getElementById("info-edit-mode").style.display = "block";
@@ -352,6 +375,10 @@
             document.getElementById("info-edit-mode").style.display = "none";
         }
 
+
+        /* ============================
+           SAVE INFO
+        ============================ */
         async function saveInfo() {
             const studentId = localStorage.getItem("studentid");
 
@@ -362,23 +389,62 @@
                 major: document.getElementById("edit-major").value,
             };
 
-            const { error } = await db
-                .from("student")
-                .update(updated)
-                .eq("studentid", studentId);
+            const { error } = await db.from("student").update(updated).eq("studentid", studentId);
 
-            if (error) {
-                return showPopup("Lỗi", "Không thể lưu thông tin!");
-            }
+            if (error) return showPopup("Lỗi", "Không thể lưu thông tin!");
 
             showPopup("Thành công", "Thông tin đã được cập nhật!");
             loadStudentInfo();
             cancelEdit();
         }
 
-        loadHeaderName();
+
+        /* ============================
+           PASSWORD HANDLING
+        ============================ */
+        function openPasswordModal() {
+            document.getElementById("passModal").style.display = "flex";
+            document.getElementById("pw-error").style.display = "none"; // reset x
+        }
+
+        function closePasswordModal() {
+            document.getElementById("passModal").style.display = "none";
+        }
+
+
+        async function savePassword() {
+            const oldPass = document.getElementById("pass-old").value;
+            const newPass = document.getElementById("pass-new").value;
+            const confirm = document.getElementById("pass-confirm").value;
+
+            if (newPass !== confirm) {
+                return showPopup("Lỗi", "Mật khẩu nhập lại không khớp!");
+            }
+
+            const studentId = localStorage.getItem("studentid");
+
+            const { data } = await db
+                .from("student")
+                .select("password")
+                .eq("studentid", studentId)
+                .single();
+
+            if (data.password !== oldPass) {
+                return showPopup("Lỗi", "Mật khẩu hiện tại không đúng!");
+            }
+
+            await db.from("student").update({ password: newPass }).eq("studentid", studentId);
+
+            showPopup("Thành công", "Đổi mật khẩu thành công!");
+            closePasswordModal();
+        }
+
+        /* INIT */
+        loadStudentName();
         loadStudentInfo();
+
     </script>
 
 </body>
+
 </html>

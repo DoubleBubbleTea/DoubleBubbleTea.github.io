@@ -8,8 +8,10 @@
 
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <link rel="stylesheet" href="./booking_GR.css">
     <link rel="stylesheet" href="./layout.css">
+
 </head>
 
 <body>
@@ -17,7 +19,26 @@
     <!-- ================= HEADER ================= -->
     <div class="header">
         <div class="header-title">Đặt phòng nhóm</div>
-        <div id="header-user">Đang tải...</div>
+        <div class="header-right">
+            <!-- ICON NOTIFICATION -->
+            <div class="icon notification-icon" onclick="toggleNotification()">
+                <img src="../img/notification_new.png" class="icon-img">
+                <div id="notif-count" class="notif-count" style="display:none;">0</div>
+            </div>
+
+            <!-- ICON LOGOUT -->
+            <div class="icon logout-icon" onclick="openLogoutModal()">
+                <img src="../img/logout_new.png" class="icon-img">
+            </div>
+
+            <div id="header-user">Đang tải...</div>
+
+            <!-- DROPDOWN NOTIFICATION -->
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-title">Thông báo</div>
+                <div id="notif-list" class="notif-list">Không có thông báo!</div>
+            </div>
+        </div>
     </div>
 
     <!-- ================= MAIN LAYOUT ================= -->
@@ -180,13 +201,17 @@
             <button class="btn-primary" onclick="closePopup()">OK</button>
         </div>
     </div>
-
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
     <script>
-        /* ================= INIT SUPABASE ================= */
-        const db = supabase.createClient(
-            "https://oxaimnemcnqudtdguoyk.supabase.co",
-            "sb_publishable_6p-lVAZg_ATPz1a1cDjlOg_9vIcR42c"
-        );
 
         /* ===================================================================
             GLOBAL VARIABLES
@@ -212,29 +237,6 @@
                 `T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
         }
 
-        /* ===================================================================
-            HEADER NAME
-        =================================================================== */
-        async function loadStudentName() {
-            const studentId = localStorage.getItem("studentid");
-            const header = document.getElementById("header-user");
-
-            if (!studentId) {
-                header.innerText = "Chưa đăng nhập";
-                return;
-            }
-
-            const { data, error } = await db.from("student")
-                .select("fullname")
-                .eq("studentid", studentId)
-                .single();
-
-            if (error || !data) {
-                header.innerText = "Không tìm thấy sinh viên";
-            } else {
-                header.innerText = `Xin chào, ${data.fullname}`;
-            }
-        }
 
         /* ===================================================================
             LOAD ROOMS FROM DATABASE
@@ -374,8 +376,8 @@
         /* ===================================================================
             SLOT STATUS (ĐỂ TÔ MÀU)
             - past: slot đã qua (end <= now) -> xám, không cho chọn
-            - using: trong khoảng booking DangSuDung, now giữa start-end -> vàng
-            - hold: trong khoảng booking DangGiuCho (tương lai) -> đỏ
+            - using: trong khoảng booking Đang sử dụng, now giữa start-end -> vàng
+            - hold: trong khoảng booking Đang giữ chỗ (tương lai) -> đỏ
             - booked: có booking nhưng ko match 2 case trên -> xám
             - free: chưa book, còn tương lai -> trắng, được chọn
         =================================================================== */
@@ -388,10 +390,10 @@
 
             for (const b of currentBookings) {
                 if (slotStart < b.end && slotEnd > b.start) {
-                    if (b.status === "DangSuDung" && now >= b.start && now < b.end) {
+                    if (b.status === "Đang sử dụng" && now >= b.start && now < b.end) {
                         return "using";
                     }
-                    if (b.status === "DangGiuCho" && now < b.start) {
+                    if (b.status === "Đang giữ chỗ" && now < b.start) {
                         return "hold";
                     }
                     return "booked";
@@ -646,7 +648,7 @@
 
             // tạo row theo từng khoảng thời gian, lưu giờ theo local VN
             const rows = mergedIntervals.map(itv => {
-                const status = now < itv.start ? "DangGiuCho" : "DangSuDung";
+                const status = now < itv.start ? "Đang giữ chỗ" : "Đang sử dụng";
                 return {
                     studentid,
                     roomid: selectedRoomId,
@@ -702,7 +704,8 @@
             await loadFacilities();
         };
     </script>
-
+    <!-- JS load header -->
+    <script src="./student_header.js"></script>
 </body>
 
 </html>

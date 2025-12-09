@@ -3,79 +3,14 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>USSH - Lịch sử đặt phòng</title>
+    <title>Lịch sử đặt phòng</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="./layout.css">
 
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background: #ffffff;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        /* HEADER */
-        .header {
-            width: 100%;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 25px;
-            background: #f9fafb;
-            border-bottom: 1px solid #e5e7eb;
-            box-sizing: border-box;
-        }
-
-        .header-title {
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        #header-user {
-            font-size: 16px;
-            font-weight: bold;
-            color: #111827;
-        }
-
-        /* MAIN LAYOUT */
-        .main {
-            display: flex;
-            flex: 1;
-        }
-
-        /* SIDEBAR */
-        .sidebar {
-            width: 260px;
-            background: #ffffff;
-            border-right: 1px solid #e5e7eb;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .sidebar h3 {
-            margin-top: 0;
-        }
-
-        .sidebar a {
-            display: block;
-            padding: 8px 0;
-            color: #111827;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .sidebar a:hover {
-            font-weight: bold;
-        }
-
-        /* CONTENT */
         .content {
             flex: 1;
             padding: 40px 80px;
@@ -105,16 +40,19 @@
             border-bottom: 1px solid #e5e7eb;
         }
 
-        .status {
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 12px;
-            display: inline-block;
+        .btn-cancel-booking {
+            padding: 6px 12px;
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
-        .DangGiuCho { background: #fffbeb; color: #b45309; }
-        .DangSuDung { background: #ecfdf5; color: #065f46; }
-        .HoanThanh { background: #eff6ff; color: #1d4ed8; }
+
+        .btn-cancel-booking:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 
@@ -122,8 +60,25 @@
 
     <!-- HEADER -->
     <div class="header">
-        <div class="header-title">Lịch sử đặt phòng</div>
-        <div id="header-user">Đang tải...</div>
+        <div class="header-title">LỊCH SỬ ĐẶT PHÒNG</div>
+        <div class="header-right">
+
+            <div class="icon notification-icon" onclick="toggleNotification()">
+                <img src="../img/notification_new.png" class="icon-img">
+                <div id="notif-count" class="notif-count" style="display:none;">0</div>
+            </div>
+
+            <div class="icon logout-icon" onclick="openLogoutModal()">
+                <img src="../img/logout_new.png" class="icon-img">
+            </div>
+
+            <div id="header-user">Đang tải...</div>
+
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-title">Thông báo</div>
+                <div id="notif-list" class="notif-list">Không có thông báo!</div>
+            </div>
+        </div>
     </div>
 
     <!-- MAIN -->
@@ -134,7 +89,7 @@
             <h3>Danh sách</h3>
             <a href="./information.html">Thông tin cá nhân</a>
             <a href="./pre_booking.html">Đặt phòng</a>
-            <a href="./booking_history.html" style="font-weight:bold;">Lịch sử đặt phòng</a>
+            <a href="./booking_history.html" class="active">Lịch sử đặt phòng</a>
             <a href="#">Sự kiện của tôi</a>
         </div>
 
@@ -145,58 +100,65 @@
             <table id="historyTable">
                 <thead>
                     <tr>
+                        <th>Booking ID</th>
+                        <th>MSSV</th>
                         <th>Mã phòng</th>
-                        <th>Thời gian bắt đầu</th>
-                        <th>Thời gian kết thúc</th>
+                        <th>Mã ghế</th>
                         <th>Tiện ích</th>
-                        <!-- <th>Trạng thái</th> -->
+                        <th>Thời gian giữ chỗ</th>
+                        <th>Trạng thái</th>
+                        <th>Bắt đầu</th>
+                        <th>Kết thúc</th>
+                        <th>Hủy đăng ký</th>
                     </tr>
                 </thead>
+
                 <tbody id="historyBody">
-                    <tr><td colspan="5" style="text-align:center;">Đang tải...</td></tr>
+                    <tr>
+                        <td colspan="10" style="text-align:center;">Đang tải...</td>
+                    </tr>
                 </tbody>
             </table>
 
         </div>
     </div>
 
+    <!-- MODAL XÁC NHẬN HỦY -->
+    <div id="cancel-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn hủy đăng ký?</h3>
+            <p id="cancel-text"></p>
+
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="confirmCancelBooking()">Hủy đăng ký</button>
+                <button class="btn-cancel" onclick="closeCancelModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./student_header.js"></script>
+
     <script>
-        // Supabase init
-        const db = supabase.createClient(
-            "https://oxaimnemcnqudtdguoyk.supabase.co",
-            "sb_publishable_6p-lVAZg_ATPz1a1cDjlOg_9vIcR42c"
-        );
+        let bookingToCancel = null;
 
-        /* ==================== LOAD USER NAME ==================== */
-        async function loadStudentName() {
-            const studentId = localStorage.getItem("studentid");
-
-            if (!studentId) {
-                document.getElementById("header-user").innerText = "Chưa đăng nhập";
-                return;
-            }
-
-            const { data, error } = await db
-                .from("student")
-                .select("fullname")
-                .eq("studentid", studentId)
-                .single();
-
-            if (error || !data) {
-                document.getElementById("header-user").innerText = "Không tìm thấy sinh viên";
-                return;
-            }
-
-            document.getElementById("header-user").innerText = `Xin chào, ${data.fullname}`;
-        }
-
-        /* ==================== LOAD BOOKING HISTORY ==================== */
+        /* ==================== LOAD HISTORY ==================== */
         async function loadBookingHistory() {
             const studentId = localStorage.getItem("studentid");
             const body = document.getElementById("historyBody");
 
             if (!studentId) {
-                body.innerHTML = "<tr><td colspan='5'>Không tìm thấy studentid.</td></tr>";
+                body.innerHTML = "<tr><td colspan='10'>Không tìm thấy studentid.</td></tr>";
                 return;
             }
 
@@ -206,39 +168,82 @@
                 .eq("studentid", studentId)
                 .order("starttime", { ascending: false });
 
-            if (error) {
-                body.innerHTML = "<tr><td colspan='5'>Lỗi tải dữ liệu.</td></tr>";
+            if (error || !data) {
+                body.innerHTML = "<tr><td colspan='10'>Lỗi tải dữ liệu.</td></tr>";
                 return;
             }
 
-            if (!data || data.length === 0) {
-                body.innerHTML = "<tr><td colspan='5'>Bạn chưa có lịch sử đặt phòng.</td></tr>";
+            if (data.length === 0) {
+                body.innerHTML = "<tr><td colspan='10'>Bạn chưa có lịch sử đặt phòng.</td></tr>";
                 return;
             }
 
             body.innerHTML = "";
 
+            const now = new Date();
+
             data.forEach(b => {
                 const tr = document.createElement("tr");
 
-                const start = new Date(b.starttime).toLocaleString("vi-VN");
-                const end = new Date(b.endtime).toLocaleString("vi-VN");
+                const start = new Date(b.starttime);
+                const end = new Date(b.endtime);
+                const hold = b.holdtime ? new Date(b.holdtime).toLocaleString("vi-VN") : "—";
+
+                const allowCancel = now < start;
 
                 tr.innerHTML = `
-                    <td>${b.roomid}</td>
-                    <td>${start}</td>
-                    <td>${end}</td>
+                    <td>${b.bookingid}</td>
+                    <td>${b.studentid}</td>
+                    <td>${b.roomid || "—"}</td>
+                    <td>${b.seatid || "—"}</td>
                     <td>${b.facilities || "Không"}</td>
+                    <td>${hold}</td>
+                    <td>${b.booking_status || "—"}</td>
+                    <td>${start.toLocaleString("vi-VN")}</td>
+                    <td>${end.toLocaleString("vi-VN")}</td>
+                    <td>
+                        <button 
+                            class="btn-cancel-booking"
+                            onclick="openCancelModal(${b.bookingid})"
+                            ${allowCancel ? "" : "disabled"}>
+                            Hủy
+                        </button>
+                    </td>
                 `;
 
                 body.appendChild(tr);
             });
         }
 
-        /* ==================== INIT ==================== */
+        /* ==================== MODAL HỦY ==================== */
+        function openCancelModal(bookingId) {
+            bookingToCancel = bookingId;
+            document.getElementById("cancel-modal").style.display = "flex";
+        }
+
+        function closeCancelModal() {
+            bookingToCancel = null;
+            document.getElementById("cancel-modal").style.display = "none";
+        }
+
+        /* ==================== CONFIRM CANCEL ==================== */
+        async function confirmCancelBooking() {
+            if (!bookingToCancel) return;
+
+            await db
+                .from("booking")
+                .update({ booking_status: "Hủy" })
+                .eq("bookingid", bookingToCancel);
+
+            closeCancelModal();
+            loadBookingHistory();
+        }
+
+        /* INIT */
         loadStudentName();
         loadBookingHistory();
     </script>
 
 </body>
+
 </html>
