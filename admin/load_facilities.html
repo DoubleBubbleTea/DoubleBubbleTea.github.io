@@ -3,8 +3,9 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Danh sách sinh viên</title>
+    <title>Quản lý tiện ích phòng</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="stylesheet" href="./admin_common.css">
 
     <style>
@@ -29,8 +30,7 @@
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
         }
 
-        th,
-        td {
+        th, td {
             padding: 12px;
             border-bottom: 1px solid #ddd;
             text-align: left;
@@ -77,7 +77,7 @@
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.55);
+            background: rgba(0,0,0,0.55);
             display: none;
             justify-content: center;
             align-items: center;
@@ -118,36 +118,38 @@
     </style>
 </head>
 
-<div id="logout-modal" class="modal-overlay">
-    <div class="modal-box">
-        <h3>Bạn muốn đăng xuất?</h3>
-        <div style="margin-top: 15px;">
-            <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
-            <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+<body>
+
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div style="margin-top: 15px; display:flex; justify-content:center; gap:12px;">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
         </div>
     </div>
-</div>
 
-<body>
     <!-- HEADER -->
     <div class="header">
         <div>Dashboard</div>
-        <div class="header-right">
 
+        <div class="header-right">
             <!-- NOTIFICATION ICON -->
             <div class="icon notification-icon" onclick="toggleNotification()">
                 <img src="../img/notification_new.png" class="icon-img">
                 <div id="notif-count" class="notif-count" style="display:none;">0</div>
             </div>
 
-            <!-- LOGOUT ICON -->
+            <!-- LOGOUT -->
             <div class="icon logout-icon" onclick="openLogoutModal()">
                 <img src="../img/logout_new.png" class="icon-img">
             </div>
 
             <div id="header-user">Đang tải...</div>
 
-            <!-- NOTIFICATION DROPDOWN -->
+            <!-- DROPDOWN -->
             <div id="notif-dropdown" class="notif-dropdown">
                 <div class="notif-title">Thông báo</div>
                 <div id="notif-list" class="notif-list">Không có thông báo!</div>
@@ -155,6 +157,7 @@
         </div>
     </div>
 
+    <!-- MAIN -->
     <div class="main">
 
         <!-- SIDEBAR -->
@@ -163,83 +166,70 @@
             <div class="sidebar-title">Administrator</div>
 
             <a href="./dashboard.html">Thông tin cá nhân</a>
-            <a href="./load_student.html" class="active">Danh sách sinh viên</a>
+            <a href="./load_student.html">Danh sách sinh viên</a>
             <a href="./load_history.html">Lịch sử đặt phòng</a>
             <a href="./load_notification.html">Quản lý thông báo</a>
-            <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
+            <a href="./load_facilities.html" class="active">Danh sách cơ sở vật chất</a>
             <a href="./load_seat.html">Danh sách phòng</a>
         </div>
 
         <!-- CONTENT -->
         <div class="content">
+            <h2>Danh sách tiện ích</h2>
 
-            <h2>Danh sách sinh viên</h2>
-
-            <button class="btn-add" onclick="openAddModal()">+ Thêm sinh viên</button>
+            <button class="btn-add" onclick="openAddModal()">+ Thêm tiện ích</button>
 
             <!-- TABLE -->
             <table>
                 <thead>
                     <tr>
-                        <th>MSSV</th>
-                        <th>Họ tên</th>
-                        <th>Email</th>
-                        <th>SĐT</th>
-                        <th>Ngành</th>
-                        <th>Uy tín</th>
+                        <th>ID</th>
+                        <th>Loại tiện ích</th>
+                        <th>Chi phí (VND/giờ)</th>
                         <th>Hành động</th>
                     </tr>
                 </thead>
-                <tbody id="student-table"></tbody>
+                <tbody id="facility-table"></tbody>
             </table>
-
         </div>
     </div>
 
-    <!-- POPUP ADD / EDIT -->
+    <!-- MODAL ADD / EDIT -->
     <div id="modal" class="modal-overlay">
         <div class="modal-box">
-            <h3 id="modal-title">Thêm sinh viên</h3>
+            <h3 id="modal-title">Thêm tiện ích</h3>
 
-            <input id="st-id" class="modal-input" placeholder="Mã số sinh viên">
-            <input id="st-name" class="modal-input" placeholder="Họ tên">
-            <input id="st-email" class="modal-input" placeholder="Email">
-            <input id="st-phone" class="modal-input" placeholder="Số điện thoại">
-            <input id="st-major" class="modal-input" placeholder="Ngành học">
-            <input id="st-trust" class="modal-input" placeholder="Điểm uy tín">
+            <input id="facility-type" class="modal-input" placeholder="Tên tiện ích (VD: Máy lạnh)">
+            <input id="facility-cost" class="modal-input" placeholder="Chi phí / giờ" type="number">
 
             <div class="modal-buttons">
-                <button class="btn-save" onclick="saveStudent()">Lưu</button>
+                <button class="btn-save" onclick="saveFacility()">Lưu</button>
                 <button class="btn-cancel" onclick="closeModal()">Hủy</button>
             </div>
         </div>
     </div>
 
-    <!-- SUPABASE -->
+    <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./admin_common.js"></script>
 
     <script>
-
         let editingId = null;
 
         function openAddModal() {
             editingId = null;
-            document.getElementById("modal-title").innerText = "Thêm sinh viên";
-            clearForm();
+            document.getElementById("modal-title").innerText = "Thêm tiện ích";
+            document.getElementById("facility-type").value = "";
+            document.getElementById("facility-cost").value = "";
             document.getElementById("modal").style.display = "flex";
         }
 
-        function openEditModal(student) {
-            editingId = student.studentid;
-            document.getElementById("modal-title").innerText = "Sửa thông tin";
+        function openEditModal(item) {
+            editingId = item.facility_id;
 
-            document.getElementById("st-id").value = student.studentid;
-            document.getElementById("st-name").value = student.fullname;
-            document.getElementById("st-email").value = student.email;
-            document.getElementById("st-phone").value = student.phonenumber;
-            document.getElementById("st-major").value = student.major;
-            document.getElementById("st-trust").value = student.trust_score;
+            document.getElementById("modal-title").innerText = "Sửa tiện ích";
+            document.getElementById("facility-type").value = item.facility_type;
+            document.getElementById("facility-cost").value = item.cost;
 
             document.getElementById("modal").style.display = "flex";
         }
@@ -248,63 +238,57 @@
             document.getElementById("modal").style.display = "none";
         }
 
-        function clearForm() {
-            document.getElementById("st-id").value = "";
-            document.getElementById("st-name").value = "";
-            document.getElementById("st-email").value = "";
-            document.getElementById("st-phone").value = "";
-            document.getElementById("st-major").value = "";
-            document.getElementById("st-trust").value = "";
-        }
+        async function saveFacility() {
+            const type = document.getElementById("facility-type").value.trim();
+            const cost = document.getElementById("facility-cost").value;
 
-        async function saveStudent() {
+            if (!type || !cost) {
+                alert("Vui lòng nhập đầy đủ thông tin!");
+                return;
+            }
+
             const newData = {
-                studentid: document.getElementById("st-id").value,
-                fullname: document.getElementById("st-name").value,
-                email: document.getElementById("st-email").value,
-                phonenumber: document.getElementById("st-phone").value,
-                major: document.getElementById("st-major").value,
-                trust_score: document.getElementById("st-trust").value
+                facility_type: type,
+                cost: Number(cost)
             };
 
-            let result;
-
             if (editingId) {
-                result = await db.from("student").update(newData).eq("studentid", editingId);
+                await db.from("facilities")
+                    .update(newData)
+                    .eq("facility_id", editingId);
             } else {
-                result = await db.from("student").insert(newData);
+                await db.from("facilities").insert(newData);
             }
 
             closeModal();
-            loadStudents();
+            loadFacilities();
         }
 
-        async function deleteStudent(id) {
-            if (!confirm("Bạn có chắc muốn xóa sinh viên này?")) return;
+        async function deleteFacility(id) {
+            if (!confirm("Bạn có chắc muốn xóa tiện ích này?")) return;
 
-            await db.from("student").delete().eq("studentid", id);
-            loadStudents();
+            await db.from("facilities")
+                .delete()
+                .eq("facility_id", id);
+
+            loadFacilities();
         }
 
-        async function loadStudents() {
-            const { data } = await db.from("student").select("*");
+        async function loadFacilities() {
+            const { data } = await db.from("facilities").select("*").order("facility_id");
 
-            const table = document.getElementById("student-table");
+            const table = document.getElementById("facility-table");
             table.innerHTML = "";
 
-            data.forEach(st => {
+            data.forEach(item => {
                 table.innerHTML += `
                     <tr>
-                        <td>${st.studentid}</td>
-                        <td>${st.fullname}</td>
-                        <td>${st.email}</td>
-                        <td>${st.phonenumber || "—"}</td>
-                        <td>${st.major || "—"}</td>
-                        <td>${st.trust_score ?? "—"}</td>
-
+                        <td>${item.facility_id}</td>
+                        <td>${item.facility_type}</td>
+                        <td>${item.cost.toLocaleString()}</td>
                         <td>
-                            <button class="btn-edit" onclick='openEditModal(${JSON.stringify(st)})'>Sửa</button>
-                            <button class="btn-delete" onclick="deleteStudent('${st.studentid}')">Xóa</button>
+                            <button class="btn-edit" onclick='openEditModal(${JSON.stringify(item)})'>Sửa</button>
+                            <button class="btn-delete" onclick="deleteFacility(${item.facility_id})">Xóa</button>
                         </td>
                     </tr>
                 `;
@@ -313,12 +297,19 @@
 
         async function loadHeader() {
             const adminId = localStorage.getItem("adminid");
-            const { data } = await db.from("admin").select("fullname").eq("adminid", adminId).single();
-            document.getElementById("header-user").innerText = data ? `Xin chào, ${data.fullname}` : "";
+
+            const { data } = await db
+                .from("admin")
+                .select("fullname")
+                .eq("adminid", adminId)
+                .single();
+
+            document.getElementById("header-user").innerText =
+                data ? `Xin chào, ${data.fullname}` : "";
         }
 
         loadHeader();
-        loadStudents();
+        loadFacilities();
     </script>
 
 </body>

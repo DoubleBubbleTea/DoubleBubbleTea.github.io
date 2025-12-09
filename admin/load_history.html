@@ -5,72 +5,9 @@
   <meta charset="UTF-8" />
   <title>Booking History</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./layout.css">
+  <link rel="stylesheet" href="./admin_common.css">
 
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #e9edf3;
-    }
-
-    .header {
-      height: 60px;
-      background: #003b73;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 25px;
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    .main {
-      display: flex;
-      height: calc(100vh - 60px);
-    }
-
-    .sidebar {
-      width: 260px;
-      background: #003b73;
-      color: white;
-      padding-top: 20px;
-    }
-
-    .sidebar-logo {
-      width: 160px;
-      height: 140px;
-      background: white;
-      margin: 0 auto 10px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: black;
-      font-size: 20px;
-      border-radius: 4px;
-    }
-
-    .sidebar-title {
-      text-align: center;
-      margin-bottom: 20px;
-      font-weight: bold;
-      font-size: 17px;
-    }
-
-    .sidebar a {
-      display: block;
-      padding: 12px 25px;
-      color: white;
-      text-decoration: none;
-      font-size: 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .sidebar a:hover {
-      background: #004c99;
-    }
-
     .content {
       flex: 1;
       padding: 30px 50px;
@@ -102,11 +39,41 @@
   </style>
 </head>
 
+<div id="logout-modal" class="modal-overlay">
+  <div class="modal-box">
+    <h3>Bạn muốn đăng xuất?</h3>
+    <div style="margin-top: 15px;">
+      <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+      <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+    </div>
+  </div>
+</div>
+
 <body>
 
   <div class="header">
     <div>Dashboard</div>
-    <div id="header-user">Đang tải...</div>
+    <div class="header-right">
+
+      <!-- NOTIFICATION ICON -->
+      <div class="icon notification-icon" onclick="toggleNotification()">
+        <img src="../img/notification_new.png" class="icon-img">
+        <div id="notif-count" class="notif-count" style="display:none;">0</div>
+      </div>
+
+      <!-- LOGOUT ICON -->
+      <div class="icon logout-icon" onclick="openLogoutModal()">
+        <img src="../img/logout_new.png" class="icon-img">
+      </div>
+
+      <div id="header-user">Đang tải...</div>
+
+      <!-- NOTIFICATION DROPDOWN -->
+      <div id="notif-dropdown" class="notif-dropdown">
+        <div class="notif-title">Thông báo</div>
+        <div id="notif-list" class="notif-list">Không có thông báo!</div>
+      </div>
+    </div>
   </div>
 
   <div class="main">
@@ -116,7 +83,9 @@
 
       <a href="./dashboard.html">Thông tin quản trị</a>
       <a href="./load_student.html">Danh sách sinh viên</a>
-      <a href="./load_history.html">Lịch sử đặt phòng</a>
+      <a href="./load_history.html" class="active">Lịch sử đặt phòng</a>
+      <a href="./load_notification.html">Quản lý thông báo</a>
+      <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
       <a href="./manage_rooms.html">Danh sách phòng</a>
     </div>
 
@@ -144,12 +113,9 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./admin_common.js"></script>
 
   <script>
-    const db = supabase.createClient(
-      "https://oxaimnemcnqudtdguoyk.supabase.co",
-      "sb_publishable_6p-lVAZg_ATPz1a1cDjlOg_9vIcR42c"
-    );
 
     function formatDate(dt) {
       if (!dt) return "—";

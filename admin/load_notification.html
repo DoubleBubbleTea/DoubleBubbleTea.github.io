@@ -3,8 +3,9 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Danh sách sinh viên</title>
+    <title>Quản lý thông báo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="stylesheet" href="./admin_common.css">
 
     <style>
@@ -29,8 +30,7 @@
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
         }
 
-        th,
-        td {
+        th, td {
             padding: 12px;
             border-bottom: 1px solid #ddd;
             text-align: left;
@@ -118,17 +118,19 @@
     </style>
 </head>
 
-<div id="logout-modal" class="modal-overlay">
-    <div class="modal-box">
-        <h3>Bạn muốn đăng xuất?</h3>
-        <div style="margin-top: 15px;">
-            <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
-            <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+<body>
+
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div style="margin-top: 15px; display:flex; justify-content:center; gap:12px;">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
         </div>
     </div>
-</div>
 
-<body>
     <!-- HEADER -->
     <div class="header">
         <div>Dashboard</div>
@@ -147,7 +149,7 @@
 
             <div id="header-user">Đang tải...</div>
 
-            <!-- NOTIFICATION DROPDOWN -->
+            <!-- DROPDOWN -->
             <div id="notif-dropdown" class="notif-dropdown">
                 <div class="notif-title">Thông báo</div>
                 <div id="notif-list" class="notif-list">Không có thông báo!</div>
@@ -155,6 +157,7 @@
         </div>
     </div>
 
+    <!-- MAIN -->
     <div class="main">
 
         <!-- SIDEBAR -->
@@ -163,9 +166,9 @@
             <div class="sidebar-title">Administrator</div>
 
             <a href="./dashboard.html">Thông tin cá nhân</a>
-            <a href="./load_student.html" class="active">Danh sách sinh viên</a>
+            <a href="./load_student.html">Danh sách sinh viên</a>
             <a href="./load_history.html">Lịch sử đặt phòng</a>
-            <a href="./load_notification.html">Quản lý thông báo</a>
+            <a href="./load_notification.html" class="active">Quản lý thông báo</a>
             <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
             <a href="./load_seat.html">Danh sách phòng</a>
         </div>
@@ -173,74 +176,56 @@
         <!-- CONTENT -->
         <div class="content">
 
-            <h2>Danh sách sinh viên</h2>
+            <h2>Danh sách thông báo</h2>
 
-            <button class="btn-add" onclick="openAddModal()">+ Thêm sinh viên</button>
+            <button class="btn-add" onclick="openAddModal()">+ Thêm thông báo</button>
 
-            <!-- TABLE -->
             <table>
                 <thead>
                     <tr>
-                        <th>MSSV</th>
-                        <th>Họ tên</th>
-                        <th>Email</th>
-                        <th>SĐT</th>
-                        <th>Ngành</th>
-                        <th>Uy tín</th>
+                        <th>ID</th>
+                        <th>Nội dung</th>
+                        <th>Admin</th>
                         <th>Hành động</th>
                     </tr>
                 </thead>
-                <tbody id="student-table"></tbody>
+                <tbody id="notif-table"></tbody>
             </table>
-
         </div>
     </div>
 
-    <!-- POPUP ADD / EDIT -->
+    <!-- MODAL ADD / EDIT -->
     <div id="modal" class="modal-overlay">
         <div class="modal-box">
-            <h3 id="modal-title">Thêm sinh viên</h3>
+            <h3 id="modal-title">Thêm thông báo</h3>
 
-            <input id="st-id" class="modal-input" placeholder="Mã số sinh viên">
-            <input id="st-name" class="modal-input" placeholder="Họ tên">
-            <input id="st-email" class="modal-input" placeholder="Email">
-            <input id="st-phone" class="modal-input" placeholder="Số điện thoại">
-            <input id="st-major" class="modal-input" placeholder="Ngành học">
-            <input id="st-trust" class="modal-input" placeholder="Điểm uy tín">
+            <textarea id="notif-message" class="modal-input" placeholder="Nhập nội dung thông báo" rows="4"></textarea>
 
             <div class="modal-buttons">
-                <button class="btn-save" onclick="saveStudent()">Lưu</button>
+                <button class="btn-save" onclick="saveNotification()">Lưu</button>
                 <button class="btn-cancel" onclick="closeModal()">Hủy</button>
             </div>
         </div>
     </div>
 
-    <!-- SUPABASE -->
+    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./admin_common.js"></script>
 
     <script>
-
         let editingId = null;
 
         function openAddModal() {
             editingId = null;
-            document.getElementById("modal-title").innerText = "Thêm sinh viên";
-            clearForm();
+            document.getElementById("modal-title").innerText = "Thêm thông báo";
+            document.getElementById("notif-message").value = "";
             document.getElementById("modal").style.display = "flex";
         }
 
-        function openEditModal(student) {
-            editingId = student.studentid;
-            document.getElementById("modal-title").innerText = "Sửa thông tin";
-
-            document.getElementById("st-id").value = student.studentid;
-            document.getElementById("st-name").value = student.fullname;
-            document.getElementById("st-email").value = student.email;
-            document.getElementById("st-phone").value = student.phonenumber;
-            document.getElementById("st-major").value = student.major;
-            document.getElementById("st-trust").value = student.trust_score;
-
+        function openEditModal(item) {
+            editingId = item.notification_id;
+            document.getElementById("modal-title").innerText = "Sửa thông báo";
+            document.getElementById("notif-message").value = item.message;
             document.getElementById("modal").style.display = "flex";
         }
 
@@ -248,63 +233,48 @@
             document.getElementById("modal").style.display = "none";
         }
 
-        function clearForm() {
-            document.getElementById("st-id").value = "";
-            document.getElementById("st-name").value = "";
-            document.getElementById("st-email").value = "";
-            document.getElementById("st-phone").value = "";
-            document.getElementById("st-major").value = "";
-            document.getElementById("st-trust").value = "";
-        }
+        async function saveNotification() {
+            const adminId = localStorage.getItem("adminid");
+            const msg = document.getElementById("notif-message").value;
 
-        async function saveStudent() {
-            const newData = {
-                studentid: document.getElementById("st-id").value,
-                fullname: document.getElementById("st-name").value,
-                email: document.getElementById("st-email").value,
-                phonenumber: document.getElementById("st-phone").value,
-                major: document.getElementById("st-major").value,
-                trust_score: document.getElementById("st-trust").value
-            };
+            if (!msg.trim()) return alert("Vui lòng nhập nội dung!");
 
-            let result;
+            const newData = { message: msg, adminid: adminId };
 
             if (editingId) {
-                result = await db.from("student").update(newData).eq("studentid", editingId);
+                await db.from("notification").update(newData).eq("notification_id", editingId);
             } else {
-                result = await db.from("student").insert(newData);
+                await db.from("notification").insert(newData);
             }
 
             closeModal();
-            loadStudents();
+            loadNotifications();
         }
 
-        async function deleteStudent(id) {
-            if (!confirm("Bạn có chắc muốn xóa sinh viên này?")) return;
-
-            await db.from("student").delete().eq("studentid", id);
-            loadStudents();
+        async function deleteNotification(id) {
+            if (!confirm("Bạn có chắc muốn xóa?")) return;
+            await db.from("notification").delete().eq("notification_id", id);
+            loadNotifications();
         }
 
-        async function loadStudents() {
-            const { data } = await db.from("student").select("*");
+        async function loadNotifications() {
+            const { data } = await db
+                .from("notification")
+                .select("notification_id, message, adminid");
 
-            const table = document.getElementById("student-table");
+            const table = document.getElementById("notif-table");
             table.innerHTML = "";
 
-            data.forEach(st => {
+            data.forEach(n => {
                 table.innerHTML += `
                     <tr>
-                        <td>${st.studentid}</td>
-                        <td>${st.fullname}</td>
-                        <td>${st.email}</td>
-                        <td>${st.phonenumber || "—"}</td>
-                        <td>${st.major || "—"}</td>
-                        <td>${st.trust_score ?? "—"}</td>
+                        <td>${n.notification_id}</td>
+                        <td>${n.message}</td>
+                        <td>${n.adminid ?? "—"}</td>
 
                         <td>
-                            <button class="btn-edit" onclick='openEditModal(${JSON.stringify(st)})'>Sửa</button>
-                            <button class="btn-delete" onclick="deleteStudent('${st.studentid}')">Xóa</button>
+                            <button class="btn-edit" onclick='openEditModal(${JSON.stringify(n)})'>Sửa</button>
+                            <button class="btn-delete" onclick="deleteNotification('${n.notification_id}')">Xóa</button>
                         </td>
                     </tr>
                 `;
@@ -313,12 +283,19 @@
 
         async function loadHeader() {
             const adminId = localStorage.getItem("adminid");
-            const { data } = await db.from("admin").select("fullname").eq("adminid", adminId).single();
-            document.getElementById("header-user").innerText = data ? `Xin chào, ${data.fullname}` : "";
+
+            const { data } = await db
+                .from("admin")
+                .select("fullname")
+                .eq("adminid", adminId)
+                .single();
+
+            document.getElementById("header-user").innerText =
+                data ? `Xin chào, ${data.fullname}` : "";
         }
 
         loadHeader();
-        loadStudents();
+        loadNotifications();
     </script>
 
 </body>
