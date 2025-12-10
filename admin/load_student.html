@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="./admin_common.css">
 
     <style>
-        /* ===== CONTENT ===== */
         .content {
             flex: 1;
             padding: 30px 50px;
@@ -21,7 +20,6 @@
             font-weight: bold;
         }
 
-        /* ===== TABLE ===== */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -73,7 +71,7 @@
             cursor: pointer;
         }
 
-        /* ===== MODAL ===== */
+        /* Modal chung */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -81,13 +79,15 @@
             display: none;
             justify-content: center;
             align-items: center;
+            z-index: 9999;
         }
 
         .modal-box {
             background: white;
-            padding: 25px;
-            width: 380px;
-            border-radius: 6px;
+            padding: 22px;
+            width: 360px;
+            border-radius: 8px;
+            text-align: center;
         }
 
         .modal-input {
@@ -101,53 +101,63 @@
         .modal-buttons button {
             padding: 8px 16px;
             border: none;
-            margin-top: 10px;
             border-radius: 4px;
             cursor: pointer;
+            margin-top: 10px;
         }
 
-        .btn-save {
-            background: #16a34a;
+        .btn-confirm {
+            background: #dc2626;
             color: white;
         }
 
         .btn-cancel {
             background: #6b7280;
             color: white;
+            margin-left: 10px;
         }
     </style>
 </head>
 
-<div id="logout-modal" class="modal-overlay">
-    <div class="modal-box">
-        <h3>Bạn muốn đăng xuất?</h3>
-        <div style="margin-top: 15px;">
-            <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
-            <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+<body>
+
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div style="margin-top: 15px;">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
         </div>
     </div>
-</div>
 
-<body>
+    <!-- DELETE CONFIRM MODAL -->
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Xóa sinh viên?</h3>
+            <p style="margin-bottom: 15px;">Hành động này không thể hoàn tác.</p>
+            <button class="btn-confirm" onclick="confirmDelete()">Xóa</button>
+            <button class="btn-cancel" onclick="closeDeleteModal()">Hủy</button>
+        </div>
+    </div>
+
     <!-- HEADER -->
     <div class="header">
         <div>Dashboard</div>
         <div class="header-right">
 
-            <!-- NOTIFICATION ICON -->
             <div class="icon notification-icon" onclick="toggleNotification()">
                 <img src="../img/notification_new.png" class="icon-img">
                 <div id="notif-count" class="notif-count" style="display:none;">0</div>
             </div>
 
-            <!-- LOGOUT ICON -->
             <div class="icon logout-icon" onclick="openLogoutModal()">
                 <img src="../img/logout_new.png" class="icon-img">
             </div>
 
             <div id="header-user">Đang tải...</div>
 
-            <!-- NOTIFICATION DROPDOWN -->
             <div id="notif-dropdown" class="notif-dropdown">
                 <div class="notif-title">Thông báo</div>
                 <div id="notif-list" class="notif-list">Không có thông báo!</div>
@@ -172,12 +182,10 @@
 
         <!-- CONTENT -->
         <div class="content">
-
             <h2>Danh sách sinh viên</h2>
 
             <button class="btn-add" onclick="openAddModal()">+ Thêm sinh viên</button>
 
-            <!-- TABLE -->
             <table>
                 <thead>
                     <tr>
@@ -192,11 +200,10 @@
                 </thead>
                 <tbody id="student-table"></tbody>
             </table>
-
         </div>
     </div>
 
-    <!-- POPUP ADD / EDIT -->
+    <!-- ADD / EDIT MODAL -->
     <div id="modal" class="modal-overlay">
         <div class="modal-box">
             <h3 id="modal-title">Thêm sinh viên</h3>
@@ -215,13 +222,12 @@
         </div>
     </div>
 
-    <!-- SUPABASE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./admin_common.js"></script>
 
     <script>
-
         let editingId = null;
+        let deleteId = null;
 
         function openAddModal() {
             editingId = null;
@@ -244,10 +250,6 @@
             document.getElementById("modal").style.display = "flex";
         }
 
-        function closeModal() {
-            document.getElementById("modal").style.display = "none";
-        }
-
         function clearForm() {
             document.getElementById("st-id").value = "";
             document.getElementById("st-name").value = "";
@@ -257,6 +259,38 @@
             document.getElementById("st-trust").value = "";
         }
 
+        function closeModal() {
+            document.getElementById("modal").style.display = "none";
+        }
+
+        /* ======================
+           DELETE MODAL
+        ====================== */
+
+        function openDeleteModal(id) {
+            deleteId = id;
+            document.getElementById("delete-modal").style.display = "flex";
+        }
+
+        function closeDeleteModal() {
+            deleteId = null;
+            document.getElementById("delete-modal").style.display = "none";
+        }
+
+        async function confirmDelete() {
+            await db.from("student").delete().eq("studentid", deleteId);
+            closeDeleteModal();
+            loadStudents();
+        }
+
+        /* OLD deleteStudent() — replaced */
+        function deleteStudent(id) {
+            openDeleteModal(id);
+        }
+
+        /* ======================
+           SAVE STUDENT
+        ====================== */
         async function saveStudent() {
             const newData = {
                 studentid: document.getElementById("st-id").value,
@@ -264,7 +298,8 @@
                 email: document.getElementById("st-email").value,
                 phonenumber: document.getElementById("st-phone").value,
                 major: document.getElementById("st-major").value,
-                trust_score: document.getElementById("st-trust").value
+                trust_score: document.getElementById("st-trust").value,
+                password: "123"   // 🟢 password mặc định
             };
 
             let result;
@@ -275,16 +310,19 @@
                 result = await db.from("student").insert(newData);
             }
 
+            if (result.error) {
+                console.error(result.error);
+                alert(result.error.message);
+                return;
+            }
+
             closeModal();
             loadStudents();
         }
 
-        async function deleteStudent(id) {
-            if (!confirm("Bạn có chắc muốn xóa sinh viên này?")) return;
-
-            await db.from("student").delete().eq("studentid", id);
-            loadStudents();
-        }
+        /* ======================
+           LOAD STUDENTS
+        ====================== */
 
         async function loadStudents() {
             const { data } = await db.from("student").select("*");
@@ -301,7 +339,6 @@
                         <td>${st.phonenumber || "—"}</td>
                         <td>${st.major || "—"}</td>
                         <td>${st.trust_score ?? "—"}</td>
-
                         <td>
                             <button class="btn-edit" onclick='openEditModal(${JSON.stringify(st)})'>Sửa</button>
                             <button class="btn-delete" onclick="deleteStudent('${st.studentid}')">Xóa</button>
@@ -314,11 +351,13 @@
         async function loadHeader() {
             const adminId = localStorage.getItem("adminid");
             const { data } = await db.from("admin").select("fullname").eq("adminid", adminId).single();
-            document.getElementById("header-user").innerText = data ? `Xin chào, ${data.fullname}` : "";
+            document.getElementById("header-user").innerText =
+                data ? `Xin chào, ${data.fullname}` : "";
         }
 
         loadHeader();
         loadStudents();
+
     </script>
 
 </body>

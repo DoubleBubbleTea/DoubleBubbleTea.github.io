@@ -10,58 +10,133 @@
     <link rel="stylesheet" href="./layout.css">
 
     <style>
-        /* CSS RIÊNG CỦA TRANG NÀY */
+        /* ============================ */
+        /* CĂN GIỮA TOÀN BỘ KHU VỰC */
+        /* ============================ */
+
         .content {
             flex: 1;
             padding: 40px 80px;
             box-sizing: border-box;
+            background: #f9fafb;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Giúp căn giữa theo chiều ngang */
+        }
+
+        /* ============================ */
+        /* TIÊU ĐỀ */
+        /* ============================ */
+
+        .content-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 30px;
             text-align: center;
         }
 
+        /* ============================ */
+        /* WRAPPER CHỨA 2 CARD */
+        /* ============================ */
+
         .choice-wrapper {
+            width: 100%;
+            max-width: 900px; /* Giới hạn chiều rộng tổng */
             display: flex;
-            justify-content: center;
-            gap: 120px;
-            margin-top: 40px;
+            justify-content: center; /* Căn giữa 2 card */
+            align-items: center;
+            gap: 40px;
+            margin-top: 10px;
+            flex-wrap: wrap;
         }
 
+        /* ============================ */
+        /* CARD */
+        /* ============================ */
+
         .choice-box {
-            width: 260px;
-            padding: 20px;
-            border-radius: 10px;
+            width: 330px;
+            padding: 28px 24px 24px;
+            border-radius: 18px;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            box-shadow: 0 10px 18px rgba(15, 23, 42, 0.04);
             cursor: pointer;
-            transition: 0.25s;
-            box-sizing: border-box;
+            transition: 0.2s ease;
+            text-align: center;
         }
 
         .choice-box:hover {
-            background: #f0f4ff;
-            transform: scale(1.03);
+            border-color: #3b82f6;
+            box-shadow: 0 14px 30px rgba(37, 99, 235, 0.12);
+            transform: translateY(-3px);
         }
 
-        img {
-            width: 75%;
+        .choice-box img {
+            width: 110px;
+            height: auto;
+            margin-bottom: 18px;
             pointer-events: none;
         }
 
-        h2 {
+        .choice-title {
             font-size: 20px;
-            color: #1f2937;
+            font-weight: 700;
+            color: #111827;
+            margin: 0 0 8px 0;
         }
 
-        p {
+        .choice-desc {
             font-size: 14px;
             color: #6b7280;
-            margin-top: -5px;
+            margin: 0 0 20px 0;
+            line-height: 1.4;
         }
 
-        .divider {
-            width: 1px;
-            height: 400px;
-            background: linear-gradient(to bottom,
-                    rgba(0, 0, 0, 0) 0%,
-                    rgba(0, 0, 0, 0.15) 50%,
-                    rgba(0, 0, 0, 0) 100%);
+        /* ============================ */
+        /* BUTTON TRONG CARD */
+        /* ============================ */
+
+        .choice-btn {
+            display: inline-block;
+            padding: 9px 18px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            background: #f9fafb;
+            color: #111827;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.18s;
+        }
+
+        .choice-btn:hover {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: #ffffff;
+        }
+
+        /* Cho phép card clickable nhưng nút vẫn hoạt động riêng */
+        .choice-box-inner {
+            pointer-events: none;
+        }
+
+        .choice-box-inner .choice-btn {
+            pointer-events: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .content {
+                padding: 24px 20px;
+            }
+
+            .choice-wrapper {
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -72,20 +147,17 @@
     <div class="header">
         <div class="header-title">ĐẶT PHÒNG</div>
         <div class="header-right">
-            <!-- ICON NOTIFICATION -->
             <div class="icon notification-icon" onclick="toggleNotification()">
                 <img src="../img/notification_new.png" class="icon-img">
                 <div id="notif-count" class="notif-count" style="display:none;">0</div>
             </div>
 
-            <!-- ICON LOGOUT -->
             <div class="icon logout-icon" onclick="openLogoutModal()">
                 <img src="../img/logout_new.png" class="icon-img">
             </div>
 
             <div id="header-user">Đang tải...</div>
 
-            <!-- DROPDOWN NOTIFICATION -->
             <div id="notif-dropdown" class="notif-dropdown">
                 <div class="notif-title">Thông báo</div>
                 <div id="notif-list" class="notif-list">Không có thông báo!</div>
@@ -107,25 +179,43 @@
 
         <!-- CONTENT -->
         <div class="content">
+            <div class="content-title">Chọn loại đặt phòng</div>
+
             <div class="choice-wrapper">
 
+                <!-- CARD CÁ NHÂN -->
                 <div class="choice-box" onclick="location.href='./bookingtest.html'">
-                    <img src="../img/single1.png" alt="Booking cá nhân">
-                    <h2>Đặt phòng cá nhân</h2>
-                    <p>Nhấn để đặt phòng tự học cá nhân.</p>
-                </div>
-                <div class="divider"></div> <!-- VẠCH MỜ Ở GIỮA -->
+                    <div class="choice-box-inner">
+                        <img src="../img/single1.png" alt="Đặt phòng cá nhân">
+                        <h2 class="choice-title">Đặt phòng cá nhân</h2>
+                        <p class="choice-desc">Dành cho sinh viên muốn đặt chỗ học một mình.</p>
 
+                        <button class="choice-btn"
+                            onclick="event.stopPropagation(); location.href='./bookingtest.html';">
+                            Đặt phòng cá nhân
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CARD NHÓM -->
                 <div class="choice-box" onclick="location.href='./booking_GR.html'">
-                    <img src="../img/group1.png" alt="Booking nhóm">
-                    <h2>Đặt phòng nhóm</h2>
-                    <p>Nhấn để đặt phòng học nhóm.</p>
+                    <div class="choice-box-inner">
+                        <img src="../img/group1.png" alt="Đặt phòng nhóm">
+                        <h2 class="choice-title">Đặt phòng nhóm</h2>
+                        <p class="choice-desc">Dành cho nhóm sinh viên đặt phòng học nhóm.</p>
+
+                        <button class="choice-btn"
+                            onclick="event.stopPropagation(); location.href='./booking_GR.html';">
+                            Đặt phòng nhóm
+                        </button>
+                    </div>
                 </div>
 
             </div>
         </div>
 
     </div>
+
     <!-- LOGOUT MODAL -->
     <div id="logout-modal" class="modal-overlay">
         <div class="modal-box">

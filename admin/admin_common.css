@@ -1,14 +1,18 @@
-/* ========================= RESET ========================= */
+/* =========================================================
+   RESET
+========================================================= */
 body {
     margin: 0;
     font-family: Arial, sans-serif;
     background: #e9edf3;
 }
 
-/* ========================= HEADER (STYLE GIỐNG STUDENT) ========================= */
+/* =========================================================
+   HEADER (STYLE GIỐNG STUDENT)
+========================================================= */
 .header {
     height: 64px;
-    background: #e7f0f8;  /* nền sáng */
+    background: #e7f0f8;
     color: #1f2937;
     display: flex;
     align-items: center;
@@ -28,22 +32,22 @@ body {
     display: flex;
     align-items: center;
     gap: 18px;
-    position: relative;
+    position: relative; /* có cũng được, không bắt buộc */
 }
 
-/* ICON CHO HEADER */
+/* ---------------- ICONS ---------------- */
 .icon {
-    cursor: pointer;
-    position: relative;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
-    background: white;
-    border-radius: 50%;
+    cursor: pointer;
     box-shadow: 0 2px 4px rgba(0,0,0,0.15);
     transition: 0.2s;
+    position: relative;          /* 👉 thêm dòng này */
 }
 
 .icon:hover {
@@ -56,6 +60,7 @@ body {
     height: 18px;
 }
 
+/* ---------------- Notification Count ---------------- */
 .notif-count {
     position: absolute;
     top: -4px;
@@ -68,39 +73,60 @@ body {
     font-weight: bold;
 }
 
-/* Notification dropdown */
+/* ---------------- Notification Dropdown ---------------- */
 .notif-dropdown {
-    display: none;
     position: absolute;
     top: 48px;
     right: 0;
-    width: 260px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 10px 28px rgba(0,0,0,0.2);
-    z-index: 999;
+    width: 270px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: none;
     overflow: hidden;
+    z-index: 9999;
 }
 
 .notif-title {
-    background: #f3f4f6;
-    padding: 12px;
+    padding: 12px 14px;
+    font-size: 15px;
     font-weight: bold;
+    background: #f3f4f6;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .notif-list {
-    max-height: 260px;
+    max-height: 300px;
     overflow-y: auto;
-    padding: 10px;
 }
 
-/* ========================= MAIN LAYOUT ========================= */
+.notif-item {
+    padding: 12px 14px;
+    font-size: 14px;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+    background: white;
+}
+
+.notif-item:last-child {
+    border-bottom: none;
+}
+
+.notif-item:hover {
+    background: #f9fafb;
+}
+
+/* =========================================================
+   MAIN LAYOUT
+========================================================= */
 .main {
     display: flex;
     height: calc(100vh - 64px);
 }
 
-/* ========================= SIDEBAR (GIỐNG STUDENT) ========================= */
+/* =========================================================
+   SIDEBAR (STYLE GIỐNG STUDENT)
+========================================================= */
 .sidebar {
     width: 250px;
     min-width: 250px;
@@ -117,12 +143,12 @@ body {
 
 .sidebar h3 {
     text-align: center;
-    margin: 0 0 18px 0;
+    margin-bottom: 18px;
     font-size: 19px;
     font-weight: bold;
 }
 
-/* Link menu */
+/* Sidebar links */
 .sidebar a {
     display: block;
     padding: 12px 20px;
@@ -140,14 +166,16 @@ body {
     transform: translateX(4px);
 }
 
-/* Active state */
+/* Active */
 .sidebar a.active {
     background: #f0f4f8;
     color: #275167;
     font-weight: 600;
 }
 
-/* ========================= CONTENT ========================= */
+/* =========================================================
+   CONTENT
+========================================================= */
 .content {
     flex: 1;
     padding: 40px 60px;
@@ -163,10 +191,12 @@ body {
     font-weight: bold;
 }
 
-/* ========================= INFO BOX ========================= */
+/* =========================================================
+   INFO BOX
+========================================================= */
 .info-box {
-    background: white;
     max-width: 600px;
+    background: white;
     padding: 20px 30px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -177,9 +207,9 @@ body {
 }
 
 .info-item label {
-    font-weight: bold;
-    display: inline-block;
     width: 120px;
+    display: inline-block;
+    font-weight: bold;
 }
 
 .info-edit {
@@ -190,11 +220,12 @@ body {
     border-radius: 4px;
 }
 
-/* ========================= BUTTONS ========================= */
+/* =========================================================
+   BUTTONS
+========================================================= */
 .btn-edit,
 .btn-save,
 .btn-cancel {
-    margin-top: 20px;
     padding: 8px 16px;
     border-radius: 6px;
     border: none;
@@ -214,10 +245,11 @@ body {
 .btn-cancel {
     background: #dc2626;
     color: white;
-    margin-left: 10px;
 }
 
-/* ========================= MODAL ========================= */
+/* =========================================================
+   MODAL
+========================================================= */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -230,13 +262,13 @@ body {
 
 .modal-box {
     background: white;
-    padding: 20px;
     width: 350px;
+    padding: 20px;
     border-radius: 8px;
     text-align: center;
 }
 
-/* ========================= LOGOUT MODAL ========================= */
+/* Logout modal */
 #logout-modal {
     display: none;
 }
@@ -249,7 +281,6 @@ body {
     padding: 8px 16px;
     background: #dc2626;
     color: white;
-    border: none;
     border-radius: 5px;
     cursor: pointer;
 }

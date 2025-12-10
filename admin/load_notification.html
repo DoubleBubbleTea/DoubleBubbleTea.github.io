@@ -30,7 +30,8 @@
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
         }
 
-        th, td {
+        th,
+        td {
             padding: 12px;
             border-bottom: 1px solid #ddd;
             text-align: left;
@@ -104,16 +105,6 @@
             margin-top: 10px;
             border-radius: 4px;
             cursor: pointer;
-        }
-
-        .btn-save {
-            background: #16a34a;
-            color: white;
-        }
-
-        .btn-cancel {
-            background: #6b7280;
-            color: white;
         }
     </style>
 </head>
@@ -208,12 +199,23 @@
         </div>
     </div>
 
+    <!-- DELETE CONFIRM MODAL -->
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Xóa thông báo?</h3>
+            <p style="margin-bottom: 15px;">Bạn có chắc muốn xóa thông báo này?</p>
+
+            <button class="btn-confirm" onclick="confirmDelete()">Xóa</button>
+            <button class="btn-cancel" onclick="closeDeleteModal()">Hủy</button>
+        </div>
+    </div>
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./admin_common.js"></script>
 
     <script>
         let editingId = null;
+        let deleteId = null;
 
         function openAddModal() {
             editingId = null;
@@ -251,10 +253,28 @@
             loadNotifications();
         }
 
-        async function deleteNotification(id) {
-            if (!confirm("Bạn có chắc muốn xóa?")) return;
-            await db.from("notification").delete().eq("notification_id", id);
+        /* OPEN DELETE MODAL */
+        function openDeleteModal(id) {
+            deleteId = id;
+            document.getElementById("delete-modal").style.display = "flex";
+        }
+
+        /* CLOSE DELETE MODAL */
+        function closeDeleteModal() {
+            deleteId = null;
+            document.getElementById("delete-modal").style.display = "none";
+        }
+
+        /* CONFIRM DELETE */
+        async function confirmDelete() {
+            await db.from("notification").delete().eq("notification_id", deleteId);
+            closeDeleteModal();
             loadNotifications();
+        }
+
+        /* REPLACE OLD deleteNotification() */
+        function deleteNotification(id) {
+            openDeleteModal(id);
         }
 
         async function loadNotifications() {

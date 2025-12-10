@@ -44,17 +44,19 @@ function toggleNotification() {
 }
 
 async function loadNotifications() {
-    const adminId = localStorage.getItem("adminid");
-    if (!adminId) return;
-
-    const { data } = await db
+    const { data, error } = await db
         .from("notification")
         .select("*")
-        .eq("adminid", adminId)
         .order("notification_id", { ascending: false });
 
     const list = document.getElementById("notif-list");
     const count = document.getElementById("notif-count");
+
+    if (error) {
+        list.innerHTML = "<div class='notif-item'>Lỗi tải thông báo</div>";
+        count.style.display = "none";
+        return;
+    }
 
     if (!data || data.length === 0) {
         list.innerHTML = "<div class='notif-item'>Không có thông báo</div>";
@@ -62,9 +64,11 @@ async function loadNotifications() {
         return;
     }
 
+    // Hiển thị số lượng thông báo
     count.style.display = "block";
     count.innerText = data.length;
 
+    // Danh sách thông báo
     list.innerHTML = data
         .map(n => `<div class="notif-item">${n.message}</div>`)
         .join("");

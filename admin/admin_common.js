@@ -25,34 +25,40 @@ function toggleNotification() {
 }
 
 async function loadAdminNotifications() {
-    const adminId = localStorage.getItem("adminid");
-
-    const { data } = await db
-        .from("admin_notifications")
+    const { data, error } = await db
+        .from("notification")
         .select("*")
-        .eq("adminid", adminId)
-        .order("created_at", { ascending: false });
+        .order("notification_id", { ascending: false });
 
     const list = document.getElementById("notif-list");
     const count = document.getElementById("notif-count");
 
-    if (!data || data.length === 0) {
-        list.innerHTML = "Không có thông báo!";
+    // Lỗi truy vấn
+    if (error) {
+        list.innerHTML = "<div class='notif-item'>Lỗi tải thông báo!</div>";
         count.style.display = "none";
         return;
     }
 
+    // Không có thông báo
+    if (!data || data.length === 0) {
+        list.innerHTML = "<div class='notif-item'>Không có thông báo</div>";
+        count.style.display = "none";
+        return;
+    }
+
+    // Có thông báo → hiện badge số lượng
     count.style.display = "block";
     count.innerText = data.length;
 
+    // Hiển thị danh sách thông báo theo format giống student
     list.innerHTML = data
         .map(n =>
-            `<div style="padding:6px 0;border-bottom:1px solid #eee;">
-                ${n.message}
-            </div>`
+            `<div class="notif-item">${n.message}</div>`
         )
         .join("");
 }
+
 
 /* ====================== LOGOUT CONTROL ======================= */
 function openLogoutModal() {
