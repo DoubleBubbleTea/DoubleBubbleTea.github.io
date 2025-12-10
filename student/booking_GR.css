@@ -112,10 +112,13 @@ body {
 /* BOOKING MODAL */
 .booking-box {
     width: 900px;
-    max-height: 90vh;
-    overflow-y: auto;
-    display: flex;
+    max-height: 90vh;   /* modal đủ lớn */
+    overflow-y: auto;   /* scroll toàn modal */
+    /* display: flex; */
     flex-direction: column;
+    padding-bottom: 30px;
+    max-height: 96vh !important;   /* tăng modal cho rộng hơn */
+    overflow-y: auto !important;   /* scroll toàn modal */
 }
 
 .booking-title {
@@ -131,8 +134,11 @@ body {
     margin-top: 10px;
     border: 1px solid #000;
     padding: 10px;
-    overflow-x: auto;
     background: #f9fafb;
+    
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    max-height: none !important;
 }
 
 table.calendar {
@@ -181,8 +187,9 @@ table.calendar thead th {
     outline: 1px solid #16a34a;
 }
 
-/* ------------------- EXTRA OPTIONS ------------------- */
-
+/* ============================================================
+   FIXED — EXTRA OPTIONS: hiển thị theo dạng LIST DỌC
+   ============================================================ */
 .extra-options {
     margin-top: 16px;
     padding-top: 12px;
@@ -194,24 +201,39 @@ table.calendar thead th {
     font-size: 16px;
 }
 
-.extra-grid {
-    display: grid;
-    grid-template-columns: 1.3fr 1fr;
+/* → Đổi sang flex-column thay vì grid 2 cột */
+.extra-grid {              /* FIXED */
+    display: flex;
+    flex-direction: column;
     gap: 20px;
 }
 
+/* Mỗi mục cũng là 1 block dọc */
+.extra-column {            /* FIXED */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Label chính */
 .extra-column label {
     font-weight: 600;
-    display: block;
     margin-top: 6px;
     font-size: 14px;
 }
 
-.facility-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px 12px;
-    font-size: 13px;
+/* List tiện ích dọc */
+.facility-list {           /* FIXED */
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+}
+
+.facility-list label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .note-fee {
@@ -302,9 +324,10 @@ table.calendar thead th {
         width: 95vw;
     }
     .extra-grid {
-        grid-template-columns: 1fr;
+        flex-direction: column;   /* FIXED */
     }
 }
+
 /* Slot màu xám = đã qua */
 .slot.past {
     background: #d1d5db !important;
@@ -325,5 +348,3 @@ table.calendar thead th {
     cursor: not-allowed !important;
     pointer-events: none;
 }
-
-

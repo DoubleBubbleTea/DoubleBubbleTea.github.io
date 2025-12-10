@@ -282,19 +282,19 @@ body {
 }
 
 /* Phần dưới cho các trang booking (giữ nguyên nếu bạn đã dùng) */
-.booking-box {
+/* .booking-box {
     width: 900px;
     max-width: 95vw;
-}
+} */
 
 .payment-box {
     width: 420px;
     max-width: 90vw;
 }
 
-.calendar-wrapper {
+/* .calendar-wrapper {
     overflow-x: auto;
-}
+} */
 
 table.calendar {
     min-width: 750px;
