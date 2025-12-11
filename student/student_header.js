@@ -90,3 +90,48 @@ function logout() {
 }
 
 loadNotifications();
+
+function showPopup(title, message) {
+    document.getElementById("modal-title").innerText = title;
+    document.getElementById("modal-message").innerText = message;
+    document.getElementById("popupModal").style.display = "flex";
+}
+
+function closeModal() {
+    document.getElementById("popupModal").style.display = "none";
+}
+
+async function checkTrustBeforeBooking() {
+    const studentId = localStorage.getItem("studentid");
+
+    if (!studentId) {
+        showPopup("Lỗi", "Không tìm thấy tài khoản!");
+        return;
+    }
+
+    // Lấy trust_score từ database
+    const { data, error } = await db
+        .from("student")
+        .select("trust_score")
+        .eq("studentid", studentId)
+        .single();
+
+    if (error || !data) {
+        showPopup("Lỗi", "Không thể kiểm tra điểm uy tín!");
+        return;
+    }
+
+    const trust = data.trust_score ?? 0;
+
+    // Kiểm tra điều kiện
+    if (trust < 60) {
+        showPopup(
+            "Tài khoản bị hạn chế",
+            "Tài khoản bị khóa vì không đạt điểm uy tín, bạn không thể đặt phòng!"
+        );
+        return;
+    }
+
+    // Nếu đủ điểm uy tín → chuyển trang
+    window.location.href = "./pre_booking.html";
+}

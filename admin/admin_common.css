@@ -33,7 +33,18 @@ body {
     align-items: center;
     gap: 18px;
     position: relative;
+
     /* có cũng được, không bắt buộc */
+}
+
+#header-user {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2933;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
 }
 
 /* ---------------- ICONS ---------------- */
@@ -299,4 +310,151 @@ body {
 th {
     background: #D3D7DD;
     color: #3e3d3d;
+}
+
+/* AVATAR BOX */
+.avatar-box {
+    width: 100%;
+    text-align: center;
+    padding: 25px 0 20px 0;
+    border-bottom: 1px solid #ffffff33;
+    margin-bottom: 20px;
+
+    /* fade-in nhẹ cho avatar */
+    animation: fadeAvatar 0.4s ease-out;
+}
+
+@keyframes fadeAvatar {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.avatar-box img {
+    width: 50%;
+    height: 80%;
+
+    /* làm avatar tròn */
+    border-radius: 50%;
+    object-fit: cover;
+
+    border: 3px solid rgba(255, 255, 255, 0.9);
+
+    /* đổ bóng mềm cho avatar nổi bật */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+
+    /* hiệu ứng trơn tru */
+    transition: 0.3s ease;
+}
+
+/* Hiệu ứng hover */
+.avatar-box img:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+    border-color: #dbeafe;
+    /* màu xanh nhạt theo theme */
+}
+
+.avatar-name {
+    margin-top: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    letter-spacing: 0.3px;
+
+    /* hiệu ứng mờ nhẹ */
+    opacity: 0.9;
+    transition: 0.3s ease;
+}
+
+.avatar-name:hover {
+    opacity: 1;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+}
+
+
+.btn-change-pass {
+    background: #6b7280;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin-right: 10px;
+    cursor: pointer;
+    border: none;
+}
+
+
+.input-wrapper {
+    position: relative;
+    margin-bottom: 12px;
+}
+
+.input-wrapper input {
+    width: 80%;
+    padding: 10px 40px 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    background: #f9fafb;
+}
+
+.toggle-emoji {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    user-select: none;
+    font-size: 20px;
+    opacity: 0.7;
+}
+
+.toggle-emoji:hover {
+    opacity: 1;
+}
+
+/* Modal đẹp chuẩn */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.modal-box {
+    background: white;
+    padding: 25px;
+    width: 380px;
+    border-radius: 10px;
+    text-align: center;
+    animation: fadeIn .25s ease-out;
+}
+
+.error-x {
+    position: absolute;
+    right: 40px;
+    /* nằm trước icon 🙈 */
+    top: 50%;
+    transform: translateY(-50%);
+    color: red;
+    font-size: 18px;
+    font-weight: bold;
+    display: none;
+}
+
+#modal {
+    z-index: 10000 !important;
+}
+
+#passModal {
+    z-index: 9999 !important;
 }

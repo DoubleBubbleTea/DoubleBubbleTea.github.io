@@ -40,7 +40,7 @@
 
         .btn-add {
             padding: 10px 18px;
-            background: #0ea5e9;
+            background: #275167;
             color: white;
             border: none;
             border-radius: 4px;
@@ -164,8 +164,11 @@
 
         <!-- SIDEBAR -->
         <div class="sidebar">
-            <div class="sidebar-logo">Logo</div>
-            <div class="sidebar-title">Administrator</div>
+            <!-- AVATAR BOX -->
+            <div class="avatar-box">
+                <img id="student-avatar" src="../img/logo.png" alt="avatar">
+                <div class="avatar-name" id="avatar-fullname">—</div>
+            </div>
 
             <a href="./dashboard.html">Thông tin cá nhân</a>
             <a href="./load_student.html" class="active">Danh sách sinh viên</a>
@@ -189,6 +192,7 @@
                         <th>Email</th>
                         <th>SĐT</th>
                         <th>Ngành</th>
+                        <th>Trạng thái</th>
                         <th>Uy tín</th>
                         <th>Hành động</th>
                     </tr>
@@ -208,6 +212,12 @@
             <input id="st-email" class="modal-input" placeholder="Email">
             <input id="st-phone" class="modal-input" placeholder="Số điện thoại">
             <input id="st-major" class="modal-input" placeholder="Ngành học">
+            <select id="st-status" class="modal-input">
+                <option value="" disabled selected>— Chọn trạng thái —</option>
+                <option value="Đang học">Đang học</option>
+                <option value="Tốt nghiệp">Tốt nghiệp</option>
+                <option value="Bị khóa">Bị khóa</option>
+            </select>
             <input id="st-trust" class="modal-input" placeholder="Điểm uy tín">
 
             <div class="modal-buttons">
@@ -240,6 +250,7 @@
             document.getElementById("st-email").value = student.email;
             document.getElementById("st-phone").value = student.phonenumber;
             document.getElementById("st-major").value = student.major;
+            document.getElementById("st-status").value = student.status;
             document.getElementById("st-trust").value = student.trust_score;
 
             document.getElementById("modal").style.display = "flex";
@@ -251,6 +262,7 @@
             document.getElementById("st-email").value = "";
             document.getElementById("st-phone").value = "";
             document.getElementById("st-major").value = "";
+            document.getElementById("st-status").value = "";   // 🟢 thêm here
             document.getElementById("st-trust").value = "";
         }
 
@@ -293,6 +305,7 @@
                 email: document.getElementById("st-email").value,
                 phonenumber: document.getElementById("st-phone").value,
                 major: document.getElementById("st-major").value,
+                status: document.getElementById("st-status").value,
                 trust_score: document.getElementById("st-trust").value,
                 password: "123"   // 🟢 password mặc định
             };
@@ -333,6 +346,7 @@
                         <td>${st.email}</td>
                         <td>${st.phonenumber || "—"}</td>
                         <td>${st.major || "—"}</td>
+                        <td>${st.status || "—"}</td>
                         <td>${st.trust_score ?? "—"}</td>
                         <td>
                             <button class="btn-edit" onclick='openEditModal(${JSON.stringify(st)})'>Sửa</button>

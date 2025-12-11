@@ -12,9 +12,9 @@
     <link rel="stylesheet" href="./layout.css">
     <link rel="stylesheet" href="./booking_GR.css">
     <style>
-        .modal-box {
+        /* .modal-box {
             text-align: left;
-        }
+        } */
     </style>
 </head>
 
@@ -50,9 +50,15 @@
 
         <!-- ============= SIDEBAR ============= -->
         <div class="sidebar">
+            <!-- AVATAR BOX -->
+            <div class="avatar-box">
+                <img id="student-avatar" src="../img/logo.png" alt="avatar">
+                <div class="avatar-name" id="avatar-fullname">—</div>
+            </div>
+
             <h3>Danh sách</h3>
             <a href="./information.html">Thông tin cá nhân</a>
-            <a href="./pre_booking.html">Đặt phòng</a>
+            <a href="#" onclick="checkTrustBeforeBooking()">Đặt phòng</a>
             <a href="./booking_history.html">Lịch sử đặt phòng</a>
             <a href="#">Sự kiện của tôi</a>
         </div>
@@ -200,11 +206,13 @@
     <!-- ==================== POPUP ==================== -->
     <div id="popupModal" class="modal-overlay">
         <div class="modal-box small-popup">
-            <h3 id="popupTitle"></h3>
-            <p id="popupMessage"></p>
-            <button class="btn-primary" onclick="closePopup()">OK</button>
+            <h3 id="modal-title"></h3>
+            <p id="modal-message"></p>
+            <button class="btn-primary" onclick="closeModal()">OK</button>
         </div>
     </div>
+
+    
     <!-- LOGOUT MODAL -->
     <div id="logout-modal" class="modal-overlay">
         <div class="modal-box">
@@ -217,9 +225,6 @@
     </div>
     <script>
 
-        /* ===================================================================
-            GLOBAL VARIABLES
-        =================================================================== */
         let currentRooms = [];
         let roomDataMap = {};      // roomid -> room object
         let facilityData = [];     // danh sách tiện ích từ DB
@@ -231,10 +236,6 @@
         let mergedIntervals = [];
         let selectedFacilities = [];
 
-        /* ===================================================================
-            UTIL: FORMAT LOCAL TIMESTAMP (LƯU ĐÚNG GIỜ VN VÀO DB)
-            -> trả về dạng 'YYYY-MM-DDTHH:MM:SS' (không có Z, không timezone)
-        =================================================================== */
         function toLocalTimestampString(date) {
             const pad = (n) => n.toString().padStart(2, "0");
             return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
@@ -370,11 +371,13 @@
 
             if (error || !data) return;
 
-            currentBookings = data.map(b => ({
-                start: new Date(b.starttime),  // b.starttime là 'YYYY-MM-DDTHH:MM:SS' (giờ local)
-                end: new Date(b.endtime),
-                status: b.booking_status
-            }));
+            currentBookings = data
+                .filter(b => b.booking_status !== "Hủy")   // ← BỎ QUA BOOKING HỦY
+                .map(b => ({
+                    start: new Date(b.starttime),
+                    end: new Date(b.endtime),
+                    status: b.booking_status
+                }));
         }
 
         /* ===================================================================
@@ -690,14 +693,14 @@
         /* ===================================================================
             POPUP
         =================================================================== */
-        function showPopup(title, msg) {
-            document.getElementById("popupTitle").innerText = title;
-            document.getElementById("popupMessage").innerText = msg;
-            document.getElementById("popupModal").style.display = "flex";
-        }
-        function closePopup() {
-            document.getElementById("popupModal").style.display = "none";
-        }
+        // function showPopup(title, msg) {
+        //     document.getElementById("popupTitle").innerText = title;
+        //     document.getElementById("popupMessage").innerText = msg;
+        //     document.getElementById("popupModal").style.display = "flex";
+        // }
+        // function closePopup() {
+        //     document.getElementById("popupModal").style.display = "none";
+        // }
 
         /* ===================================================================
             INIT PAGE

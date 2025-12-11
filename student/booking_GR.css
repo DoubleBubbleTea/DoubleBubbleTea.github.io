@@ -190,57 +190,112 @@ table.calendar thead th {
 /* ============================================================
    FIXED — EXTRA OPTIONS: hiển thị theo dạng LIST DỌC
    ============================================================ */
+/* KHỐI THÔNG TIN THÊM */
 .extra-options {
-    margin-top: 16px;
-    padding-top: 12px;
-    border-top: 1px solid #e5e7eb;
+    margin-top: 20px;
+    padding: 16px 18px;
+    border-radius: 10px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+
+    /* hiệu ứng fade-in */
+    animation: fadeIn 0.35s ease-out;
 }
 
+/* Tiêu đề */
 .extra-options h3 {
-    margin: 0 0 10px 0;
-    font-size: 16px;
+    margin: 0 0 14px 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: #1f2937;
 }
 
-/* → Đổi sang flex-column thay vì grid 2 cột */
-.extra-grid {              /* FIXED */
+/* Layout dọc */
+.extra-grid {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 22px;
 }
 
-/* Mỗi mục cũng là 1 block dọc */
-.extra-column {            /* FIXED */
+/* Mỗi column */
+.extra-column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Label */
+.extra-column label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #374151;
+}
+
+/* Input style */
+.extra-column input {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+    transition: 0.25s ease;
+    background: white;
+}
+
+/* Focus input = sáng hơn, đổ bóng nhẹ */
+.extra-column input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    outline: none;
+}
+
+/* LIST TIỆN ÍCH */
+.facility-list {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
-/* Label chính */
-.extra-column label {
-    font-weight: 600;
-    margin-top: 6px;
-    font-size: 14px;
-}
-
-/* List tiện ích dọc */
-.facility-list {           /* FIXED */
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    font-size: 14px;
-}
-
+/* Từng item */
 .facility-list label {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    padding: 8px 10px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+
+    transition: 0.25s ease;
 }
 
+/* Hover hiệu ứng nổi */
+.facility-list label:hover {
+    background: #f3f4f6;
+    border-color: #cbd5e1;
+    transform: translateX(4px);
+}
+
+/* Checkbox đẹp hơn */
+.facility-list input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #2563eb; /* màu xanh theo theme */
+}
+
+/* Ghi chú phí */
 .note-fee {
-    margin-top: 6px;
-    font-size: 12px;
+    margin-top: 10px;
+    font-size: 13px;
     color: #4b5563;
 }
+
+/* Fade in animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
 
 /* ------------------- BUTTONS ------------------- */
 
@@ -336,14 +391,14 @@ table.calendar thead th {
 }
 
 /* Slot màu vàng = đang sử dụng */
-.slot.using-now {
+.slot.using {
     background: #facc15 !important;
     cursor: not-allowed !important;
     pointer-events: none;
 }
 
 /* Slot màu đỏ = phòng đã giữ trước */
-.slot.pending {
+.slot.hold {
     background: #f87171 !important;
     cursor: not-allowed !important;
     pointer-events: none;

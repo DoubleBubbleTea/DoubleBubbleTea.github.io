@@ -9,6 +9,7 @@
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="./layout.css">
+    <script src="./student_header.js"></script>
 
     <style>
         .content {
@@ -40,18 +41,55 @@
             border-bottom: 1px solid #e5e7eb;
         }
 
+        /* BUTTON CHUNG */
         .btn-cancel-booking {
             padding: 6px 12px;
-            background: #dc2626;
-            color: white;
+            height: 30px;
+            min-width: 120px;
+            font-weight: bold;
             border: none;
-            border-radius: 4px;
+            border-radius: 10px;
+            color: white;
             cursor: pointer;
+            transition: background 0.2s ease, transform 0.15s ease;
         }
 
-        .btn-cancel-booking:disabled {
-            background: #9ca3af;
+        /* BUTTON HỦY (CÓ HOVER) */
+        .btn-cancel-booking.cancel {
+            background: #1E8B38;
+            /* màu Hủy */
+        }
+
+        .btn-cancel-booking.cancel:hover {
+            background: #166B2D;
+            /* đậm hơn */
+            transform: translateY(-1px);
+        }
+
+        /* BUTTON ĐÃ HỦY */
+        .btn-cancel-booking.canceled {
+            background: #FEBF07;
+            color: black;
             cursor: not-allowed;
+            opacity: 0.95;
+        }
+
+        .btn-cancel-booking.canceled:hover {
+            background: #FEBF07 !important;
+            /* không đổi */
+            transform: none !important;
+        }
+
+        /* BUTTON KHÔNG THỂ HỦY */
+        .btn-cancel-booking.disabled {
+            background: #DC3546;
+            cursor: not-allowed;
+            opacity: 0.9;
+        }
+
+        .btn-cancel-booking.disabled:hover {
+            background: #DC3546 !important;
+            transform: none !important;
         }
     </style>
 </head>
@@ -86,9 +124,13 @@
 
         <!-- SIDEBAR -->
         <div class="sidebar">
+            <div class="avatar-box">
+                <img id="student-avatar" src="../img/logo.png" alt="avatar">
+                <div class="avatar-name" id="avatar-fullname">—</div>
+            </div>
             <h3>Danh sách</h3>
             <a href="./information.html">Thông tin cá nhân</a>
-            <a href="./pre_booking.html">Đặt phòng</a>
+            <a href="#" onclick="checkTrustBeforeBooking()">Đặt phòng</a>
             <a href="./booking_history.html" class="active">Lịch sử đặt phòng</a>
             <a href="#">Sự kiện của tôi</a>
         </div>
@@ -146,13 +188,20 @@
             </div>
         </div>
     </div>
+    <!-- ==================== POPUP ==================== -->
+    <div id="popupModal" class="modal-overlay">
+        <div class="modal-box small-popup">
+            <h3 id="modal-title"></h3>
+            <p id="modal-message"></p>
+            <button class="btn-primary" onclick="closeModal()">OK</button>
+        </div>
+    </div>
 
-    <script src="./student_header.js"></script>
 
     <script>
         let bookingToCancel = null;
 
-        /* ==================== LOAD HISTORY ==================== */
+        /* ====================== LOAD HISTORY ====================== */
         async function loadBookingHistory() {
             const studentId = localStorage.getItem("studentid");
             const body = document.getElementById("historyBody");
@@ -182,6 +231,34 @@
 
             const now = new Date();
 
+            /* ===== AUTO UPDATE STATUS ===== */
+            for (const b of data) {
+                const start = new Date(b.starttime);
+                const end = new Date(b.endtime);
+
+                if (b.booking_status === "Hủy") continue;
+
+                let newStatus = b.booking_status;
+
+                if (now < start) {
+                    newStatus = "Đang giữ chỗ";
+                } else if (now >= start && now <= end) {
+                    newStatus = "Đang sử dụng";
+                } else if (now > end) {
+                    newStatus = "Đã sử dụng";
+                }
+
+                if (newStatus !== b.booking_status) {
+                    await db
+                        .from("booking")
+                        .update({ booking_status: newStatus })
+                        .eq("bookingid", b.bookingid);
+
+                    b.booking_status = newStatus;
+                }
+            }
+
+            /* ===== RENDER TABLE ===== */
             data.forEach(b => {
                 const tr = document.createElement("tr");
 
@@ -189,7 +266,25 @@
                 const end = new Date(b.endtime);
                 const hold = b.holdtime ? new Date(b.holdtime).toLocaleString("vi-VN") : "—";
 
-                const allowCancel = now < start;
+                const allowCancel = new Date() < start && b.booking_status !== "Đã sử dụng";
+
+                let actionButton = "";
+
+                if (b.booking_status === "Hủy") {
+                    actionButton = `<button class="btn-cancel-booking canceled" disabled>Đã hủy</button>`;
+
+                } else if (b.booking_status === "Đã sử dụng") {
+                    actionButton = `<button class="btn-cancel-booking disabled" disabled>Không thể hủy</button>`;
+
+                } else if (!allowCancel) {
+                    actionButton = `<button class="btn-cancel-booking disabled" disabled>Không thể hủy</button>`;
+
+                } else {
+                    actionButton = `
+        <button class="btn-cancel-booking cancel" onclick="openCancelModal(${b.bookingid})">
+            Hủy
+        </button>`;
+                }
 
                 tr.innerHTML = `
                     <td>${b.bookingid}</td>
@@ -198,24 +293,17 @@
                     <td>${b.seatid || "—"}</td>
                     <td>${b.facilities || "Không"}</td>
                     <td>${hold}</td>
-                    <td>${b.booking_status || "—"}</td>
+                    <td>${b.booking_status}</td>
                     <td>${start.toLocaleString("vi-VN")}</td>
                     <td>${end.toLocaleString("vi-VN")}</td>
-                    <td>
-                        <button 
-                            class="btn-cancel-booking"
-                            onclick="openCancelModal(${b.bookingid})"
-                            ${allowCancel ? "" : "disabled"}>
-                            Hủy
-                        </button>
-                    </td>
+                    <td>${actionButton}</td>
                 `;
 
                 body.appendChild(tr);
             });
         }
 
-        /* ==================== MODAL HỦY ==================== */
+        /* ==================== OPEN/CLOSE CANCEL MODAL ==================== */
         function openCancelModal(bookingId) {
             bookingToCancel = bookingId;
             document.getElementById("cancel-modal").style.display = "flex";

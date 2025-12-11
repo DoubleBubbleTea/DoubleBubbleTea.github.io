@@ -22,7 +22,6 @@
 </div>
 
 <body>
-
     <!-- HEADER -->
     <div class="header">
         <div class="header-title">Dashboard</div>
@@ -54,8 +53,11 @@
 
         <!-- SIDEBAR -->
         <div class="sidebar">
-            <div class="sidebar-logo">Logo</div>
-            <div class="sidebar-title">Administrator</div>
+            <!-- AVATAR BOX -->
+            <div class="avatar-box">
+                <img id="student-avatar" src="../img/logo.png" alt="avatar">
+                <div class="avatar-name" id="avatar-fullname">—</div>
+            </div>
 
             <a href="./dashboard.html" class="active">Thông tin cá nhân</a>
             <a href="./load_student.html">Danh sách sinh viên</a>
@@ -83,17 +85,20 @@
                         <span id="view-email">...</span>
                     </div>
 
-                    <div class="info-item">
+                    <!-- <div class="info-item">
                         <label>Vai trò:</label>
                         <span id="view-role">...</span>
-                    </div>
+                    </div> -->
 
                     <div class="info-item">
                         <label>Trạng thái:</label>
                         <span id="view-status">...</span>
                     </div>
 
-                    <button class="btn-edit" onclick="enableEdit()">Sửa</button>
+                    <div style="margin-top: 25px;">
+                        <button class="btn-change-pass" onclick="openPasswordModal()">Đổi mật khẩu</button>
+                        <button class="btn-edit" onclick="enableEdit()">Sửa</button>
+                    </div>
                 </div>
 
                 <!-- EDIT MODE -->
@@ -106,11 +111,6 @@
                     <div class="info-item">
                         <label>Email:</label>
                         <input id="edit-email" class="info-edit">
-                    </div>
-
-                    <div class="info-item">
-                        <label>Vai trò:</label>
-                        <input id="edit-role" class="info-edit">
                     </div>
 
                     <div class="info-item">
@@ -134,7 +134,118 @@
         </div>
     </div>
 
+    <!-- MODAL ĐỔI MẬT KHẨU -->
+    <div id="passModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Đổi mật khẩu</h3>
+
+            <div class="input-wrapper">
+                <input id="pass-old" type="password" class="info-edit" placeholder="Mật khẩu hiện tại">
+                <span class="toggle-emoji" onclick="togglePassword('pass-old', this)">🙈</span>
+            </div>
+
+            <div class="input-wrapper">
+                <input id="pass-new" type="password" class="info-edit" placeholder="Mật khẩu mới">
+                <span class="toggle-emoji" onclick="togglePassword('pass-new', this)">🙈</span>
+            </div>
+
+            <div class="input-wrapper">
+                <input id="pass-confirm" type="password" class="info-edit" placeholder="Nhập lại mật khẩu"
+                    oninput="checkPasswordMatch()">
+                <span class="error-x" id="pw-error">✖</span>
+                <span class="toggle-emoji" onclick="togglePassword('pass-confirm', this)">🙈</span>
+            </div>
+
+            <button class="btn-save" onclick="savePassword()">Lưu mật khẩu</button>
+            <button class="btn-cancel" onclick="closePasswordModal()">Hủy</button>
+        </div>
+    </div>
+
+
+
     <script>
+        function togglePassword(id, eyeIcon) {
+            const input = document.getElementById(id);
+            const isHidden = input.type === "password";
+
+            input.type = isHidden ? "text" : "password";
+            eyeIcon.textContent = isHidden ? "👁️" : "🙈";
+        }
+
+        function checkPasswordMatch() {
+            const newPass = document.getElementById("pass-new").value;
+            const confirm = document.getElementById("pass-confirm").value;
+            const errorIcon = document.getElementById("pw-error");
+
+            if (confirm === "") {
+                errorIcon.style.display = "none";
+                return;
+            }
+
+            errorIcon.style.display = (newPass !== confirm) ? "block" : "none";
+        }
+
+        function openPasswordModal() {
+            // Reset input
+            document.getElementById("pass-old").value = "";
+            document.getElementById("pass-new").value = "";
+            document.getElementById("pass-confirm").value = "";
+
+            // Reset icon lỗi
+            document.getElementById("pw-error").style.display = "none";
+
+            // Reset icon 🙈 về mặc định
+            document.querySelectorAll(".toggle-emoji").forEach(icon => {
+                icon.textContent = "🙈";
+            });
+
+            // Đặt tất cả input về type="password"
+            document.querySelectorAll("#passModal input").forEach(inp => {
+                inp.type = "password";
+            });
+
+            // Show modal
+            document.getElementById("passModal").style.display = "flex";
+        }
+
+        function closePasswordModal() {
+            document.getElementById("pass-old").value = "";
+            document.getElementById("pass-new").value = "";
+            document.getElementById("pass-confirm").value = "";
+            document.getElementById("pw-error").style.display = "none";
+            document.getElementById("passModal").style.display = "none";
+        }
+
+        async function savePassword() {
+            const adminId = localStorage.getItem("adminid");
+
+            const oldPass = document.getElementById("pass-old").value;
+            const newPass = document.getElementById("pass-new").value;
+            const confirm = document.getElementById("pass-confirm").value;
+
+            if (newPass !== confirm) {
+                return showModal("Lỗi", "Mật khẩu nhập lại không khớp!");
+            }
+
+            const { data } = await db
+                .from("admin")
+                .select("password")
+                .eq("adminid", adminId)
+                .single();
+
+            if (!data || data.password !== oldPass) {
+                return showModal("Lỗi", "Mật khẩu hiện tại không đúng!");
+            }
+
+            await db
+                .from("admin")
+                .update({ password: newPass })
+                .eq("adminid", adminId);
+
+            showModal("Thành công", "Đổi mật khẩu thành công!");
+            closePasswordModal();
+        }
+
         function showModal(title, msg) {
             document.getElementById("modal-title").innerText = title;
             document.getElementById("modal-message").innerText = msg;
@@ -163,12 +274,10 @@
 
             document.getElementById("view-fullname").innerText = data.fullname;
             document.getElementById("view-email").innerText = data.email;
-            document.getElementById("view-role").innerText = data.role;
             document.getElementById("view-status").innerText = data.status;
 
             document.getElementById("edit-fullname").value = data.fullname;
             document.getElementById("edit-email").value = data.email;
-            document.getElementById("edit-role").value = data.role;
             document.getElementById("edit-status").value = data.status;
         }
 
@@ -188,7 +297,6 @@
             const updated = {
                 fullname: document.getElementById("edit-fullname").value,
                 email: document.getElementById("edit-email").value,
-                role: document.getElementById("edit-role").value,
                 status: document.getElementById("edit-status").value
             };
 

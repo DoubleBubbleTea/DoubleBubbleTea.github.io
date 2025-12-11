@@ -161,11 +161,16 @@
         .eq("password", password)
         .limit(1);
 
+
       if (!data || data.length === 0) {
         showPopup("Đăng nhập thất bại", "Sai email hoặc mật khẩu!");
         return;
       }
-
+      // 🔍 Kiểm tra status
+      if (data[0].status === "Tốt nghiệp") {
+        showPopup("Không thể truy cập", "Người dùng tài khoản đã tốt nghiệp, bạn không còn quyền sử dụng hệ thống.");
+        return;
+      }
       showPopup("Đăng nhập thành công!", "Chào mừng bạn trở lại!");
 
       saveStudentId(data[0].studentid);

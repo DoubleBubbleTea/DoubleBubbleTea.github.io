@@ -22,7 +22,8 @@
 
             display: flex;
             flex-direction: column;
-            align-items: center; /* Giúp căn giữa theo chiều ngang */
+            align-items: center;
+            /* Giúp căn giữa theo chiều ngang */
         }
 
         /* ============================ */
@@ -43,9 +44,11 @@
 
         .choice-wrapper {
             width: 100%;
-            max-width: 900px; /* Giới hạn chiều rộng tổng */
+            max-width: 900px;
+            /* Giới hạn chiều rộng tổng */
             display: flex;
-            justify-content: center; /* Căn giữa 2 card */
+            justify-content: center;
+            /* Căn giữa 2 card */
             align-items: center;
             gap: 40px;
             margin-top: 10px;
@@ -170,9 +173,14 @@
 
         <!-- SIDEBAR -->
         <div class="sidebar">
+            <!-- AVATAR BOX -->
+            <div class="avatar-box">
+                <img id="student-avatar" src="../img/logo.png" alt="avatar">
+                <div class="avatar-name" id="avatar-fullname">—</div>
+            </div>
             <h3>Danh sách</h3>
             <a href="./information.html">Thông tin cá nhân</a>
-            <a href="./pre_booking.html" class="active">Đặt phòng</a>
+            <a href="#" onclick="checkTrustBeforeBooking()" class="active">Đặt phòng</a>
             <a href="./booking_history.html">Lịch sử đặt phòng</a>
             <a href="#">Sự kiện của tôi</a>
         </div>

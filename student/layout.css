@@ -6,7 +6,8 @@ body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
-    background: #dfeaf5;          /* xanh nhạt giống nền ngoài */
+    background: #dfeaf5;
+    /* xanh nhạt giống nền ngoài */
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -20,7 +21,8 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 0 28px;
-    background: #e7f0f8;          /* nền header xanh nhạt */
+    background: #e7f0f8;
+    /* nền header xanh nhạt */
     box-sizing: border-box;
     box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
 }
@@ -147,13 +149,16 @@ body {
     box-shadow: 0 10px 25px rgba(15, 23, 42, 0.35);
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;  /* gom item lên trên */
-    gap: 4px;                     /* khoảng cách nhỏ giữa các dòng */
+    justify-content: flex-start;
+    /* gom item lên trên */
+    gap: 4px;
+    /* khoảng cách nhỏ giữa các dòng */
 }
 
 /* Tiêu đề “Danh sách” */
 .sidebar h3 {
-    margin: 0 0 10px 0;           /* bỏ margin trên, giảm margin dưới */
+    margin: 0 0 10px 0;
+    /* bỏ margin trên, giảm margin dưới */
     text-align: center;
     font-size: 18px;
     font-weight: 700;
@@ -163,14 +168,17 @@ body {
 .sidebar a {
     display: flex;
     align-items: center;
-    padding: 8px 14px;            /* giảm padding cho item mỏng lại */
-    margin: 0;                    /* không thêm margin dọc */
+    padding: 8px 14px;
+    /* giảm padding cho item mỏng lại */
+    margin: 0;
+    /* không thêm margin dọc */
     border-radius: 999px;
     font-size: 15px;
     color: #e5edf5;
     text-decoration: none;
     cursor: pointer;
-    background: transparent;      /* không card to */
+    background: transparent;
+    /* không card to */
     box-shadow: none;
 
     opacity: 0.95;
@@ -217,7 +225,7 @@ body {
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.55);
+    background: rgba(0, 0, 0, 0.55);
     display: none;
     justify-content: center;
     align-items: center;
@@ -304,4 +312,62 @@ table.calendar {
     .extra-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* AVATAR BOX */
+.avatar-box {
+    width: 100%;
+    text-align: center;
+    padding: 25px 0 20px 0;
+    border-bottom: 1px solid #ffffff33;
+    margin-bottom: 20px;
+
+    /* fade-in nhẹ cho avatar */
+    animation: fadeAvatar 0.4s ease-out;
+}
+
+@keyframes fadeAvatar {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.avatar-box img {
+    width: 50%;
+    height: 80%;
+
+    /* làm avatar tròn */
+    border-radius: 50%;
+    object-fit: cover;
+
+    border: 3px solid rgba(255, 255, 255, 0.9);
+
+    /* đổ bóng mềm cho avatar nổi bật */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+
+    /* hiệu ứng trơn tru */
+    transition: 0.3s ease;
+}
+
+/* Hiệu ứng hover */
+.avatar-box img:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+    border-color: #dbeafe;   /* màu xanh nhạt theo theme */
+}
+
+.avatar-name {
+    margin-top: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    letter-spacing: 0.3px;
+
+    /* hiệu ứng mờ nhẹ */
+    opacity: 0.9;
+    transition: 0.3s ease;
+}
+
+.avatar-name:hover {
+    opacity: 1;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
 }
