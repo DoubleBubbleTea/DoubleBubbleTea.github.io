@@ -403,3 +403,9 @@ table.calendar thead th {
     cursor: not-allowed !important;
     pointer-events: none;
 }
+
+.room-btn.disabled {
+    background: #d1d5db;
+    color: #6b7280;
+    cursor: not-allowed;
+}

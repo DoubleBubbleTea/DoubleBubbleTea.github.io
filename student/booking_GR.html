@@ -11,11 +11,6 @@
 
     <link rel="stylesheet" href="./layout.css">
     <link rel="stylesheet" href="./booking_GR.css">
-    <style>
-        /* .modal-box {
-            text-align: left;
-        } */
-    </style>
 </head>
 
 <body>
@@ -65,78 +60,11 @@
 
         <!-- ==================== PAGE CONTENT ==================== -->
         <div class="content">
-
             <div class="page-container">
-
                 <div class="page-title">Danh sách phòng nhóm</div>
-
-                <!-- ROOM A -->
-                <div class="room-row">
-                    <div class="room-image">
-                        <img id="roomA-img" src="./img/VNUHCM_logo.svg.png" alt="Phòng A">
-                    </div>
-
-                    <div class="room-info">
-                        <h2 id="roomA-name">Phòng A</h2>
-                        <p><strong>Mã phòng:</strong> <span id="roomA-id">G1</span></p>
-                        <p><strong>Loại phòng:</strong> <span id="roomA-type">Phòng nhóm</span></p>
-                        <p><strong>Vị trí:</strong> <span id="roomA-location">...</span></p>
-                        <p><strong>Sức chứa:</strong> <span id="roomA-capacity">...</span></p>
-                        <p><strong>Mô tả:</strong> <span id="roomA-desc">...</span></p>
-                        <p><strong>Giá phòng:</strong> <span id="roomA-cost">...</span> đ/giờ</p>
-
-                        <div class="room-info-bottom">
-                            <button class="room-btn" onclick="openBookingModal(currentRooms[0])">Chọn phòng</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ROOM B -->
-                <div class="room-row">
-                    <div class="room-image">
-                        <img id="roomB-img" src="./img/VNUHCM_logo.svg.png" alt="Phòng B">
-                    </div>
-
-                    <div class="room-info">
-                        <h2 id="roomB-name">Phòng B</h2>
-                        <p><strong>Mã phòng:</strong> <span id="roomB-id">G2</span></p>
-                        <p><strong>Loại phòng:</strong> <span id="roomB-type">Phòng nhóm</span></p>
-                        <p><strong>Vị trí:</strong> <span id="roomB-location">...</span></p>
-                        <p><strong>Sức chứa:</strong> <span id="roomB-capacity">...</span></p>
-                        <p><strong>Mô tả:</strong> <span id="roomB-desc">...</span></p>
-                        <p><strong>Giá phòng:</strong> <span id="roomB-cost">...</span> đ/giờ</p>
-
-                        <div class="room-info-bottom">
-                            <button class="room-btn" onclick="openBookingModal(currentRooms[1])">Chọn phòng</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ROOM C -->
-                <div class="room-row">
-                    <div class="room-image">
-                        <img id="roomC-img" src="./img/VNUHCM_logo.svg.png" alt="Phòng C">
-                    </div>
-
-                    <div class="room-info">
-                        <h2 id="roomC-name">Phòng C</h2>
-                        <p><strong>Mã phòng:</strong> <span id="roomB-id">G2</span></p>
-                        <p><strong>Loại phòng:</strong> <span id="roomB-type">Phòng nhóm</span></p>
-                        <p><strong>Vị trí:</strong> <span id="roomB-location">...</span></p>
-                        <p><strong>Sức chứa:</strong> <span id="roomB-capacity">...</span></p>
-                        <p><strong>Mô tả:</strong> <span id="roomB-desc">...</span></p>
-                        <p><strong>Giá phòng:</strong> <span id="roomB-cost">...</span> đ/giờ</p>
-
-                        <div class="room-info-bottom">
-                            <button class="room-btn" onclick="openBookingModal(currentRooms[1])">Chọn phòng</button>
-                        </div>
-                    </div>
-                </div>
-
+                <div id="roomList"></div>
             </div>
-
         </div> <!-- END CONTENT -->
-
     </div> <!-- END MAIN -->
 
     <!-- ==================== BOOKING MODAL ==================== -->
@@ -195,10 +123,28 @@
             </div>
 
             <div id="paymentDetails" class="payment-details"></div>
+            <div class="payment-method">
+                <h4>Phương thức thanh toán</h4>
+
+                <label>
+                    <input type="radio" name="paymentMethod" value="Tiền mặt" checked>
+                    Tiền mặt
+                </label>
+
+                <label>
+                    <input type="radio" name="paymentMethod" value="Momo">
+                    Momo
+                </label>
+
+                <label>
+                    <input type="radio" name="paymentMethod" value="Ngân hàng">
+                    Ngân hàng
+                </label>
+            </div>
 
             <div class="booking-actions payment-actions">
                 <button class="btn-outline" onclick="closePaymentModal()">Hủy</button>
-                <button class="btn-primary" onclick="finalizeBooking()">Xác nhận thanh toán</button>
+                <button class="btn-primary" onclick="handlePaymentConfirm()">Xác nhận thanh toán</button>
             </div>
         </div>
     </div>
@@ -212,7 +158,7 @@
         </div>
     </div>
 
-    
+
     <!-- LOGOUT MODAL -->
     <div id="logout-modal" class="modal-overlay">
         <div class="modal-box">
@@ -223,6 +169,20 @@
             </div>
         </div>
     </div>
+
+    <div id="qrModal" class="modal-overlay">
+        <div class="modal-box small-popup">
+            <h3>Quét mã QR để thanh toán</h3>
+
+            <img id="qrImage" src="../img/qr-demo.png" style="width:200px; margin:15px auto; display:block;">
+
+            <div class="booking-actions">
+                <button class="btn-outline" onclick="closeQRModal()">Hủy</button>
+                <button class="btn-primary" onclick="confirmQRPayment()">Xác nhận thanh toán</button>
+            </div>
+        </div>
+    </div>
+
     <script>
 
         let currentRooms = [];
@@ -235,42 +195,106 @@
         let currentBookings = [];  // {start, end, status}
         let mergedIntervals = [];
         let selectedFacilities = [];
+        let pendingPayment = null;
 
         function toLocalTimestampString(date) {
             const pad = (n) => n.toString().padStart(2, "0");
             return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
                 `T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
         }
+        function handlePaymentConfirm() {
+            const method = document.querySelector(
+                'input[name="paymentMethod"]:checked'
+            ).value;
 
+            pendingPayment.paymentmethod = method;
+
+            if (method === "Tiền mặt") {
+                finalizeBookingWithPayment();
+            } else {
+                // Momo / Ngân hàng → mở QR
+                document.getElementById("paymentModal").style.display = "none";
+                document.getElementById("qrModal").style.display = "flex";
+            }
+        }
+        function closeQRModal() {
+            document.getElementById("qrModal").style.display = "none";
+        }
+
+        function confirmQRPayment() {
+            document.getElementById("qrModal").style.display = "none";
+            finalizeBookingWithPayment();
+        }
 
         /* ===================================================================
             LOAD ROOMS FROM DATABASE
         =================================================================== */
         async function loadRooms() {
+            const container = document.getElementById("roomList");
+            container.innerHTML = "<p>Đang tải danh sách phòng...</p>";
+
             const { data, error } = await db
                 .from("room")
                 .select("*")
                 .like("roomid", "G%")
                 .order("roomid");
 
-            if (error || !data || data.length === 0) return;
+            if (error || !data || data.length === 0) {
+                container.innerHTML = "<p>Không có phòng nhóm nào.</p>";
+                return;
+            }
 
-            currentRooms = data.map(r => r.roomid);
+            currentRooms = [];
+            roomDataMap = {};
+            container.innerHTML = "";
 
-            data.forEach((room, index) => {
+            data.forEach(room => {
+                currentRooms.push(room.roomid);
                 roomDataMap[room.roomid] = room;
 
-                const prefix = index === 0 ? "roomA" : "roomB";
+                const isAvailable = room.status === "Có thể đặt";
 
-                document.getElementById(`${prefix}-id`).innerText = room.roomid;
-                document.getElementById(`${prefix}-type`).innerText = room.roomtype || "Phòng nhóm";
-                document.getElementById(`${prefix}-location`).innerText = room.location || "—";
-                document.getElementById(`${prefix}-capacity`).innerText = room.capacity ?? "—";
-                document.getElementById(`${prefix}-desc`).innerText = room.description || "—";
-                document.getElementById(`${prefix}-cost`).innerText = (room.cost || 0).toLocaleString();
-                document.getElementById(`${prefix}-name`).innerText = room.roomid;
+                const roomRow = document.createElement("div");
+                roomRow.className = "room-row";
+
+                roomRow.innerHTML = `
+            <div class="room-image">
+                <img src="./img/VNUHCM_logo.svg.png" alt="${room.roomid}">
+            </div>
+
+            <div class="room-info">
+                <h2>${room.roomid}</h2>
+                <p><strong>Mã phòng:</strong> ${room.roomid}</p>
+                <p><strong>Loại phòng:</strong> ${room.roomtype || "Phòng nhóm"}</p>
+                <p><strong>Vị trí:</strong> ${room.location || "—"}</p>
+                <p><strong>Sức chứa:</strong> ${room.capacity ?? "—"}</p>
+
+                ${isAvailable
+                        ? `<p><strong>Mô tả:</strong> ${room.description || "—"}</p>
+                           <p><strong>Giá phòng:</strong> ${(room.cost || 0).toLocaleString()} đ/giờ</p>`
+                        : `<p style="color:#ef4444; font-weight:600;">
+                            Đang bảo trì, hiện không thể đặt phòng
+                           </p>`
+                    }
+
+                <div class="room-info-bottom">
+                    ${isAvailable
+                        ? `<button class="room-btn"
+                                  onclick="openBookingModal('${room.roomid}')">
+                                  Chọn phòng
+                               </button>`
+                        : `<button class="room-btn disabled" disabled>
+                                  Không thể đặt
+                               </button>`
+                    }
+                </div>
+            </div>
+        `;
+
+                container.appendChild(roomRow);
             });
         }
+
 
         /* ===================================================================
             LOAD FACILITIES FROM DATABASE
@@ -543,6 +567,8 @@
             document.getElementById("memberCount").value = "";
             document.querySelectorAll(".facility").forEach(f => f.checked = false);
             document.querySelectorAll(".slot.selected").forEach(s => s.classList.remove("selected"));
+            document.getElementById("memberCount").placeholder =
+                `Tối đa ${room.capacity || 50} người`;
 
             initWeekDates();
             initSlots();
@@ -616,8 +642,24 @@
             const total = roomCost + facilityCost;
 
             const purpose = document.getElementById("purpose").value.trim() || "Không ghi";
-            const memberCount = document.getElementById("memberCount").value.trim() || "Không rõ";
+            const memberCountInput = document.getElementById("memberCount").value;
+            const memberCount = Number(memberCountInput);
 
+            // 🛑 CHECK SỐ NGƯỜI
+            if (!memberCountInput || isNaN(memberCount) || memberCount <= 0) {
+                return showPopup(
+                    "Lỗi",
+                    "Vui lòng nhập số người tham gia hợp lệ."
+                );
+            }
+
+            if (room.capacity && memberCount > room.capacity) {
+                return showPopup(
+                    "Lỗi",
+                    `Số người đăng ký vượt quá giới hạn.
+                     Số lượng tối đa của phòng là ${room.capacity}.`
+                );
+            }
             const facText = selectedFacilities.length
                 ? selectedFacilities.map(f => `${f.name} (+${f.cost.toLocaleString()}đ/giờ)`).join(", ")
                 : "Không sử dụng";
@@ -633,6 +675,12 @@
                 <div class="payment-row"><span>Phí tiện ích:</span> <strong>${facilityCost.toLocaleString()} đ</strong></div>
                 <div class="payment-total">Tổng cộng: <strong>${total.toLocaleString()} đ</strong></div>
             `;
+            pendingPayment = {
+                studentid,
+                studentname: localStorage.getItem("studentname") || "",
+                totalCost: total,
+                paymentmethod: "Tiền mặt" // default
+            };
 
             document.getElementById("paymentModal").style.display = "flex";
         }
@@ -640,67 +688,59 @@
         /* ===================================================================
             FINAL BOOKING (LƯU GIỜ THEO GIỜ VIỆT NAM)
         =================================================================== */
-        async function finalizeBooking() {
-            const studentid = localStorage.getItem("studentid");
-            if (!studentid) {
-                return showPopup("Lỗi", "Không tìm thấy studentid! Có thể bạn chưa đăng nhập.");
-            }
-
-            if (!mergedIntervals.length) {
-                return showPopup("Lỗi", "Không có khung giờ hợp lệ.");
-            }
-
-            const facilitiesString = selectedFacilities.map(f => f.name).join(",");
+        async function finalizeBookingWithPayment() {
+            const studentid = pendingPayment.studentid;
             const now = new Date();
 
-            // tạo row theo từng khoảng thời gian, lưu giờ theo local VN
-            const rows = mergedIntervals.map(itv => {
-                const status = now < itv.start ? "Đang giữ chỗ" : "Đang sử dụng";
-                return {
-                    studentid,
-                    roomid: selectedRoomId,
-                    facilities: facilitiesString,
-                    starttime: toLocalTimestampString(itv.start),
-                    endtime: toLocalTimestampString(itv.end),
-                    booking_status: status
-                };
-            });
+            // 1️⃣ INSERT BOOKING
+            const rows = mergedIntervals.map(itv => ({
+                studentid,
+                roomid: selectedRoomId,
+                facilities: selectedFacilities.map(f => f.name).join(","),
+                starttime: toLocalTimestampString(itv.start),
+                endtime: toLocalTimestampString(itv.end),
+                booking_status: now < itv.start ? "Đang giữ chỗ" : "Đang sử dụng"
+            }));
 
-            const { error } = await db.from("booking").insert(rows);
+            const { data: bookingData, error: bookingError } =
+                await db.from("booking").insert(rows).select();
 
-            if (error) {
-                return showPopup("Lỗi", "Đặt phòng thất bại: " + error.message);
+            if (bookingError) {
+                return showPopup("Lỗi", "Đặt phòng thất bại!");
             }
 
-            // clear input sau khi thanh toán
-            document.getElementById("purpose").value = "";
-            document.getElementById("memberCount").value = "";
-            document.querySelectorAll(".facility").forEach(f => f.checked = false);
-            document.querySelectorAll(".slot.selected").forEach(s => s.classList.remove("selected"));
+            const bookingid = bookingData[0].bookingid;
+
+            // 2️⃣ INSERT PAYMENT
+            const paymentRow = {
+                bookingid,
+                studentid,
+                studentname: pendingPayment.studentname,
+                cost: pendingPayment.totalCost,
+                paymentmethod: pendingPayment.paymentmethod
+            };
+
+            const { error: payError } =
+                await db.from("payment").insert(paymentRow);
+
+            if (payError) {
+                return showPopup("Lỗi", "Lưu thanh toán thất bại!");
+            }
+
+            // 3️⃣ CLEANUP
             mergedIntervals = [];
             selectedFacilities = [];
+            pendingPayment = null;
 
             document.getElementById("paymentModal").style.display = "none";
             document.getElementById("bookingModal").style.display = "none";
 
-            showPopup("Thành công", "Đặt phòng và thanh toán (mô phỏng) thành công!");
+            showPopup("Thành công", "Đặt phòng và thanh toán thành công!");
 
-            // reload lại lịch với dữ liệu mới
             await loadBookingsForRoom();
             renderCalendar();
         }
 
-        /* ===================================================================
-            POPUP
-        =================================================================== */
-        // function showPopup(title, msg) {
-        //     document.getElementById("popupTitle").innerText = title;
-        //     document.getElementById("popupMessage").innerText = msg;
-        //     document.getElementById("popupModal").style.display = "flex";
-        // }
-        // function closePopup() {
-        //     document.getElementById("popupModal").style.display = "none";
-        // }
 
         /* ===================================================================
             INIT PAGE

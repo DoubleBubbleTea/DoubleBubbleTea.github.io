@@ -467,3 +467,17 @@ button:hover {
   from { transform: scale(0.85); opacity: 0; }
   to   { transform: scale(1);    opacity: 1; }
 }
+
+.modal-icon {
+    font-size: 42px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.modal-icon.success {
+    color: #22c55e; /* xanh lá */
+}
+
+.modal-icon.error {
+    color: #ef4444; /* đỏ */
+}

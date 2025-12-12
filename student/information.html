@@ -44,6 +44,7 @@
 
         .btn-edit,
         .btn-save,
+        .btn-cancel,
         .btn-change-pass {
             margin-top: 25px;
             padding: 10px 16px;
@@ -70,10 +71,10 @@
             margin-right: 10px;
         }
 
-        /* .btn-cancel {
+        .btn-cancel {
             background: #dc2626;
             color: white;
-        } */
+        }
 
         /* MODAL */
         /* .modal-overlay {
@@ -153,13 +154,12 @@
 <!-- POPUP SUCCESS -->
 <div id="popupModal" class="modal-overlay">
     <div class="modal-box">
-        <div class="modal-icon" style="font-size:40px; margin-bottom:10px;">✔</div>
+        <div class="modal-icon" style="font-size:40px; margin-bottom:10px; color: red;">X</div>
         <h3 id="modal-title">Completed</h3>
         <p id="modal-message">Message here</p>
         <button onclick="closeModal()">OK</button>
     </div>
 </div>
-
 
 <body>
 

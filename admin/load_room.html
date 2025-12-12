@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Danh sách chỗ ngồi</title>
+    <title>Danh sách phòng</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./admin_common.css">
 
@@ -79,7 +79,7 @@
         .modal-box {
             background: white;
             padding: 22px;
-            width: 360px;
+            width: 380px;
             border-radius: 8px;
             text-align: center;
         }
@@ -129,7 +129,7 @@
     <!-- DELETE MODAL -->
     <div id="delete-modal" class="modal-overlay">
         <div class="modal-box">
-            <h3>Xóa chỗ ngồi?</h3>
+            <h3>Xóa phòng?</h3>
             <p style="margin-bottom:15px;">Hành động này không thể hoàn tác.</p>
             <button class="btn-confirm" onclick="confirmDelete()">Xóa</button>
             <button class="btn-cancel" onclick="closeDeleteModal()">Hủy</button>
@@ -173,26 +173,30 @@
             <a href="./load_history.html">Lịch sử đặt phòng</a>
             <a href="./load_notification.html">Quản lý thông báo</a>
             <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
-            <a href="./load_room.html">Danh sách phòng</a>
-            <a href="./load_seat.html" class="active">Danh sách chỗ ngồi</a>
+            <a href="./load_room.html" class="active">Danh sách phòng</a>
+            <a href="./load_seat.html">Danh sách chỗ ngồi</a>
         </div>
 
         <!-- CONTENT -->
         <div class="content">
-            <h2>Danh sách chỗ ngồi</h2>
+            <h2>Danh sách phòng</h2>
 
-            <button class="btn-add" onclick="openAddModal()">+ Thêm chỗ ngồi</button>
+            <button class="btn-add" onclick="openAddModal()">+ Thêm phòng</button>
 
             <table>
                 <thead>
                     <tr>
-                        <th>Mã chỗ</th>
                         <th>Mã phòng</th>
+                        <th>Loại phòng</th>
+                        <th>Vị trí</th>
+                        <th>Sức chứa</th>
+                        <th>Giá (đ/giờ)</th>
                         <th>Trạng thái</th>
+                        <th>Mô tả</th>
                         <th>Hành động</th>
                     </tr>
                 </thead>
-                <tbody id="seat-table"></tbody>
+                <tbody id="room-table"></tbody>
             </table>
         </div>
     </div>
@@ -200,22 +204,24 @@
     <!-- ADD / EDIT MODAL -->
     <div id="modal" class="modal-overlay">
         <div class="modal-box">
-            <h3 id="modal-title">Thêm chỗ ngồi</h3>
+            <h3 id="modal-title">Thêm phòng</h3>
 
-            <input id="seat-id" class="modal-input" placeholder="Mã chỗ (VD: G1-01)">
+            <input id="room-id" class="modal-input" placeholder="Mã phòng (VD: G1)">
+            <input id="room-type" class="modal-input" placeholder="Loại phòng">
+            <input id="room-location" class="modal-input" placeholder="Vị trí">
+            <input id="room-capacity" type="number" class="modal-input" placeholder="Sức chứa">
+            <input id="room-cost" type="number" class="modal-input" placeholder="Giá (đ/giờ)">
 
-            <select id="seat-room" class="modal-input">
-                <option value="" disabled selected>— Chọn phòng —</option>
-            </select>
-
-            <select id="seat-status" class="modal-input">
+            <select id="room-status" class="modal-input">
                 <option value="" disabled selected>— Trạng thái —</option>
                 <option value="Có thể đặt">Có thể đặt</option>
                 <option value="Không thể đặt">Không thể đặt</option>
             </select>
 
+            <input id="room-desc" class="modal-input" placeholder="Mô tả">
+
             <div class="modal-buttons">
-                <button class="btn-save" onclick="saveSeat()">Lưu</button>
+                <button class="btn-save" onclick="saveRoom()">Lưu</button>
                 <button class="btn-cancel" onclick="closeModal()">Hủy</button>
             </div>
         </div>
@@ -225,46 +231,34 @@
     <script src="./admin_common.js"></script>
 
     <script>
-        let editingSeatId = null;
-        let deleteSeatId = null;
-
-        async function loadRoomsToSelect() {
-            const select = document.getElementById("seat-room");
-            select.innerHTML = `<option disabled selected>— Chọn phòng —</option>`;
-
-            const { data } = await db.from("room").select("roomid").order("roomid");
-            data.forEach(r => {
-                const opt = document.createElement("option");
-                opt.value = r.roomid;
-                opt.textContent = r.roomid;
-                select.appendChild(opt);
-            });
-        }
+        let editingRoomId = null;
+        let deleteRoomId = null;
 
         function openAddModal() {
-            editingSeatId = null;
-            document.getElementById("modal-title").innerText = "Thêm chỗ ngồi";
+            editingRoomId = null;
+            document.getElementById("modal-title").innerText = "Thêm phòng";
             clearForm();
-            loadRoomsToSelect();
             document.getElementById("modal").style.display = "flex";
         }
 
-        function openEditModal(seat) {
-            editingSeatId = seat.seatid;
-            document.getElementById("modal-title").innerText = "Sửa chỗ ngồi";
+        function openEditModal(room) {
+            editingRoomId = room.roomid;
+            document.getElementById("modal-title").innerText = "Sửa phòng";
 
-            document.getElementById("seat-id").value = seat.seatid;
-            document.getElementById("seat-room").value = seat.roomid;
-            document.getElementById("seat-status").value = seat.status;
+            document.getElementById("room-id").value = room.roomid;
+            document.getElementById("room-type").value = room.roomtype;
+            document.getElementById("room-location").value = room.location;
+            document.getElementById("room-capacity").value = room.capacity;
+            document.getElementById("room-cost").value = room.cost;
+            document.getElementById("room-status").value = room.status;
+            document.getElementById("room-desc").value = room.description;
 
-            loadRoomsToSelect();
             document.getElementById("modal").style.display = "flex";
         }
 
         function clearForm() {
-            ["seat-id","seat-room","seat-status"].forEach(
-                id => document.getElementById(id).value = ""
-            );
+            ["room-id","room-type","room-location","room-capacity","room-cost","room-status","room-desc"]
+                .forEach(id => document.getElementById(id).value = "");
         }
 
         function closeModal() {
@@ -272,33 +266,37 @@
         }
 
         function openDeleteModal(id) {
-            deleteSeatId = id;
+            deleteRoomId = id;
             document.getElementById("delete-modal").style.display = "flex";
         }
 
         function closeDeleteModal() {
-            deleteSeatId = null;
+            deleteRoomId = null;
             document.getElementById("delete-modal").style.display = "none";
         }
 
         async function confirmDelete() {
-            await db.from("seat").delete().eq("seatid", deleteSeatId);
+            await db.from("room").delete().eq("roomid", deleteRoomId);
             closeDeleteModal();
-            loadSeats();
+            loadRooms();
         }
 
-        async function saveSeat() {
+        async function saveRoom() {
             const data = {
-                seatid: document.getElementById("seat-id").value,
-                roomid: document.getElementById("seat-room").value,
-                status: document.getElementById("seat-status").value
+                roomid: document.getElementById("room-id").value,
+                roomtype: document.getElementById("room-type").value,
+                location: document.getElementById("room-location").value,
+                capacity: document.getElementById("room-capacity").value,
+                cost: document.getElementById("room-cost").value,
+                status: document.getElementById("room-status").value,
+                description: document.getElementById("room-desc").value
             };
 
             let result;
-            if (editingSeatId) {
-                result = await db.from("seat").update(data).eq("seatid", editingSeatId);
+            if (editingRoomId) {
+                result = await db.from("room").update(data).eq("roomid", editingRoomId);
             } else {
-                result = await db.from("seat").insert(data);
+                result = await db.from("room").insert(data);
             }
 
             if (result.error) {
@@ -307,27 +305,27 @@
             }
 
             closeModal();
-            loadSeats();
+            loadRooms();
         }
 
-        async function loadSeats() {
-            const { data } = await db
-                .from("seat")
-                .select("seatid, roomid, status")
-                .order("roomid", { ascending: true });
-
-            const table = document.getElementById("seat-table");
+        async function loadRooms() {
+            const { data } = await db.from("room").select("*").order("roomid");
+            const table = document.getElementById("room-table");
             table.innerHTML = "";
 
-            data.forEach(s => {
+            data.forEach(r => {
                 table.innerHTML += `
                     <tr>
-                        <td>${s.seatid}</td>
-                        <td>${s.roomid}</td>
-                        <td>${s.status}</td>
+                        <td>${r.roomid}</td>
+                        <td>${r.roomtype || "—"}</td>
+                        <td>${r.location || "—"}</td>
+                        <td>${r.capacity ?? "—"}</td>
+                        <td>${r.cost?.toLocaleString() || "—"}</td>
+                        <td>${r.status || "—"}</td>
+                        <td>${r.description || "—"}</td>
                         <td>
-                            <button class="btn-edit" onclick='openEditModal(${JSON.stringify(s)})'>Sửa</button>
-                            <button class="btn-delete" onclick="openDeleteModal('${s.seatid}')">Xóa</button>
+                            <button class="btn-edit" onclick='openEditModal(${JSON.stringify(r)})'>Sửa</button>
+                            <button class="btn-delete" onclick="openDeleteModal('${r.roomid}')">Xóa</button>
                         </td>
                     </tr>
                 `;
@@ -342,7 +340,7 @@
         }
 
         loadHeader();
-        loadSeats();
+        loadRooms();
     </script>
 
 </body>

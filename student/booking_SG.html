@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<title>Sơ đồ đặt chỗ – Style A</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #e5f1f9;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 24px;
+  }
+
+  .seat-map-shell {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.15);
+    padding: 16px 18px 20px;
+    max-width: 1200px;
+    width: 100%;
+  }
+
+  .seat-map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+  }
+
+  .seat-map-header h1 {
+    margin: 0;
+    font-size: 22px;
+    color: #111827;
+  }
+
+  .seat-map-header span {
+    font-size: 13px;
+    color: #6b7280;
+  }
+
+  .seat-map-wrapper {
+    border-radius: 14px;
+    border: 1px solid #cbd5e1;
+    overflow: hidden;
+    background: #e9f2fb;
+    width: 100%;
+    height: 620px;
+    position: relative;
+    cursor: grab;
+  }
+
+  .seat-map-wrapper:active {
+    cursor: grabbing;
+  }
+
+  svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    user-select: none;
+  }
+
+  /* Ghế */
+  .seat-circle {
+    fill: #ffffff;
+    stroke: #fbbf24; /* vàng pastel */
+    stroke-width: 3;
+    cursor: pointer;
+    transition: 0.18s;
+  }
+
+  .seat-label {
+    font-size: 12px;
+    font-weight: bold;
+    fill: #111827;
+    pointer-events: none;
+  }
+
+  .seat-circle.selected {
+    fill: #fbbf24;
+  }
+
+  .seat-circle.selected + .seat-label {
+    fill: #111827;
+  }
+
+  /* Bàn / ghế phụ / tường */
+  .table-rect {
+    fill: #ffffff;
+    stroke: #0f4c75;
+    stroke-width: 2;
+    rx: 14;
+    ry: 14;
+  }
+
+  .side-chair {
+    fill: #0f4c75;
+    stroke: #0b314e;
+    stroke-width: 1.5;
+  }
+
+  .wall {
+    fill: none;
+    stroke: #0f4c75;
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .door {
+    fill: none;
+    stroke: #0f4c75;
+    stroke-width: 5;
+    stroke-linecap: round;
+  }
+
+  .zone-label {
+    font-size: 20px;
+    font-weight: bold;
+    fill: #e11d48;
+  }
+
+  .admin-box {
+    fill: #ffffff;
+    stroke: #0f4c75;
+    stroke-width: 2;
+    rx: 16;
+    ry: 16;
+  }
+
+  .admin-text {
+    font-size: 18px;
+    font-weight: bold;
+    fill: #111827;
+  }
+
+  .top-bar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  .pill {
+    border-radius: 999px;
+    border: 1px solid #d1d5db;
+    padding: 3px 10px;
+    background: #f9fafb;
+  }
+
+  .pill strong { color: #111827; }
+</style>
+</head>
+<body>
+
+<div class="seat-map-shell">
+  <div class="seat-map-header">
+    <h1>Sơ đồ chỗ ngồi</h1>
+    <span>Scroll để phóng to / thu nhỏ, giữ chuột trái để kéo sơ đồ</span>
+  </div>
+  <div class="top-bar">
+    <div class="pill"><strong>Trắng</strong> = ghế trống</div>
+    <div class="pill"><strong>Vàng</strong> = ghế đang chọn</div>
+  </div>
+
+  <div class="seat-map-wrapper" id="seat-map-wrapper">
+    <svg viewBox="0 0 1200 700">
+      <!-- g viewport dùng để zoom / pan -->
+      <g id="viewport">
+        <!-- Khung ngoài -->
+        <rect x="20" y="20" width="1160" height="660" rx="18" ry="18"
+              fill="#f3f7fd" stroke="#0f4c75" stroke-width="4" />
+
+        <!-- Vách ngăn và tường (giữ bố cục giống hình) -->
+        <!-- Vách trái -->
+        <line class="wall" x1="380" y1="40" x2="380" y2="660" />
+        <!-- Tường trái ngoài -->
+        <line class="wall" x1="40" y1="40" x2="40" y2="660" />
+        <!-- Tường phải ngoài -->
+        <line class="wall" x1="1180" y1="40" x2="1180" y2="660" />
+        <!-- Tường trên ngoài -->
+        <line class="wall" x1="40" y1="40" x2="1180" y2="40" />
+        <!-- Tường dưới ngoài (chừa chỗ cửa) -->
+        <line class="wall" x1="40" y1="660" x2="550" y2="660" />
+        <line class="wall" x1="650" y1="660" x2="1180" y2="660" />
+        <!-- Vách phải private zone -->
+        <line class="wall" x1="880" y1="40" x2="880" y2="380" />
+        <line class="wall" x1="880" y1="420" x2="880" y2="660" />
+        <!-- Vách xiên bên phải -->
+        <line class="wall" x1="880" y1="380" x2="950" y2="260" />
+        <!-- Vách xiên dưới cửa -->
+        <line class="wall" x1="550" y1="660" x2="580" y2="700" />
+        <line class="wall" x1="620" y1="700" x2="650" y2="660" />
+
+        <!-- Cửa (minh hoạ) -->
+        <line class="door" x1="580" y1="700" x2="620" y2="700" />
+
+        <!-- PRIVATE ZONE labels -->
+        <text x="140" y="260" class="zone-label">PRIVATE</text>
+        <text x="149" y="290" class="zone-label">ZONE</text>
+
+        <text x="970" y="260" class="zone-label">PRIVATE</text>
+        <text x="980" y="290" class="zone-label">ZONE</text>
+
+        <!-- Quản lý -->
+        <rect x="480" y="520" width="240" height="90" class="admin-box" />
+        <text x="600" y="572" text-anchor="middle" class="admin-text">Quản lý</text>
+
+        <!-- Bàn dài 18–22 / 13–17 (trên giữa) -->
+        <g>
+          <rect x="440" y="110" width="320" height="120" class="table-rect" />
+          <!-- ghế nửa tròn hai bên bàn -->
+          <!-- trên -->
+          <rect x="460" y="70" width="40" height="40" rx="20" class="side-chair" />
+          <rect x="520" y="70" width="40" height="40" rx="20" class="side-chair" />
+          <rect x="580" y="70" width="40" height="40" rx="20" class="side-chair" />
+          <rect x="640" y="70" width="40" height="40" rx="20" class="side-chair" />
+          <rect x="700" y="70" width="40" height="40" rx="20" class="side-chair" />
+          <!-- dưới -->
+          <rect x="460" y="230" width="40" height="40" rx="20" class="side-chair" />
+          <rect x="520" y="230" width="40" height="40" rx="20" class="side-chair" />
+          <rect x="580" y="230" width="40" height="40" rx="20" class="side-chair" />
+          <rect x="640" y="230" width="40" height="40" rx="20" class="side-chair" />
+          <rect x="700" y="230" width="40" height="40" rx="20" class="side-chair" />
+        </g>
+
+        <!-- Hai bàn nhóm giữa (1–12) -->
+        <!-- Bàn 1–6 bên trái -->
+        <g>
+          <rect x="420" y="320" width="150" height="200" class="table-rect" />
+          <!-- ghế xanh bên trái bàn -->
+          <rect x="380" y="330" width="40" height="50" rx="20" class="side-chair" />
+          <rect x="380" y="390" width="40" height="50" rx="20" class="side-chair" />
+          <rect x="380" y="450" width="40" height="50" rx="20" class="side-chair" />
+        </g>
+        <!-- Bàn 7–12 bên phải -->
+        <g>
+          <rect x="630" y="320" width="150" height="200" class="table-rect" />
+          <rect x="780" y="330" width="40" height="50" rx="20" class="side-chair" />
+          <rect x="780" y="390" width="40" height="50" rx="20" class="side-chair" />
+          <rect x="780" y="450" width="40" height="50" rx="20" class="side-chair" />
+        </g>
+
+        <!-- Bàn private zone phải (31–40) -->
+        <g>
+          <rect x="930" y="380" width="90" height="250" class="table-rect" />
+          <rect x="1030" y="380" width="90" height="250" class="table-rect" />
+          <!-- ghế bên ngoài (trái & phải) -->
+          <rect x="900" y="390" width="30" height="40" rx="15" class="side-chair" />
+          <rect x="900" y="440" width="30" height="40" rx="15" class="side-chair" />
+          <rect x="900" y="490" width="30" height="40" rx="15" class="side-chair" />
+          <rect x="900" y="540" width="30" height="40" rx="15" class="side-chair" />
+          <rect x="900" y="590" width="30" height="40" rx="15" class="side-chair" />
+
+          <rect x="1120" y="390" width="30" height="40" rx="15" class="side-chair" />
+          <rect x="1120" y="440" width="30" height="40" rx="15" class="side-chair" />
+          <rect x="1120" y="490" width="30" height="40" rx="15" class="side-chair" />
+          <rect x="1120" y="540" width="30" height="40" rx="15" class="side-chair" />
+          <rect x="1120" y="590" width="30" height="40" rx="15" class="side-chair" />
+        </g>
+
+        <!-- PRIVATE ZONE trái: cụm bàn 2x2 -->
+        <g>
+          <!-- cụm trên -->
+          <rect x="70" y="100" width="140" height="140" class="table-rect" />
+          <rect x="70" y="290" width="140" height="140" class="table-rect" />
+          <rect x="230" y="290" width="140" height="140" class="table-rect" />
+          <rect x="70" y="480" width="140" height="140" class="table-rect" />
+          <rect x="230" y="480" width="140" height="140" class="table-rect" />
+        </g>
+
+        <!-- Bàn block 23–30 bên phải trên -->
+        <g>
+          <rect x="900" y="90" width="260" height="90" class="table-rect" />
+          <rect x="900" y="200" width="260" height="90" class="table-rect" />
+        </g>
+
+        <!-- LAYER GHẾ (số) -->
+        <g id="seats-layer"></g>
+      </g>
+    </svg>
+  </div>
+</div>
+
+<script>
+/* =============================
+   1. DỮ LIỆU GHẾ (BỐ CỤC GIỮ NGUYÊN)
+   ============================= */
+
+const seatsData = [
+  // PRIVATE ZONE trái – cụm trên (59,60 / 57,58)
+  {id:59,x:110,y:130},{id:60,x:170,y:130},
+  {id:57,x:110,y:190},{id:58,x:170,y:190},
+
+  // PRIVATE ZONE trái – cụm giữa trái (51,52 / 49,50)
+  {id:51,x:110,y:320},{id:52,x:170,y:320},
+  {id:49,x:110,y:380},{id:50,x:170,y:380},
+
+  // PRIVATE ZONE trái – cụm giữa phải (55,56 / 53,54)
+  {id:55,x:270,y:320},{id:56,x:330,y:320},
+  {id:53,x:270,y:380},{id:54,x:330,y:380},
+
+  // PRIVATE ZONE trái – cụm dưới trái (43,44 / 41,42)
+  {id:43,x:110,y:510},{id:44,x:170,y:510},
+  {id:41,x:110,y:570},{id:42,x:170,y:570},
+
+  // PRIVATE ZONE trái – cụm dưới phải (47,48 / 45,46)
+  {id:47,x:270,y:510},{id:48,x:330,y:510},
+  {id:45,x:270,y:570},{id:46,x:330,y:570},
+
+  // Bàn trung tâm trái (1–6)
+  {id:3,x:460,y:360},{id:4,x:530,y:360},
+  {id:2,x:460,y:420},{id:5,x:530,y:420},
+  {id:1,x:460,y:480},{id:6,x:530,y:480},
+
+  // Bàn trung tâm phải (7–12)
+  {id:9,x:670,y:360},{id:10,x:740,y:360},
+  {id:8,x:670,y:420},{id:11,x:740,y:420},
+  {id:7,x:670,y:480},{id:12,x:740,y:480},
+
+  // Bàn dài trên (18–22,13–17)
+  {id:18,x:470,y:150},{id:19,x:530,y:150},
+  {id:20,x:590,y:150},{id:21,x:650,y:150},{id:22,x:710,y:150},
+  {id:13,x:470,y:190},{id:14,x:530,y:190},
+  {id:15,x:590,y:190},{id:16,x:650,y:190},{id:17,x:710,y:190},
+
+  // Block 23–30 bên phải trên
+  {id:23,x:930,y:130},{id:24,x:990,y:130},
+  {id:25,x:1050,y:130},{id:26,x:1110,y:130},
+  {id:27,x:930,y:240},{id:28,x:990,y:240},
+  {id:29,x:1050,y:240},{id:30,x:1110,y:240},
+
+  // PRIVATE ZONE phải (31–40)
+  {id:31,x:975,y:410},{id:32,x:975,y:460},
+  {id:33,x:975,y:510},{id:34,x:975,y:560},{id:35,x:975,y:610},
+
+  {id:36,x:1085,y:410},{id:37,x:1085,y:460},
+  {id:38,x:1085,y:510},{id:39,x:1085,y:560},{id:40,x:1085,y:610},
+];
+
+/* =============================
+   2. VẼ GHẾ + XỬ LÝ CLICK
+   ============================= */
+
+const seatLayer = document.getElementById("seats-layer");
+const selectedSeats = new Set();
+
+seatsData.forEach(s => {
+  const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+
+  const circle = document.createElementNS("http://www.w3.org/2000/svg","circle");
+  circle.setAttribute("cx", s.x);
+  circle.setAttribute("cy", s.y);
+  circle.setAttribute("r", 18);
+  circle.setAttribute("class","seat-circle");
+
+  const label = document.createElementNS("http://www.w3.org/2000/svg","text");
+  label.setAttribute("x", s.x);
+  label.setAttribute("y", s.y + 4);
+  label.setAttribute("text-anchor","middle");
+  label.setAttribute("class","seat-label");
+  label.textContent = s.id;
+
+  circle.addEventListener("click", () => {
+    if (selectedSeats.has(s.id)) {
+      selectedSeats.delete(s.id);
+      circle.classList.remove("selected");
+    } else {
+      selectedSeats.add(s.id);
+      circle.classList.add("selected");
+    }
+    console.log("Ghế đã chọn:", Array.from(selectedSeats).sort((a,b)=>a-b));
+  });
+
+  g.appendChild(circle);
+  g.appendChild(label);
+  seatLayer.appendChild(g);
+});
+
+/* =============================
+   3. ZOOM + PAN
+   ============================= */
+
+const wrapper = document.getElementById("seat-map-wrapper");
+const viewport = document.getElementById("viewport");
+
+let scale = 1;
+let offsetX = 0;
+let offsetY = 0;
+let isDragging = false;
+let startX = 0;
+let startY = 0;
+
+function applyTransform() {
+  viewport.setAttribute(
+    "transform",
+    `translate(${offsetX},${offsetY}) scale(${scale})`
+  );
+}
+
+wrapper.addEventListener("wheel", e => {
+  e.preventDefault();
+  const delta = e.deltaY > 0 ? -0.1 : 0.1;
+  const newScale = Math.min(2.5, Math.max(0.5, scale + delta));
+  scale = newScale;
+  applyTransform();
+});
+
+wrapper.addEventListener("mousedown", e => {
+  isDragging = true;
+  startX = e.clientX;
+  startY = e.clientY;
+});
+
+wrapper.addEventListener("mouseup", () => {
+  isDragging = false;
+});
+
+wrapper.addEventListener("mouseleave", () => {
+  isDragging = false;
+});
+
+wrapper.addEventListener("mousemove", e => {
+  if (!isDragging) return;
+  const dx = (e.clientX - startX);
+  const dy = (e.clientY - startY);
+  startX = e.clientX;
+  startY = e.clientY;
+  offsetX += dx / scale;
+  offsetY += dy / scale;
+  applyTransform();
+});
+</script>
+
+</body>
+</html>

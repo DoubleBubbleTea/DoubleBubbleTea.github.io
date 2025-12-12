@@ -146,6 +146,16 @@
 
 <body>
 
+    <!-- ==================== POPUP ==================== -->
+    <div id="popupModal" class="modal-overlay">
+        <div class="modal-box small-popup">
+            <div class="modal-icon" style="font-size:40px; margin-bottom:10px; color: red;">X</div>
+            <h3 id="modal-title"></h3>
+            <p id="modal-message"></p>
+            <button class="btn-primary" onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
     <!-- HEADER -->
     <div class="header">
         <div class="header-title">ĐẶT PHÒNG</div>
@@ -199,7 +209,7 @@
                         <p class="choice-desc">Dành cho sinh viên muốn đặt chỗ học một mình.</p>
 
                         <button class="choice-btn"
-                            onclick="event.stopPropagation(); location.href='./bookingtest.html';">
+                            onclick="event.stopPropagation(); location.href='./booking_SG.html';">
                             Đặt phòng cá nhân
                         </button>
                     </div>
