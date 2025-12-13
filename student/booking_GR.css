@@ -112,13 +112,17 @@ body {
 /* BOOKING MODAL */
 .booking-box {
     width: 900px;
-    max-height: 90vh;   /* modal đủ lớn */
-    overflow-y: auto;   /* scroll toàn modal */
+    max-height: 90vh;
+    /* modal đủ lớn */
+    overflow-y: auto;
+    /* scroll toàn modal */
     /* display: flex; */
     flex-direction: column;
     padding-bottom: 30px;
-    max-height: 96vh !important;   /* tăng modal cho rộng hơn */
-    overflow-y: auto !important;   /* scroll toàn modal */
+    max-height: 96vh !important;
+    /* tăng modal cho rộng hơn */
+    overflow-y: auto !important;
+    /* scroll toàn modal */
 }
 
 .booking-title {
@@ -135,7 +139,7 @@ body {
     border: 1px solid #000;
     padding: 10px;
     background: #f9fafb;
-    
+
     overflow-x: auto !important;
     overflow-y: visible !important;
     max-height: none !important;
@@ -249,6 +253,7 @@ table.calendar thead th {
 }
 
 /* LIST TIỆN ÍCH */
+.paymentMethod,
 .facility-list {
     display: flex;
     flex-direction: column;
@@ -280,7 +285,8 @@ table.calendar thead th {
 .facility-list input[type="checkbox"] {
     width: 16px;
     height: 16px;
-    accent-color: #2563eb; /* màu xanh theo theme */
+    accent-color: #2563eb;
+    /* màu xanh theo theme */
 }
 
 /* Ghi chú phí */
@@ -292,8 +298,15 @@ table.calendar thead th {
 
 /* Fade in animation */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 
@@ -365,8 +378,15 @@ table.calendar thead th {
 /* ------------------- ANIMATION ------------------- */
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 /* ------------------- RESPONSIVE ------------------- */
@@ -375,11 +395,14 @@ table.calendar thead th {
     .room-row {
         grid-template-columns: 1fr;
     }
+
     .booking-box {
         width: 95vw;
     }
+
     .extra-grid {
-        flex-direction: column;   /* FIXED */
+        flex-direction: column;
+        /* FIXED */
     }
 }
 
@@ -408,4 +431,93 @@ table.calendar thead th {
     background: #d1d5db;
     color: #6b7280;
     cursor: not-allowed;
+}
+
+/* ================= PAYMENT METHOD ================= */
+
+.payment-method {
+    margin-top: 15px;
+}
+
+.payment-method h4 {
+    margin-bottom: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.payment-method-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Từng item – giống facility-list */
+.payment-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+
+    transition: 0.25s ease;
+}
+
+/* Hover hiệu ứng nổi */
+.payment-item:hover {
+    background: #f3f4f6;
+    border-color: #cbd5e1;
+    transform: translateX(4px);
+}
+
+/* Radio đẹp hơn */
+.payment-item input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #2563eb;
+}
+
+/* Icon */
+.payment-icon {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+}
+
+/* Text */
+.payment-item span {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.payment-item:has(input:checked) {
+    border-color: #2563eb;
+    background: #eff6ff;
+}
+
+/* ================= CHECK-IN QR ================= */
+
+.checkin-qr-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Image */
+#checkinQRImage {
+    width: 300px;
+    margin: 0 auto;
+    display: block;
+}
+
+/* Buttons */
+.checkin-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
 }

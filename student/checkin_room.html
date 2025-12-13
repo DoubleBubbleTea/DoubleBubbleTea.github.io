@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Check-in phòng</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="./layout.css">
+    <script src="./student_header.js"></script>
+
+    <style>
+        .content {
+            padding: 40px 80px;
+        }
+
+        .checkin-box {
+            max-width: 520px;
+            background: #fff;
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .checkin-box h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .checkin-box label {
+            font-weight: 600;
+            display: block;
+            margin-top: 14px;
+        }
+
+        .checkin-box select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+        }
+
+        .note {
+            margin-top: 14px;
+            font-size: 14px;
+            color: #2563eb;
+        }
+
+        .checkin-actions {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .btn-primary {
+            padding: 10px 26px;
+            border-radius: 999px;
+            border: none;
+            background: #2563eb;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-title">CHECK-IN PHÒNG</div>
+        <div class="header-right">
+            <div class="icon logout-icon" onclick="openLogoutModal()">
+                <img src="../img/logout_new.png" class="icon-img">
+            </div>
+            <div id="header-user">Đang tải...</div>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="avatar-box">
+                <img id="student-avatar" src="../img/logo.png">
+                <div class="avatar-name" id="avatar-fullname">—</div>
+            </div>
+            <h3>Danh sách</h3>
+            <a href="./information.html">Thông tin cá nhân</a>
+            <a href="#" onclick="checkTrustBeforeBooking()">Đặt phòng</a>
+            <a href="./booking_history.html">Lịch sử đặt phòng</a>
+            <a href="./checking_room.html" class="active">Check-in phòng</a>
+            <a href="#">Sự kiện của tôi</a>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <div class="checkin-box">
+                <h2>Check-in phòng học</h2>
+
+                <label>Chọn phòng</label>
+                <select id="roomSelect"></select>
+
+                <label>Chọn Booking ID</label>
+                <select id="bookingSelect"></select>
+
+                <div class="note">
+                    ⏰ Cho phép check-in phòng trước <strong>15 phút</strong>
+                </div>
+
+                <div class="checkin-actions">
+                    <button class="btn-primary" onclick="handleCheckin()">
+                        Check-in phòng
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- POPUP -->
+    <div id="popupModal" class="modal-overlay">
+        <div class="modal-box small-popup">
+            <h3 id="modal-title"></h3>
+            <p id="modal-message"></p>
+            <button class="btn-primary" onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
+    <script>
+        let bookings = [];
+        let roomMap = {};
+
+        async function loadRooms() {
+            const { data } = await db.from("room").select("*");
+            const select = document.getElementById("roomSelect");
+            select.innerHTML = "";
+
+            data.forEach(r => {
+                roomMap[r.roomid] = r;
+                const opt = document.createElement("option");
+                opt.value = r.roomid;
+                opt.textContent = `${r.roomid} (Sức chứa ${r.capacity})`;
+                select.appendChild(opt);
+            });
+
+            loadBookings();
+        }
+
+        async function loadBookings() {
+            const roomid = document.getElementById("roomSelect").value;
+            const select = document.getElementById("bookingSelect");
+
+            const { data } = await db
+                .from("booking")
+                .select("*")
+                .eq("roomid", roomid)
+                .neq("booking_status", "Hủy");
+
+            bookings = data || [];
+            select.innerHTML = "";
+
+            bookings.forEach(b => {
+                const opt = document.createElement("option");
+                opt.value = b.bookingid;
+                opt.textContent = `Booking #${b.bookingid}`;
+                select.appendChild(opt);
+            });
+        }
+
+        document.getElementById("roomSelect").onchange = loadBookings;
+
+        function handleCheckin() {
+            const bookingId = Number(document.getElementById("bookingSelect").value);
+            const booking = bookings.find(b => b.bookingid === bookingId);
+
+            if (!booking) return;
+
+            const now = new Date();
+            const start = new Date(booking.starttime);
+            const end = new Date(booking.endtime);
+
+            const allowFrom = new Date(start.getTime() - 15 * 60000);
+
+            if (now < allowFrom || now > end) {
+                return showPopup("Không thể check-in",
+                    "Chưa đến thời gian check-in phòng.");
+            }
+
+            const room = roomMap[booking.roomid];
+            const key = `checkin_${bookingId}`;
+            let count = Number(localStorage.getItem(key) || 0);
+
+            if (count >= room.capacity) {
+                return showPopup("Hết lượt check-in",
+                    "Số lượng check-in đã đạt tối đa.");
+            }
+
+            count++;
+            localStorage.setItem(key, count);
+
+            showPopup("Thành công",
+                `Check-in thành công (${count}/${room.capacity})`);
+        }
+
+        loadStudentName();
+        loadRooms();
+    </script>
+
+</body>
+
+</html>
