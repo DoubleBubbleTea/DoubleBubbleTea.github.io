@@ -160,7 +160,7 @@
             </p>
 
             <div class="checkin-qr-wrapper">
-                <img id="checkinQRImage" src="../img/checkin_QR.png">
+                <img id="checkinQRImage" src="../img/checkin_QR1.png">
 
                 <div class="checkin-actions">
                     <button class="btn-outline" onclick="downloadCheckinQR()">
@@ -255,8 +255,8 @@
         }
         function downloadCheckinQR() {
             const link = document.createElement("a");
-            link.href = "../img/checkin_QR.png";
-            link.download = "checkin_QR.png";
+            link.href = "../img/checkin_QR1.png";
+            link.download = "checkin_QR1.png";
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -532,9 +532,11 @@
             `;
             pendingPayment = {
                 studentid,
-                studentname: localStorage.getItem("studentname") || "",
+                studentname: "",
                 totalCost: total,
-                paymentmethod: "Tiền mặt" // default
+                paymentmethod: "Tiền mặt", // default
+                purpose: purpose,
+                numbermember: memberCount
             };
 
             document.getElementById("paymentModal").style.display = "flex";
@@ -544,7 +546,21 @@
             FINAL BOOKING (LƯU GIỜ THEO GIỜ VIỆT NAM)
         =================================================================== */
         async function finalizeBookingWithPayment() {
+
             const studentid = pendingPayment.studentid;
+            // 🔍 LẤY TÊN SINH VIÊN
+            const { data: studentData, error: studentError } = await db
+                .from("student")
+                .select("fullname")
+                .eq("studentid", studentid)
+                .single();
+
+            if (studentError || !studentData) {
+                return showPopup("Lỗi", "Không lấy được thông tin sinh viên.");
+            }
+
+            const studentname = studentData.fullname;
+
             const now = new Date();
 
             // 1️⃣ INSERT BOOKING
@@ -552,6 +568,8 @@
                 studentid,
                 roomid: selectedRoomId,
                 facilities: selectedFacilities.map(f => f.name).join(","),
+                numbermember: pendingPayment.numbermember,
+                purpose: pendingPayment.purpose,
                 starttime: toLocalTimestampString(itv.start),
                 endtime: toLocalTimestampString(itv.end),
                 booking_status: now < itv.start ? "Đang giữ chỗ" : "Đang sử dụng"
@@ -570,7 +588,7 @@
             const paymentRow = {
                 bookingid,
                 studentid,
-                studentname: pendingPayment.studentname,
+                studentname: studentname,
                 cost: pendingPayment.totalCost,
                 paymentmethod: pendingPayment.paymentmethod
             };

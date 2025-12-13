@@ -148,6 +148,8 @@
                         <th>Mã phòng</th>
                         <th>Mã ghế</th>
                         <th>Tiện ích</th>
+                        <th>Số lượng thành viên</th>
+                        <th>Mục đích sử dụng</th>
                         <th>Thời gian giữ chỗ</th>
                         <th>Trạng thái</th>
                         <th>Bắt đầu</th>
@@ -158,7 +160,7 @@
 
                 <tbody id="historyBody">
                     <tr>
-                        <td colspan="10" style="text-align:center;">Đang tải...</td>
+                        <td colspan="12" style="text-align:center;">Đang tải...</td>
                     </tr>
                 </tbody>
             </table>
@@ -208,7 +210,7 @@
             const body = document.getElementById("historyBody");
 
             if (!studentId) {
-                body.innerHTML = "<tr><td colspan='10'>Không tìm thấy studentid.</td></tr>";
+                body.innerHTML = "<tr><td colspan='12'>Không tìm thấy studentid.</td></tr>";
                 return;
             }
 
@@ -219,12 +221,12 @@
                 .order("starttime", { ascending: false });
 
             if (error || !data) {
-                body.innerHTML = "<tr><td colspan='10'>Lỗi tải dữ liệu.</td></tr>";
+                body.innerHTML = "<tr><td colspan='12'>Lỗi tải dữ liệu.</td></tr>";
                 return;
             }
 
             if (data.length === 0) {
-                body.innerHTML = "<tr><td colspan='10'>Bạn chưa có lịch sử đặt phòng.</td></tr>";
+                body.innerHTML = "<tr><td colspan='12'>Bạn chưa có lịch sử đặt phòng.</td></tr>";
                 return;
             }
 
@@ -288,18 +290,19 @@
                 }
 
                 tr.innerHTML = `
-                    <td>${b.bookingid}</td>
-                    <td>${b.studentid}</td>
-                    <td>${b.roomid || "—"}</td>
-                    <td>${b.seatid || "—"}</td>
-                    <td>${b.facilities || "Không"}</td>
-                    <td>${hold}</td>
-                    <td>${b.booking_status}</td>
-                    <td>${start.toLocaleString("vi-VN")}</td>
-                    <td>${end.toLocaleString("vi-VN")}</td>
-                    <td>${actionButton}</td>
-                `;
-
+    <td>${b.bookingid}</td>
+    <td>${b.studentid}</td>
+    <td>${b.roomid || "—"}</td>
+    <td>${b.seatid || "—"}</td>
+    <td>${b.facilities || "Không"}</td>
+    <td>${b.numbermember ?? "—"}</td>
+    <td>${b.purpose || "—"}</td>
+    <td>${hold}</td>
+    <td>${b.booking_status}</td>
+    <td>${start.toLocaleString("vi-VN")}</td>
+    <td>${end.toLocaleString("vi-VN")}</td>
+    <td>${actionButton}</td>
+`;
                 body.appendChild(tr);
             });
         }

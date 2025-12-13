@@ -111,6 +111,12 @@
                 <label>Chọn Booking ID</label>
                 <select id="bookingSelect"></select>
 
+                <div id="memberInfo" class="note" style="margin-top:10px;">
+                    👥 Số lượng đăng ký: —
+                    <br>
+                    ✅ Đã check-in: — / —
+                </div>
+
                 <div class="note">
                     ⏰ Cho phép check-in phòng trước <strong>15 phút</strong>
                 </div>
@@ -152,6 +158,31 @@
 
             loadBookings();
         }
+        function updateMemberInfo() {
+            const bookingId = Number(document.getElementById("bookingSelect").value);
+            const booking = bookings.find(b => b.bookingid === bookingId);
+
+            const info = document.getElementById("memberInfo");
+
+            if (!booking) {
+                info.innerHTML = `
+            👥 Số lượng đăng ký: —
+            <br>
+            ✅ Đã check-in: — / —
+        `;
+                return;
+            }
+
+            const maxMembers = booking.numbermember || 0;
+            const key = `checkin_${bookingId}`;
+            const checkedIn = Number(localStorage.getItem(key) || 0);
+
+            info.innerHTML = `
+        👥 Số lượng đăng ký: <strong>${maxMembers}</strong>
+        <br>
+        ✅ Đã check-in: <strong>${checkedIn} / ${maxMembers}</strong>
+    `;
+        }
 
         async function loadBookings() {
             const roomid = document.getElementById("roomSelect").value;
@@ -172,9 +203,23 @@
                 opt.textContent = `Booking #${b.bookingid}`;
                 select.appendChild(opt);
             });
+
+            // 🔥 QUAN TRỌNG: auto hiển thị booking đầu tiên
+            if (bookings.length > 0) {
+                select.value = bookings[0].bookingid;
+                updateMemberInfo();
+            } else {
+                document.getElementById("memberInfo").innerHTML = `
+            👥 Số lượng đăng ký: —
+            <br>
+            ✅ Đã check-in: — / —
+        `;
+            }
         }
 
+
         document.getElementById("roomSelect").onchange = loadBookings;
+        document.getElementById("bookingSelect").onchange = updateMemberInfo;
 
         function handleCheckin() {
             const bookingId = Number(document.getElementById("bookingSelect").value);
@@ -186,28 +231,48 @@
             const start = new Date(booking.starttime);
             const end = new Date(booking.endtime);
 
+            // ⏰ cho phép check-in trước 15 phút
             const allowFrom = new Date(start.getTime() - 15 * 60000);
 
             if (now < allowFrom || now > end) {
-                return showPopup("Không thể check-in",
-                    "Chưa đến thời gian check-in phòng.");
+                return showPopup(
+                    "Không thể check-in",
+                    "Chưa đến thời gian check-in phòng."
+                );
             }
 
-            const room = roomMap[booking.roomid];
+            const maxMembers = booking.numbermember || 0;
+
+            if (maxMembers <= 0) {
+                return showPopup(
+                    "Lỗi",
+                    "Booking này không có thông tin số lượng thành viên."
+                );
+            }
+
+            // 🔑 KEY localStorage theo booking
             const key = `checkin_${bookingId}`;
             let count = Number(localStorage.getItem(key) || 0);
 
-            if (count >= room.capacity) {
-                return showPopup("Hết lượt check-in",
-                    "Số lượng check-in đã đạt tối đa.");
+            // 🚫 ĐÃ ĐỦ SỐ NGƯỜI
+            if (count >= maxMembers) {
+                return showPopup(
+                    "Hết lượt check-in",
+                    `Số lượng check-in đã đạt tối đa (${maxMembers}).`
+                );
             }
 
+            // ✅ CHECK-IN
             count++;
             localStorage.setItem(key, count);
+            updateMemberInfo();
 
-            showPopup("Thành công",
-                `Check-in thành công (${count}/${room.capacity})`);
+            showPopup(
+                "Thành công",
+                `Check-in thành công (${count}/${maxMembers})`
+            );
         }
+
 
         loadStudentName();
         loadRooms();
