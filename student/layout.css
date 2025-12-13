@@ -447,3 +447,13 @@ table.calendar {
     font-size: 14px;
     color: #1f2937;
 }
+
+/* Thu nhỏ chatbot Fastbots */
+iframe[src*="fastbots.ai"] {
+    width: 350px !important;
+    height: 420px !important;
+    max-width: 90vw !important;
+    max-height: 85vh !important;
+    transform: scale(0.9);
+    transform-origin: bottom right;
+}
