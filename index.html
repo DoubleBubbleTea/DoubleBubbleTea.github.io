@@ -76,9 +76,48 @@
         </div>
 
         <button onclick="login()">Đăng nhập</button>
-
+        <div class="forgot-password" onclick="openForgotModal()">
+          Quên mật khẩu?
+        </div>
         <div class="after-login-space"></div>
 
+      </div>
+    </div>
+  </div>
+  <!-- FORGOT PASSWORD MODAL -->
+  <div id="forgotModal" class="modal-overlay">
+    <div class="modal-box" style="width:420px">
+      <h3>Quên mật khẩu</h3>
+
+      <!-- EMAIL -->
+      <div class="form-group">
+        <input id="fp-email" type="email" class="input-box" placeholder="Nhập email">
+      </div>
+
+      <button onclick="sendOTP()" style="margin-bottom:15px;">
+        Gửi mã OTP về email
+      </button>
+
+      <!-- OTP -->
+      <div class="form-group">
+        <input id="fp-otp" type="text" class="input-box" placeholder="Nhập mã OTP (6 số)">
+      </div>
+
+      <!-- NEW PASSWORD -->
+      <div class="form-group input-wrapper">
+        <input id="fp-password" type="password" class="input-box" placeholder="Mật khẩu mới">
+      </div>
+
+      <!-- CONFIRM PASSWORD -->
+      <div class="form-group input-wrapper">
+        <input id="fp-confirm" type="password" class="input-box" placeholder="Xác nhận mật khẩu mới"
+          oninput="checkForgotPasswordMatch()">
+        <span id="fp-error" class="error-x">✖</span>
+      </div>
+
+      <div class="modal-buttons">
+        <button onclick="confirmForgotPassword()">Xác nhận</button>
+        <button class="btn-cancel" onclick="closeForgotModal()">Hủy</button>
       </div>
     </div>
   </div>
@@ -247,6 +286,82 @@
 
     function closeModal() {
       document.getElementById("popupModal").style.display = "none";
+    }
+
+    /* =========================
+   FORGOT PASSWORD LOGIC
+========================= */
+
+    function openForgotModal() {
+      document.getElementById("forgotModal").style.display = "flex";
+    }
+
+    function closeForgotModal() {
+      document.getElementById("forgotModal").style.display = "none";
+    }
+
+    /* Giả lập gửi OTP */
+    function sendOTP() {
+      const email = document.getElementById("fp-email").value;
+      if (!email) {
+        showPopup("error", "Lỗi", "Vui lòng nhập email!");
+        return;
+      }
+
+      showPopup(
+        "success",
+        "OTP đã gửi",
+        "Mã OTP đã được gửi về email."
+      );
+    }
+
+    /* Check mật khẩu khớp */
+    function checkForgotPasswordMatch() {
+      const pwd = document.getElementById("fp-password").value;
+      const conf = document.getElementById("fp-confirm").value;
+      const err = document.getElementById("fp-error");
+
+      if (!conf) {
+        err.style.display = "none";
+        return;
+      }
+
+      err.style.display = pwd !== conf ? "block" : "none";
+    }
+
+    /* XÁC NHẬN ĐỔI MẬT KHẨU */
+    async function confirmForgotPassword() {
+      const email = document.getElementById("fp-email").value;
+      const pwd = document.getElementById("fp-password").value;
+      const conf = document.getElementById("fp-confirm").value;
+
+      if (!email || !pwd || !conf) {
+        showPopup("error", "Lỗi", "Vui lòng nhập đầy đủ thông tin!");
+        return;
+      }
+
+      if (pwd !== conf) {
+        showPopup("error", "Lỗi", "Mật khẩu xác nhận không khớp!");
+        return;
+      }
+
+      /* Update password student */
+      const { error } = await db
+        .from("student")
+        .update({ password: pwd })
+        .eq("email", email);
+
+      if (error) {
+        showPopup("error", "Lỗi", "Không thể đổi mật khẩu!");
+        return;
+      }
+
+      closeForgotModal();
+      showPopup(
+        "success",
+        "Thành công",
+        "Đổi mật khẩu thành công!"
+      );
     }
   </script>
 
