@@ -76,26 +76,6 @@
             color: white;
         }
 
-        /* MODAL */
-        /* .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.55);
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        .modal-box {
-            background: white;
-            padding: 25px;
-            width: 340px;
-            border-radius: 6px;
-            text-align: center;
-            animation: fadeIn 0.25s ease-out;
-        } */
-
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -185,7 +165,18 @@
             </div>
         </div>
     </div>
-
+    <!-- ================= REMINDER BOX ================= -->
+    <div id="bookingReminder" class="booking-reminder" style="display:none;">
+        <div class="reminder-icon">⏰</div>
+        <div class="reminder-content">
+            <div class="reminder-title">
+                Sắp đến giờ sử dụng phòng
+            </div>
+            <div class="reminder-text" id="reminderText">
+                —
+            </div>
+        </div>
+    </div>
 
     <!-- MAIN -->
     <div class="main">
@@ -295,21 +286,6 @@
 
 
     <script>
-
-        /* ============================
-           POPUP SUCCESS
-        ============================ */
-        // function showPopup(title, message) {
-        //     document.getElementById("modal-title").innerText = title;
-        //     document.getElementById("modal-message").innerText = message;
-        //     document.getElementById("popupModal").style.display = "flex";
-        // }
-
-        // function closeModal() {
-        //     document.getElementById("popupModal").style.display = "none";
-        // }
-
-
         /* ============================
            PASSWORD TOGGLE
         ============================ */

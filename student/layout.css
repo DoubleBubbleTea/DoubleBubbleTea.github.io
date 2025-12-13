@@ -383,3 +383,67 @@ table.calendar {
     opacity: 1;
     text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
 }
+
+
+/* ================= REMINDER BOX ================= */
+.booking-reminder {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    margin: 12px 24px;
+    padding: 14px 18px;
+
+    background: #eff6ff;
+    border-left: 5px solid #2563eb;
+    border-radius: 10px;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.reminder-icon {
+    font-size: 34px;              /* to hơn */
+    display: inline-block;
+    cursor: pointer;
+
+    animation: shake-bell 2.2s infinite;
+    transform-origin: top center;
+}
+
+/* Khi hover thì rung mạnh hơn một chút */
+.reminder-icon:hover {
+    animation: shake-bell-strong 0.9s infinite;
+}
+
+/* Rung nhẹ – dùng mặc định */
+@keyframes shake-bell {
+    0%   { transform: rotate(0deg); }
+    15%  { transform: rotate(20deg); }
+    30%  { transform: rotate(-20deg); }
+    45%  { transform: rotate(16deg); }
+    60%  { transform: rotate(-16deg); }
+    75%  { transform: rotate(12deg); }
+    100% { transform: rotate(0deg); }
+}
+
+/* Rung mạnh hơn khi hover */
+/* @keyframes shake-bell-strong {
+    0%   { transform: rotate(0deg); }
+    15%  { transform: rotate(20deg); }
+    30%  { transform: rotate(-20deg); }
+    45%  { transform: rotate(16deg); }
+    60%  { transform: rotate(-16deg); }
+    75%  { transform: rotate(12deg); }
+    100% { transform: rotate(0deg); }
+} */
+
+.reminder-title {
+    font-weight: 700;
+    color: #1e3a8a;
+    margin-bottom: 4px;
+}
+
+.reminder-text {
+    font-size: 14px;
+    color: #1f2937;
+}

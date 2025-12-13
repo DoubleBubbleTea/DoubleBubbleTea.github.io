@@ -7,6 +7,11 @@ const db = supabase.createClient(
     "https://oxaimnemcnqudtdguoyk.supabase.co",
     "sb_publishable_6p-lVAZg_ATPz1a1cDjlOg_9vIcR42c"
 );
+function toLocalTimestampString(date) {
+    const pad = (n) => n.toString().padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+        `T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+}
 
 // Hàm load tên sinh viên
 async function loadStudentName() {
@@ -322,3 +327,53 @@ function renderCalendar() {
     enableSlotSelection();
 }
 
+async function checkUpcomingBooking() {
+    const studentid = localStorage.getItem("studentid");
+    if (!studentid) return;
+
+    const now = new Date();
+    const in15Min = new Date(now.getTime() + 30 * 60000);
+
+    const nowStr = toLocalTimestampString(now);
+    const in15MinStr = toLocalTimestampString(in15Min);
+
+    const { data, error } = await db
+        .from("booking")
+        .select("roomid, starttime")
+        .eq("studentid", studentid)
+        .in("booking_status", ["Đang giữ chỗ"])
+        .gte("starttime", nowStr)
+        .lte("starttime", in15MinStr)
+        .order("starttime", { ascending: true })
+        .limit(1);
+
+    if (error || !data || data.length === 0) {
+        document.getElementById("bookingReminder").style.display = "none";
+        return;
+    }
+
+    const booking = data[0];
+    const start = new Date(booking.starttime);
+
+    const timeStr = start.toLocaleTimeString("vi-VN", {
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+
+    document.getElementById("reminderText").innerHTML = `
+        Phòng <strong>${booking.roomid}</strong> sẽ bắt đầu lúc
+        <strong>${timeStr}</strong>.
+        Vui lòng check-in đúng giờ.
+    `;
+
+    document.getElementById("bookingReminder").style.display = "flex";
+}
+
+
+/* Kiểm tra khi load trang */
+window.addEventListener("load", () => {
+    checkUpcomingBooking();
+
+    // Tự động refresh mỗi 1 phút
+    setInterval(checkUpcomingBooking, 60 * 1000);
+});

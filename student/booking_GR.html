@@ -37,7 +37,18 @@
             </div>
         </div>
     </div>
-
+    <!-- ================= REMINDER BOX ================= -->
+    <div id="bookingReminder" class="booking-reminder" style="display:none;">
+        <div class="reminder-icon">⏰</div>
+        <div class="reminder-content">
+            <div class="reminder-title">
+                Sắp đến giờ sử dụng phòng
+            </div>
+            <div class="reminder-text" id="reminderText">
+                —
+            </div>
+        </div>
+    </div>
     <!-- ================= MAIN LAYOUT ================= -->
     <div class="main">
 
@@ -222,11 +233,7 @@
         let selectedFacilities = [];
         let pendingPayment = null;
 
-        function toLocalTimestampString(date) {
-            const pad = (n) => n.toString().padStart(2, "0");
-            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
-                `T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
-        }
+
         function handlePaymentConfirm() {
             const method = document.querySelector(
                 'input[name="paymentMethod"]:checked'
