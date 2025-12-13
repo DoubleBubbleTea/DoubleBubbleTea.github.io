@@ -44,7 +44,7 @@
 
         .btn-edit,
         .btn-save,
-        .btn-cancel,
+        .btn-cancel-info-page,
         .btn-change-pass {
             margin-top: 25px;
             padding: 10px 16px;
@@ -71,7 +71,7 @@
             margin-right: 10px;
         }
 
-        .btn-cancel {
+        .btn-cancel-info-page {
             background: #dc2626;
             color: white;
         }
@@ -126,6 +126,37 @@
 
         #passModal {
             z-index: 9999 !important;
+        }
+
+        /* LAYOUT 2 CỘT */
+        .profile-layout {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+        }
+
+        /* AVATAR BOX */
+        .avatar-box-left {
+            width: 220px;
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 25px 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .avatar-box-left img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #e5e7eb;
+            margin-bottom: 15px;
+        }
+
+        /* INFO BOX GIỮ NGUYÊN */
+        .info-box {
+            flex: 1;
         }
     </style>
 </head>
@@ -201,43 +232,59 @@
         <!-- CONTENT -->
         <div class="content">
             <h2>Thông tin sinh viên</h2>
-
-            <div class="info-box">
-
-                <!-- VIEW MODE -->
-                <div id="info-view-mode">
-                    <div class="info-item"><label>Mã số sinh viên:</label><span id="info-studentid">...</span></div>
-                    <div class="info-item"><label>Họ và tên:</label><span id="info-fullname">...</span></div>
-                    <div class="info-item"><label>Email:</label><span id="info-email">...</span></div>
-                    <div class="info-item"><label>Số điện thoại:</label><span id="info-phonenumber">—</span></div>
-                    <div class="info-item"><label>Ngành học:</label><span id="info-major">—</span></div>
-                    <div class="info-item"><label>Điểm uy tín:</label><span id="info-trust">—</span></div>
-
-                    <div style="margin-top: 25px;">
-                        <button class="btn-change-pass" onclick="openPasswordModal()">Đổi mật khẩu</button>
-                        <button class="btn-edit" onclick="enableEdit()">Chỉnh sửa thông tin</button>
-                    </div>
+            <div class="profile-layout">
+                <!-- AVATAR BOX (BÊN TRÁI) -->
+                <div class="avatar-box-left">
+                    <img id="student-avatar-profile" src="../img/avata.png" alt="Avatar sinh viên">
                 </div>
 
+                <!-- INFO BOX (BÊN PHẢI) -->
+                <div class="info-box">
 
-                <!-- EDIT MODE -->
-                <div id="info-edit-mode" style="display:none">
-                    <div class="info-item"><label>Mã số sinh viên:</label><input id="edit-studentid" class="info-edit"
-                            disabled></div>
-                    <div class="info-item"><label>Họ và tên:</label><input id="edit-fullname" class="info-edit"></div>
-                    <div class="info-item"><label>Email:</label><input id="edit-email" class="info-edit"></div>
-                    <div class="info-item"><label>Số điện thoại:</label><input id="edit-phonenumber" class="info-edit">
-                    </div>
-                    <div class="info-item"><label>Ngành học:</label><input id="edit-major" class="info-edit"></div>
-                    <div class="info-item"><label>Điểm uy tín:</label><input id="edit-trust" class="info-edit" disabled>
+                    <!-- VIEW MODE -->
+                    <div id="info-view-mode">
+                        <div class="info-item"><label>Mã số sinh viên:</label><span id="info-studentid">...</span></div>
+                        <div class="info-item"><label>Họ và tên:</label><span id="info-fullname">...</span></div>
+                        <div class="info-item"><label>Email:</label><span id="info-email">...</span></div>
+                        <div class="info-item"><label>Số điện thoại:</label><span id="info-phonenumber">—</span></div>
+                        <div class="info-item"><label>Ngành học:</label><span id="info-major">—</span></div>
+                        <div class="info-item"><label>Điểm uy tín:</label><span id="info-trust">—</span></div>
+
+                        <div style="margin-top: 25px;">
+                            <button class="btn-change-pass" onclick="openPasswordModal()">Đổi mật khẩu</button>
+                            <button class="btn-edit" onclick="enableEdit()">Chỉnh sửa thông tin</button>
+                        </div>
                     </div>
 
-                    <button class="btn-save" onclick="saveInfo()">Lưu</button>
-                    <button class="btn-cancel" onclick="cancelEdit()">Hủy</button>
+                    <!-- EDIT MODE -->
+                    <div id="info-edit-mode" style="display:none">
+                        <div class="info-item"><label>Mã số sinh viên:</label>
+                            <input id="edit-studentid" class="info-edit" disabled>
+                        </div>
+                        <div class="info-item"><label>Họ và tên:</label>
+                            <input id="edit-fullname" class="info-edit">
+                        </div>
+                        <div class="info-item"><label>Email:</label>
+                            <input id="edit-email" class="info-edit">
+                        </div>
+                        <div class="info-item"><label>Số điện thoại:</label>
+                            <input id="edit-phonenumber" class="info-edit">
+                        </div>
+                        <div class="info-item"><label>Ngành học:</label>
+                            <input id="edit-major" class="info-edit">
+                        </div>
+                        <div class="info-item"><label>Điểm uy tín:</label>
+                            <input id="edit-trust" class="info-edit" disabled>
+                        </div>
+
+                        <button class="btn-save" onclick="saveInfo()">Lưu</button>
+                        <button class="btn-cancel-info-page" onclick="cancelEdit()">Hủy</button>
+                    </div>
+
                 </div>
-
             </div>
         </div>
+
 
     </div>
 
@@ -265,7 +312,7 @@
             </div>
 
             <button class="btn-save" onclick="savePassword()">Lưu mật khẩu</button>
-            <button class="btn-cancel" onclick="closePasswordModal()">Hủy</button>
+            <button class="btn-cancel-info-page" onclick="closePasswordModal()">Hủy</button>
         </div>
     </div>
 
@@ -284,8 +331,23 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./student_header.js"></script>
 
-
     <script>
+        const avatarMap = {
+            132: "../img/avatar_Minh.png",      // Minh
+            184: "../img/avatar_Ngan.png",      // Ngan
+            113: "../img/avatar_Truc.png",      // Truc
+            123: "../img/avatar_Binh.png"       // Binh
+        };
+        function loadStudentAvatar() {
+            const studentId = localStorage.getItem("studentid");
+            if (!studentId) return;
+
+            const avatarPath = avatarMap[studentId] || "../img/avata_default.png";
+
+            const avatarProfile = document.getElementById("student-avatar-profile");
+
+            if (avatarProfile) avatarProfile.src = avatarPath;
+        }
         /* ============================
            PASSWORD TOGGLE
         ============================ */
@@ -425,7 +487,7 @@
         /* INIT */
         loadStudentName();
         loadStudentInfo();
-
+        loadStudentAvatar();
     </script>
 
 </body>
