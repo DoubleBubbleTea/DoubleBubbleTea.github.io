@@ -1,440 +1,490 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
-<meta charset="UTF-8" />
-<title>Sơ đồ đặt chỗ – Style A</title>
-<style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #e5f1f9;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 24px;
-  }
+  <meta charset="UTF-8">
+  <title>Đặt phòng cá nhân</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  .seat-map-shell {
-    background: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.15);
-    padding: 16px 18px 20px;
-    max-width: 1200px;
-    width: 100%;
-  }
+  <link rel="stylesheet" href="./layout.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  .seat-map-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 10px;
-  }
+  <style>
+    .content { flex: 1; padding: 30px 40px; background: #f9fafb; }
+    .page-title { font-size: 24px; font-weight: 700; margin-bottom: 20px; }
+    .room-select { margin-bottom: 20px; }
+    select { padding: 8px 14px; border-radius: 8px; border: 1px solid #d1d5db; }
 
-  .seat-map-header h1 {
-    margin: 0;
-    font-size: 22px;
-    color: #111827;
-  }
+    .seat-map {
+      background: #fff;
+      border-radius: 18px;
+      padding: 30px;
+      box-shadow: 0 8px 20px rgba(0,0,0,.05);
+    }
 
-  .seat-map-header span {
-    font-size: 13px;
-    color: #6b7280;
-  }
+    .map-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr 1fr;
+      gap: 30px;
+    }
 
-  .seat-map-wrapper {
-    border-radius: 14px;
-    border: 1px solid #cbd5e1;
-    overflow: hidden;
-    background: #e9f2fb;
-    width: 100%;
-    height: 620px;
-    position: relative;
-    cursor: grab;
-  }
+    .seat {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      border: 2px solid #2563eb;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 13px;
+      background: #fff;
+      user-select: none;
+      transition: .15s;
+    }
 
-  .seat-map-wrapper:active {
-    cursor: grabbing;
-  }
+    .seat.available { cursor: pointer; }
+    .seat.available:hover { background:#2563eb; color:#fff; }
+    .seat.disabled {
+      background:#e5e7eb;
+      border-color:#9ca3af;
+      color:#6b7280;
+      cursor:not-allowed;
+    }
 
-  svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-    user-select: none;
-  }
+    .private-title {
+      color:#dc2626;
+      font-weight:800;
+      text-align:center;
+      margin-bottom:10px;
+    }
 
-  /* Ghế */
-  .seat-circle {
-    fill: #ffffff;
-    stroke: #fbbf24; /* vàng pastel */
-    stroke-width: 3;
-    cursor: pointer;
-    transition: 0.18s;
-  }
+    .left-private, .right-zone {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:22px;
+    }
 
-  .seat-label {
-    font-size: 12px;
-    font-weight: bold;
-    fill: #111827;
-    pointer-events: none;
-  }
+    .block-2x2 { display:grid; grid-template-columns:repeat(2,54px); gap:14px; }
+    .block-2x4 { display:grid; grid-template-columns:repeat(4,54px); gap:14px; }
 
-  .seat-circle.selected {
-    fill: #fbbf24;
-  }
+    .center-zone { display:flex; flex-direction:column; align-items:center; gap:26px; }
 
-  .seat-circle.selected + .seat-label {
-    fill: #111827;
-  }
+    .long-table {
+      display:grid;
+      grid-template-columns:repeat(5,54px);
+      gap:14px;
+      padding:14px 18px;
+      border:2px solid #2563eb;
+      border-radius:18px;
+    }
 
-  /* Bàn / ghế phụ / tường */
-  .table-rect {
-    fill: #ffffff;
-    stroke: #0f4c75;
-    stroke-width: 2;
-    rx: 14;
-    ry: 14;
-  }
+    .double-wrapper {
+      display:grid;
+      grid-template-columns:auto 80px auto;
+      gap:26px;
+    }
 
-  .side-chair {
-    fill: #0f4c75;
-    stroke: #0b314e;
-    stroke-width: 1.5;
-  }
+    .double-table {
+      display:grid;
+      grid-template-columns:repeat(2,54px);
+      gap:14px;
+      padding:14px;
+      border:2px solid #2563eb;
+      border-radius:18px;
+    }
 
-  .wall {
-    fill: none;
-    stroke: #0f4c75;
-    stroke-width: 6;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
+    .manager-box {
+      width:320px;
+      padding:12px;
+      border:2px solid #2563eb;
+      border-radius:16px;
+      font-weight: bold;
+      text-align: center;
+    }
 
-  .door {
-    fill: none;
-    stroke: #0f4c75;
-    stroke-width: 5;
-    stroke-linecap: round;
-  }
+    .right-vertical-wrap {
+      display:grid;
+      grid-template-columns:auto 24px auto;
+      gap:10px;
+    }
 
-  .zone-label {
-    font-size: 20px;
-    font-weight: bold;
-    fill: #e11d48;
-  }
+    .vertical-col {
+      display:grid;
+      grid-template-rows:repeat(5,54px);
+      gap:14px;
+      padding:14px;
+      border:2px solid #2563eb;
+      border-radius:18px;
+    }
 
-  .admin-box {
-    fill: #ffffff;
-    stroke: #0f4c75;
-    stroke-width: 2;
-    rx: 16;
-    ry: 16;
-  }
+    /* ========== MODAL (tự viết cho chắc) ========== */
+    .modal-overlay{
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 18px;
+    }
+    .modal-box{
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+      box-shadow: 0 12px 35px rgba(0,0,0,.18);
+    }
+    .modal-box h3{ margin: 0 0 10px; font-size: 18px; }
+    .modal-info{ font-size: 14px; margin: 10px 0 12px; line-height: 1.5; }
+    .modal-note{ font-size: 13px; color: #6b7280; line-height: 1.5; }
+    .modal-actions{
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .btn-outline, .btn-primary{
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid #d1d5db;
+      background: #fff;
+    }
+    .btn-primary{
+      background: #2563eb;
+      color:#fff;
+      border-color: #2563eb;
+    }
+    .btn-primary:disabled{
+      opacity: .6;
+      cursor: not-allowed;
+    }
 
-  .admin-text {
-    font-size: 18px;
-    font-weight: bold;
-    fill: #111827;
-  }
-
-  .top-bar {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-bottom: 6px;
-    font-size: 12px;
-    color: #6b7280;
-  }
-
-  .pill {
-    border-radius: 999px;
-    border: 1px solid #d1d5db;
-    padding: 3px 10px;
-    background: #f9fafb;
-  }
-
-  .pill strong { color: #111827; }
-</style>
+    .warn-time{
+      color:#dc2626;
+      font-weight: bold;
+      margin-top: 10px;
+      font-size: 13px;
+      display: none;
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="seat-map-shell">
-  <div class="seat-map-header">
-    <h1>Sơ đồ chỗ ngồi</h1>
-    <span>Scroll để phóng to / thu nhỏ, giữ chuột trái để kéo sơ đồ</span>
+<div class="header">
+  <div class="header-title">ĐẶT PHÒNG</div>
+  <div class="header-right"><div id="header-user">Đang tải...</div></div>
+</div>
+
+<div class="main">
+
+  <div class="sidebar">
+    <div class="avatar-box">
+      <img src="../img/logo.png">
+      <div class="avatar-name" id="avatar-fullname">—</div>
+    </div>
+    <a href="./information.html">Thông tin cá nhân</a>
+    <a href="#" class="active">Đặt phòng</a>
+    <a href="./booking_history.html">Lịch sử đặt phòng</a>
+    <a href="./checkin_room.html">Check-in phòng</a>
   </div>
-  <div class="top-bar">
-    <div class="pill"><strong>Trắng</strong> = ghế trống</div>
-    <div class="pill"><strong>Vàng</strong> = ghế đang chọn</div>
-  </div>
 
-  <div class="seat-map-wrapper" id="seat-map-wrapper">
-    <svg viewBox="0 0 1200 700">
-      <!-- g viewport dùng để zoom / pan -->
-      <g id="viewport">
-        <!-- Khung ngoài -->
-        <rect x="20" y="20" width="1160" height="660" rx="18" ry="18"
-              fill="#f3f7fd" stroke="#0f4c75" stroke-width="4" />
+  <div class="content">
+    <div class="page-title">Sơ đồ chỗ ngồi</div>
 
-        <!-- Vách ngăn và tường (giữ bố cục giống hình) -->
-        <!-- Vách trái -->
-        <line class="wall" x1="380" y1="40" x2="380" y2="660" />
-        <!-- Tường trái ngoài -->
-        <line class="wall" x1="40" y1="40" x2="40" y2="660" />
-        <!-- Tường phải ngoài -->
-        <line class="wall" x1="1180" y1="40" x2="1180" y2="660" />
-        <!-- Tường trên ngoài -->
-        <line class="wall" x1="40" y1="40" x2="1180" y2="40" />
-        <!-- Tường dưới ngoài (chừa chỗ cửa) -->
-        <line class="wall" x1="40" y1="660" x2="550" y2="660" />
-        <line class="wall" x1="650" y1="660" x2="1180" y2="660" />
-        <!-- Vách phải private zone -->
-        <line class="wall" x1="880" y1="40" x2="880" y2="380" />
-        <line class="wall" x1="880" y1="420" x2="880" y2="660" />
-        <!-- Vách xiên bên phải -->
-        <line class="wall" x1="880" y1="380" x2="950" y2="260" />
-        <!-- Vách xiên dưới cửa -->
-        <line class="wall" x1="550" y1="660" x2="580" y2="700" />
-        <line class="wall" x1="620" y1="700" x2="650" y2="660" />
+    <div class="room-select">
+      <label>Chọn phòng:</label>
+      <select id="roomSelect">
+        <option value="I1">Phòng I1</option>
+        <option value="I2">Phòng I2</option>
+      </select>
+    </div>
 
-        <!-- Cửa (minh hoạ) -->
-        <line class="door" x1="580" y1="700" x2="620" y2="700" />
+    <div class="seat-map">
+      <div class="map-grid">
 
-        <!-- PRIVATE ZONE labels -->
-        <text x="140" y="260" class="zone-label">PRIVATE</text>
-        <text x="149" y="290" class="zone-label">ZONE</text>
+        <div class="left-private">
+          <div class="private-title">PRIVATE ZONE</div>
+          <div class="block-2x2" id="leftA"></div>
+          <div class="block-2x2" id="leftB"></div>
+          <div class="block-2x2" id="leftC"></div>
+          <div class="block-2x2" id="leftD"></div>
+          <div class="block-2x2" id="leftE"></div>
+        </div>
 
-        <text x="970" y="260" class="zone-label">PRIVATE</text>
-        <text x="980" y="290" class="zone-label">ZONE</text>
+        <div class="center-zone">
+          <div class="long-table" id="centerTop"></div>
 
-        <!-- Quản lý -->
-        <rect x="480" y="520" width="240" height="90" class="admin-box" />
-        <text x="600" y="572" text-anchor="middle" class="admin-text">Quản lý</text>
+          <div class="double-wrapper">
+            <div class="double-table" id="centerLeft"></div>
+            <div></div>
+            <div class="double-table" id="centerRight"></div>
+          </div>
 
-        <!-- Bàn dài 18–22 / 13–17 (trên giữa) -->
-        <g>
-          <rect x="440" y="110" width="320" height="120" class="table-rect" />
-          <!-- ghế nửa tròn hai bên bàn -->
-          <!-- trên -->
-          <rect x="460" y="70" width="40" height="40" rx="20" class="side-chair" />
-          <rect x="520" y="70" width="40" height="40" rx="20" class="side-chair" />
-          <rect x="580" y="70" width="40" height="40" rx="20" class="side-chair" />
-          <rect x="640" y="70" width="40" height="40" rx="20" class="side-chair" />
-          <rect x="700" y="70" width="40" height="40" rx="20" class="side-chair" />
-          <!-- dưới -->
-          <rect x="460" y="230" width="40" height="40" rx="20" class="side-chair" />
-          <rect x="520" y="230" width="40" height="40" rx="20" class="side-chair" />
-          <rect x="580" y="230" width="40" height="40" rx="20" class="side-chair" />
-          <rect x="640" y="230" width="40" height="40" rx="20" class="side-chair" />
-          <rect x="700" y="230" width="40" height="40" rx="20" class="side-chair" />
-        </g>
+          <div class="manager-box">Quản lý</div>
+        </div>
 
-        <!-- Hai bàn nhóm giữa (1–12) -->
-        <!-- Bàn 1–6 bên trái -->
-        <g>
-          <rect x="420" y="320" width="150" height="200" class="table-rect" />
-          <!-- ghế xanh bên trái bàn -->
-          <rect x="380" y="330" width="40" height="50" rx="20" class="side-chair" />
-          <rect x="380" y="390" width="40" height="50" rx="20" class="side-chair" />
-          <rect x="380" y="450" width="40" height="50" rx="20" class="side-chair" />
-        </g>
-        <!-- Bàn 7–12 bên phải -->
-        <g>
-          <rect x="630" y="320" width="150" height="200" class="table-rect" />
-          <rect x="780" y="330" width="40" height="50" rx="20" class="side-chair" />
-          <rect x="780" y="390" width="40" height="50" rx="20" class="side-chair" />
-          <rect x="780" y="450" width="40" height="50" rx="20" class="side-chair" />
-        </g>
+        <div class="right-zone">
+          <div class="private-title">PRIVATE ZONE</div>
+          <div class="block-2x4" id="rightTop"></div>
 
-        <!-- Bàn private zone phải (31–40) -->
-        <g>
-          <rect x="930" y="380" width="90" height="250" class="table-rect" />
-          <rect x="1030" y="380" width="90" height="250" class="table-rect" />
-          <!-- ghế bên ngoài (trái & phải) -->
-          <rect x="900" y="390" width="30" height="40" rx="15" class="side-chair" />
-          <rect x="900" y="440" width="30" height="40" rx="15" class="side-chair" />
-          <rect x="900" y="490" width="30" height="40" rx="15" class="side-chair" />
-          <rect x="900" y="540" width="30" height="40" rx="15" class="side-chair" />
-          <rect x="900" y="590" width="30" height="40" rx="15" class="side-chair" />
+          <div class="right-vertical-wrap">
+            <div class="vertical-col" id="rightMidLeft"></div>
+            <div></div>
+            <div class="vertical-col" id="rightMidRight"></div>
+          </div>
+        </div>
 
-          <rect x="1120" y="390" width="30" height="40" rx="15" class="side-chair" />
-          <rect x="1120" y="440" width="30" height="40" rx="15" class="side-chair" />
-          <rect x="1120" y="490" width="30" height="40" rx="15" class="side-chair" />
-          <rect x="1120" y="540" width="30" height="40" rx="15" class="side-chair" />
-          <rect x="1120" y="590" width="30" height="40" rx="15" class="side-chair" />
-        </g>
-
-        <!-- PRIVATE ZONE trái: cụm bàn 2x2 -->
-        <g>
-          <!-- cụm trên -->
-          <rect x="70" y="100" width="140" height="140" class="table-rect" />
-          <rect x="70" y="290" width="140" height="140" class="table-rect" />
-          <rect x="230" y="290" width="140" height="140" class="table-rect" />
-          <rect x="70" y="480" width="140" height="140" class="table-rect" />
-          <rect x="230" y="480" width="140" height="140" class="table-rect" />
-        </g>
-
-        <!-- Bàn block 23–30 bên phải trên -->
-        <g>
-          <rect x="900" y="90" width="260" height="90" class="table-rect" />
-          <rect x="900" y="200" width="260" height="90" class="table-rect" />
-        </g>
-
-        <!-- LAYER GHẾ (số) -->
-        <g id="seats-layer"></g>
-      </g>
-    </svg>
+      </div>
+    </div>
   </div>
 </div>
 
+<!-- ========== BOOKING MODAL ========== -->
+<div id="seatBookingModal" class="modal-overlay">
+  <div class="modal-box">
+    <h3>Xác nhận đặt chỗ</h3>
+
+    <div id="seatBookingInfo" class="modal-info">—</div>
+
+    <div class="modal-note">
+      ⏱ Thời gian sử dụng: <strong>2 tiếng</strong><br><br>
+
+      ⌛ Thời gian giữ chỗ: <strong>5 phút</strong><br><br>
+
+      ⏰ Chỉ được đặt trong khung giờ: <strong>07:00 → 20:00</strong>
+
+    </div>
+
+    <div id="timeWarn" class="warn-time">Hiện tại bạn đang ngoài khung giờ cho phép đặt phòng.</div>
+
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeSeatBookingModal()">Hủy</button>
+      <button id="confirmBtn" class="btn-primary" onclick="confirmSeatBooking()">Xác nhận</button>
+    </div>
+  </div>
+</div>
+
+<script src="./student_header.js"></script>
+
 <script>
-/* =============================
-   1. DỮ LIỆU GHẾ (BỐ CỤC GIỮ NGUYÊN)
-   ============================= */
+  // ====== layout zones (số thứ tự 1..60 theo PNG) ======
+  const zones = {
+    centerTop:[18,19,20,21,22,13,14,15,16,17],
+    centerLeft:[3,4,2,5,1,6],
+    centerRight:[9,10,8,11,7,12],
+    rightTop:[23,24,25,26,27,28,29,30],
+    rightMidLeft:[31,32,33,34,35],
+    rightMidRight:[36,37,38,39,40],
+    leftA:[59,60,57,58],
+    leftB:[55,56,53,54],
+    leftC:[51,52,49,50],
+    leftD:[47,48,45,46],
+    leftE:[43,44,41,42]
+  };
 
-const seatsData = [
-  // PRIVATE ZONE trái – cụm trên (59,60 / 57,58)
-  {id:59,x:110,y:130},{id:60,x:170,y:130},
-  {id:57,x:110,y:190},{id:58,x:170,y:190},
+  // ====== helpers time ======
+  function pad(n){ return String(n).padStart(2,'0'); }
 
-  // PRIVATE ZONE trái – cụm giữa trái (51,52 / 49,50)
-  {id:51,x:110,y:320},{id:52,x:170,y:320},
-  {id:49,x:110,y:380},{id:50,x:170,y:380},
+  // Chỉ cho đặt từ 07:00 đến 20:00 (giờ local máy user)
+  function isWithinBookingHours(date){
+    const h = date.getHours();
+    const m = date.getMinutes();
+    const minutes = h*60 + m;
+    const start = 7*60;      // 07:00
+    const end   = 20*60;     // 20:00
+    return minutes >= start && minutes <= end;
+  }
 
-  // PRIVATE ZONE trái – cụm giữa phải (55,56 / 53,54)
-  {id:55,x:270,y:320},{id:56,x:330,y:320},
-  {id:53,x:270,y:380},{id:54,x:330,y:380},
+  // Quy tắc seatid:
+  // room I1 -> I101..I160 (base=100)
+  // room I2 -> I201..I260 (base=200)
+  function buildSeatId(roomId, num) {
+    const roomNum = Number(roomId.replace("I", "")); // 1 hoặc 2
+    const base = roomNum * 100;                      // 100 hoặc 200
+    return "I" + (base + num);
+  }
 
-  // PRIVATE ZONE trái – cụm dưới trái (43,44 / 41,42)
-  {id:43,x:110,y:510},{id:44,x:170,y:510},
-  {id:41,x:110,y:570},{id:42,x:170,y:570},
+  // ====== modal state ======
+  let selectedRoomId = null;
+  let selectedSeatId = null;
+  let startTime = null;
+  let endTime = null;
+  let holdUntil = null;
 
-  // PRIVATE ZONE trái – cụm dưới phải (47,48 / 45,46)
-  {id:47,x:270,y:510},{id:48,x:330,y:510},
-  {id:45,x:270,y:570},{id:46,x:330,y:570},
+  function openSeatBookingModal(roomId, seatId){
+    selectedRoomId = roomId;
+    selectedSeatId = seatId;
 
-  // Bàn trung tâm trái (1–6)
-  {id:3,x:460,y:360},{id:4,x:530,y:360},
-  {id:2,x:460,y:420},{id:5,x:530,y:420},
-  {id:1,x:460,y:480},{id:6,x:530,y:480},
+    const now = new Date();
+    startTime = now;
+    endTime = new Date(now.getTime() + 2*60*60*1000);       // +2 tiếng
+    holdUntil = new Date(now.getTime() + 5*60*1000);        // +5 phút
 
-  // Bàn trung tâm phải (7–12)
-  {id:9,x:670,y:360},{id:10,x:740,y:360},
-  {id:8,x:670,y:420},{id:11,x:740,y:420},
-  {id:7,x:670,y:480},{id:12,x:740,y:480},
+    const okTime = isWithinBookingHours(now);
+    const warn = document.getElementById("timeWarn");
+    const btn = document.getElementById("confirmBtn");
+    warn.style.display = okTime ? "none" : "block";
+    btn.disabled = !okTime;
 
-  // Bàn dài trên (18–22,13–17)
-  {id:18,x:470,y:150},{id:19,x:530,y:150},
-  {id:20,x:590,y:150},{id:21,x:650,y:150},{id:22,x:710,y:150},
-  {id:13,x:470,y:190},{id:14,x:530,y:190},
-  {id:15,x:590,y:190},{id:16,x:650,y:190},{id:17,x:710,y:190},
+    const s = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    const e = `${pad(endTime.getHours())}:${pad(endTime.getMinutes())}`;
+    const h = `${pad(holdUntil.getHours())}:${pad(holdUntil.getMinutes())}`;
 
-  // Block 23–30 bên phải trên
-  {id:23,x:930,y:130},{id:24,x:990,y:130},
-  {id:25,x:1050,y:130},{id:26,x:1110,y:130},
-  {id:27,x:930,y:240},{id:28,x:990,y:240},
-  {id:29,x:1050,y:240},{id:30,x:1110,y:240},
+    document.getElementById("seatBookingInfo").innerHTML = `
+      Bạn đang đặt <strong>${seatId}</strong><br>
+      Phòng: <strong>${roomId}</strong><br>
+      Thời gian sử dụng: <strong>${s} → ${e}</strong><br>
+      Giữ chỗ đến: <strong>${h}</strong>
+    `;
 
-  // PRIVATE ZONE phải (31–40)
-  {id:31,x:975,y:410},{id:32,x:975,y:460},
-  {id:33,x:975,y:510},{id:34,x:975,y:560},{id:35,x:975,y:610},
+    document.getElementById("seatBookingModal").style.display = "flex";
+  }
 
-  {id:36,x:1085,y:410},{id:37,x:1085,y:460},
-  {id:38,x:1085,y:510},{id:39,x:1085,y:560},{id:40,x:1085,y:610},
-];
+  function closeSeatBookingModal(){
+    document.getElementById("seatBookingModal").style.display = "none";
+  }
 
-/* =============================
-   2. VẼ GHẾ + XỬ LÝ CLICK
-   ============================= */
+  // ====== seat UI ======
+  function createSeat(seat){
+    const d = document.createElement("div");
+    d.className = "seat";
+    d.innerText = seat.seatid;
 
-const seatLayer = document.getElementById("seats-layer");
-const selectedSeats = new Set();
-
-seatsData.forEach(s => {
-  const g = document.createElementNS("http://www.w3.org/2000/svg","g");
-
-  const circle = document.createElementNS("http://www.w3.org/2000/svg","circle");
-  circle.setAttribute("cx", s.x);
-  circle.setAttribute("cy", s.y);
-  circle.setAttribute("r", 18);
-  circle.setAttribute("class","seat-circle");
-
-  const label = document.createElementNS("http://www.w3.org/2000/svg","text");
-  label.setAttribute("x", s.x);
-  label.setAttribute("y", s.y + 4);
-  label.setAttribute("text-anchor","middle");
-  label.setAttribute("class","seat-label");
-  label.textContent = s.id;
-
-  circle.addEventListener("click", () => {
-    if (selectedSeats.has(s.id)) {
-      selectedSeats.delete(s.id);
-      circle.classList.remove("selected");
+    if ((seat.status || "").trim() === "Có thể đặt") {
+      d.classList.add("available");
+      d.onclick = () => openSeatBookingModal(currentRoom, seat.seatid);
     } else {
-      selectedSeats.add(s.id);
-      circle.classList.add("selected");
+      d.classList.add("disabled");
     }
-    console.log("Ghế đã chọn:", Array.from(selectedSeats).sort((a,b)=>a-b));
-  });
+    return d;
+  }
 
-  g.appendChild(circle);
-  g.appendChild(label);
-  seatLayer.appendChild(g);
-});
+  function clearZones(){
+    Object.keys(zones).forEach(z => {
+      const el = document.getElementById(z);
+      if(el) el.innerHTML = "";
+    });
+  }
 
-/* =============================
-   3. ZOOM + PAN
-   ============================= */
+  // ====== auto-cancel holds (client cleanup) ======
+  // Nếu booking_status = "Đang giữ chỗ" và holdtime < now => set "Hủy"
+  async function cleanupExpiredHolds(roomId){
+    const nowIso = new Date().toISOString();
 
-const wrapper = document.getElementById("seat-map-wrapper");
-const viewport = document.getElementById("viewport");
+    // lấy các booking đang giữ chỗ của room này đã hết holdtime
+    const { data, error } = await db
+      .from("booking")
+      .select("bookingid, holdtime")
+      .eq("roomid", roomId)
+      .eq("booking_status", "Đang giữ chỗ")
+      .lt("holdtime", nowIso);
 
-let scale = 1;
-let offsetX = 0;
-let offsetY = 0;
-let isDragging = false;
-let startX = 0;
-let startY = 0;
+    if (error || !data || data.length === 0) return;
 
-function applyTransform() {
-  viewport.setAttribute(
-    "transform",
-    `translate(${offsetX},${offsetY}) scale(${scale})`
-  );
-}
+    const ids = data.map(x => x.bookingid);
+    await db
+      .from("booking")
+      .update({ booking_status: "Hủy" })
+      .in("bookingid", ids);
+  }
 
-wrapper.addEventListener("wheel", e => {
-  e.preventDefault();
-  const delta = e.deltaY > 0 ? -0.1 : 0.1;
-  const newScale = Math.min(2.5, Math.max(0.5, scale + delta));
-  scale = newScale;
-  applyTransform();
-});
+  // ====== booking insert with conflict check ======
+  async function confirmSeatBooking(){
+    const studentid = localStorage.getItem("studentid");
+    if(!studentid){
+      alert("Không tìm thấy mã sinh viên! Bạn hãy đăng nhập lại.");
+      return;
+    }
 
-wrapper.addEventListener("mousedown", e => {
-  isDragging = true;
-  startX = e.clientX;
-  startY = e.clientY;
-});
+    const now = new Date();
+    if(!isWithinBookingHours(now)){
+      alert("Ngoài khung giờ cho phép đặt phòng (07:00–20:00).");
+      return;
+    }
 
-wrapper.addEventListener("mouseup", () => {
-  isDragging = false;
-});
+    // check trùng seat trong khoảng thời gian (now..now+2h) với các booking active
+    const { data: conflicts, error: cErr } = await db
+      .from("booking")
+      .select("bookingid, starttime, endtime, booking_status")
+      .eq("roomid", selectedRoomId)
+      .eq("seatid", selectedSeatId)
+      .in("booking_status", ["Đang giữ chỗ", "Đang sử dụng"])
+      .lt("starttime", endTime.toISOString())
+      .gt("endtime", startTime.toISOString());
 
-wrapper.addEventListener("mouseleave", () => {
-  isDragging = false;
-});
+    if(cErr){
+      alert("Lỗi kiểm tra trùng: " + cErr.message);
+      return;
+    }
+    if(conflicts && conflicts.length > 0){
+      alert("Ghế này vừa có người đặt/đang sử dụng. Bạn chọn ghế khác nhé.");
+      closeSeatBookingModal();
+      await loadSeats(selectedRoomId);
+      return;
+    }
 
-wrapper.addEventListener("mousemove", e => {
-  if (!isDragging) return;
-  const dx = (e.clientX - startX);
-  const dy = (e.clientY - startY);
-  startX = e.clientX;
-  startY = e.clientY;
-  offsetX += dx / scale;
-  offsetY += dy / scale;
-  applyTransform();
-});
+    // insert booking
+    const row = {
+      studentid: Number(studentid),
+      roomid: selectedRoomId,
+      seatid: selectedSeatId,
+      facilities: null,
+      numbermember: 1,
+      purpose: "Học tập",
+      holdtime: holdUntil.toISOString(),
+      booking_status: "Đang giữ chỗ",
+      starttime: startTime.toISOString(),
+      endtime: endTime.toISOString()
+    };
+
+    const { error } = await db.from("booking").insert(row);
+    if(error){
+      alert("Đặt chỗ thất bại: " + error.message);
+      return;
+    }
+
+    closeSeatBookingModal();
+    alert("Đặt chỗ thành công! Bạn cần check-in trong 5 phút, quá hạn sẽ tự hủy.");
+
+    await loadSeats(selectedRoomId);
+  }
+
+  // ====== main loadSeats ======
+  let currentRoom = "I1";
+
+  async function loadSeats(room){
+    currentRoom = room;
+
+    clearZones();
+
+    // dọn booking giữ chỗ hết hạn của room này trước khi render
+    await cleanupExpiredHolds(room);
+
+    const { data, error } = await db.from("seat").select("*").eq("roomid", room);
+    if(error){
+      alert("Lỗi tải seat: " + error.message);
+      return;
+    }
+
+    const map = {};
+    (data || []).forEach(s => map[String(s.seatid)] = s);
+
+    for(const z in zones){
+      const box = document.getElementById(z);
+      zones[z].forEach(n => {
+        const seatId = buildSeatId(room, n);
+        const seatObj = map[seatId] || { seatid: seatId, status: "Không thể đặt" };
+        box.appendChild(createSeat(seatObj));
+      });
+    }
+  }
+
+  const roomSelect = document.getElementById("roomSelect");
+  roomSelect.onchange = e => loadSeats(e.target.value);
+
+  loadSeats("I1");
 </script>
 
 </body>

@@ -128,21 +128,38 @@
             justify-content: center;
         }
 
-        /* Input căn text chuẩn */
-        #major-input {
-            line-height: 42px;
-            box-sizing: border-box;
-        }
-
         /* FIX LỆCH DO MARGIN-BOTTOM CỦA BTN-ADD */
         .action-bar .btn-add {
             margin-bottom: 0;
+        }
+
+        #major-select {
+            background: #275167;
+            color: #faf9f9;
+            height: 38px;
+            padding: 0 14px;
+            min-width: 100px;
+
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        #major-select:hover {
+            background: #275167;
+        }
+
+        #major-select option {
+            background: white;
+            /* nền option */
+            color: #111;
+            /* chữ đen */
         }
     </style>
 </head>
 
 <body>
-
     <!-- LOGOUT MODAL -->
     <div id="logout-modal" class="modal-overlay">
         <div class="modal-box">
@@ -211,15 +228,16 @@
             <h2>Danh sách sinh viên</h2>
 
             <div class="action-bar">
-                <button class="btn-add" onclick="openAddModal()">+ Thêm sinh viên</button>
+                <div class="left-actions">
+                    <button class="btn-add" onclick="openAddModal()">+ Thêm sinh viên</button>
 
-                <div class="filter-box">
-                    <button class="btn-add btn-filter" onclick="filterByMajor()">
-                        Lọc sinh viên theo ngành
-                    </button>
-                    <input type="text" id="major-input" placeholder="Nhập mã ngành (VD: CE, CEEE)">
+                    <select id="major-select" onchange="filterByMajor()">
+                        <option value="">Lọc theo ngành</option>
+                    </select>
+
                 </div>
             </div>
+
 
             <table>
                 <thead>
@@ -404,23 +422,43 @@
         loadHeader();
         loadStudents();
 
-        async function filterByMajor() {
-            const major = document.getElementById("major-input").value.trim();
+        async function loadMajorList() {
+            const { data, error } = await db
+                .from("student")
+                .select("major");
 
-            // Nếu không nhập → load lại toàn bộ
+            if (error) {
+                console.error("Không load được danh sách ngành", error);
+                return;
+            }
+
+            const select = document.getElementById("major-select");
+
+            // Lấy danh sách ngành không trùng
+            const majors = [...new Set(data.map(s => s.major).filter(Boolean))];
+
+            majors.forEach(m => {
+                const opt = document.createElement("option");
+                opt.value = m;
+                opt.textContent = m;
+                select.appendChild(opt);
+            });
+        }
+        async function filterByMajor() {
+            const major = document.getElementById("major-select").value;
+
             if (!major) {
-                loadStudents();
+                loadStudents(); // tất cả
                 return;
             }
 
             const { data, error } = await db
                 .from("student")
                 .select("*")
-                .ilike("major", `%${major}%`);
+                .eq("major", major);
 
             if (error) {
-                console.error(error);
-                alert("Lỗi khi lọc sinh viên");
+                showPopup("error", "Lỗi", "Không thể lọc sinh viên");
                 return;
             }
 
@@ -445,11 +483,7 @@
         `;
             });
         }
-        document.getElementById("major-input")
-            .addEventListener("keydown", e => {
-                if (e.key === "Enter") filterByMajor();
-            });
-
+        loadMajorList();
     </script>
 
 </body>

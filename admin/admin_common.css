@@ -459,36 +459,38 @@ th {
     z-index: 9999 !important;
 }
 
+/* ACTION BAR */
 .action-bar {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
+    /* tất cả dồn về trái */
     align-items: center;
     margin-bottom: 15px;
 }
 
-/* Box filter bên phải */
-.filter-box {
+/* Cụm nút bên trái */
+.left-actions {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-/* Input mã ngành */
-#major-input {
-    padding: 10px 12px;
+/* Dropdown ngành */
+#major-select {
+    height: 42px;
+    padding: 0 12px;
+    min-width: 200px;
+    font-size: 14px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    min-width: 220px;
-    font-size: 14px;
+    background: white;
+    cursor: pointer;
 }
 
-/* Giữ style y hệt nút Thêm sinh viên */
-.btn-filter {
-    background: #275167;
-}
-
-#major-input:focus {
-    outline: none;
-    border-color: #275167;
-    box-shadow: 0 0 0 2px rgba(39,81,103,0.15);
+/* Fix btn-add trong toolbar */
+.left-actions .btn-add {
+    margin-bottom: 0;
+    /* fix lệch cũ */
+    display: flex;
+    align-items: center;
 }
