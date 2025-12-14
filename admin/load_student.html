@@ -111,6 +111,33 @@
             color: white;
             margin-left: 10px;
         }
+
+        /* ===== FIX ALIGN FILTER BUTTON & INPUT ===== */
+        .filter-box .btn-add,
+        #major-input {
+            height: 42px;
+            /* ÉP CHIỀU CAO GIỐNG NHAU */
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        /* Button căn chữ chuẩn */
+        .filter-box .btn-add {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Input căn text chuẩn */
+        #major-input {
+            line-height: 42px;
+            box-sizing: border-box;
+        }
+
+        /* FIX LỆCH DO MARGIN-BOTTOM CỦA BTN-ADD */
+        .action-bar .btn-add {
+            margin-bottom: 0;
+        }
     </style>
 </head>
 
@@ -183,7 +210,16 @@
         <div class="content">
             <h2>Danh sách sinh viên</h2>
 
-            <button class="btn-add" onclick="openAddModal()">+ Thêm sinh viên</button>
+            <div class="action-bar">
+                <button class="btn-add" onclick="openAddModal()">+ Thêm sinh viên</button>
+
+                <div class="filter-box">
+                    <button class="btn-add btn-filter" onclick="filterByMajor()">
+                        Lọc sinh viên theo ngành
+                    </button>
+                    <input type="text" id="major-input" placeholder="Nhập mã ngành (VD: CE, CEEE)">
+                </div>
+            </div>
 
             <table>
                 <thead>
@@ -367,6 +403,52 @@
 
         loadHeader();
         loadStudents();
+
+        async function filterByMajor() {
+            const major = document.getElementById("major-input").value.trim();
+
+            // Nếu không nhập → load lại toàn bộ
+            if (!major) {
+                loadStudents();
+                return;
+            }
+
+            const { data, error } = await db
+                .from("student")
+                .select("*")
+                .ilike("major", `%${major}%`);
+
+            if (error) {
+                console.error(error);
+                alert("Lỗi khi lọc sinh viên");
+                return;
+            }
+
+            const table = document.getElementById("student-table");
+            table.innerHTML = "";
+
+            data.forEach(st => {
+                table.innerHTML += `
+            <tr>
+                <td>${st.studentid}</td>
+                <td>${st.fullname}</td>
+                <td>${st.email}</td>
+                <td>${st.phonenumber || "—"}</td>
+                <td>${st.major || "—"}</td>
+                <td>${st.status || "—"}</td>
+                <td>${st.trust_score ?? "—"}</td>
+                <td>
+                    <button class="btn-edit" onclick='openEditModal(${JSON.stringify(st)})'>Sửa</button>
+                    <button class="btn-delete" onclick="deleteStudent('${st.studentid}')">Xóa</button>
+                </td>
+            </tr>
+        `;
+            });
+        }
+        document.getElementById("major-input")
+            .addEventListener("keydown", e => {
+                if (e.key === "Enter") filterByMajor();
+            });
 
     </script>
 

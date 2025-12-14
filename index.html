@@ -345,23 +345,60 @@
         return;
       }
 
-      /* Update password student */
-      const { error } = await db
-        .from("student")
-        .update({ password: pwd })
-        .eq("email", email);
+      /* =========================
+         1️⃣ CHECK ADMIN TRƯỚC
+      ========================= */
+      const { data: adminData } = await db
+        .from("admin")
+        .select("adminid")
+        .eq("email", email)
+        .single();
 
-      if (error) {
-        showPopup("error", "Lỗi", "Không thể đổi mật khẩu!");
+      if (adminData) {
+        const { error } = await db
+          .from("admin")
+          .update({ password: pwd })
+          .eq("email", email);
+
+        if (error) {
+          showPopup("error", "Lỗi", "Không thể đổi mật khẩu admin!");
+          return;
+        }
+
+        closeForgotModal();
+        showPopup("success", "Thành công", "Đổi mật khẩu ADMIN thành công!");
         return;
       }
 
-      closeForgotModal();
-      showPopup(
-        "success",
-        "Thành công",
-        "Đổi mật khẩu thành công!"
-      );
+      /* =========================
+         2️⃣ CHECK STUDENT
+      ========================= */
+      const { data: studentData } = await db
+        .from("student")
+        .select("studentid")
+        .eq("email", email)
+        .single();
+
+      if (studentData) {
+        const { error } = await db
+          .from("student")
+          .update({ password: pwd })
+          .eq("email", email);
+
+        if (error) {
+          showPopup("error", "Lỗi", "Không thể đổi mật khẩu sinh viên!");
+          return;
+        }
+
+        closeForgotModal();
+        showPopup("success", "Thành công", "Đổi mật khẩu SINH VIÊN thành công!");
+        return;
+      }
+
+      /* =========================
+         3️⃣ EMAIL KHÔNG TỒN TẠI
+      ========================= */
+      showPopup("error", "Lỗi", "Email không tồn tại trong hệ thống!");
     }
   </script>
 
