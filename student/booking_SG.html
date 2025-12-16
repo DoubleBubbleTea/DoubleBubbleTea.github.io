@@ -62,17 +62,19 @@
 
     .seat.available {
       cursor: pointer;
+      color: #4f2121;
+      background: #2bf135;
     }
 
     .seat.available:hover {
-      background: #2563eb;
-      color: #fff;
+      background: #15721a;
+      color: #ffffff;
     }
 
     .seat.disabled {
-      background: #e5e7eb;
+      background: #e71c1c;
       border-color: #9ca3af;
-      color: #6b7280;
+      color: #ffffff;
       cursor: not-allowed;
     }
 
@@ -255,6 +257,7 @@
       <a href="./booking_history.html">Lịch sử đặt phòng</a>
       <a href="./checkin_room.html">Check-in phòng</a>
       <a href="./checkin_seat.html">Check-in chỗ ngồi</a>
+      <a href="#">Sự kiện của tôi</a>
     </div>
 
     <div class="content">
@@ -528,8 +531,6 @@
         booking_status: "Đang giữ chỗ",
         starttime: toLocalTimestampString(startTime),
         endtime: toLocalTimestampString(endTime)
-        // starttime: null,
-        // endtime: null
       };
       console.log("booking_status: ", row.booking_status);
 
@@ -552,6 +553,21 @@
 
     // ====== main loadSeats ======
     let currentRoom = "I1";
+    async function getOccupiedSeats(roomId) {
+      const nowIso = toLocalTimestampString(new Date());
+
+      const { data, error } = await db
+        .from("booking")
+        .select("seatid")
+        .eq("roomid", roomId)
+        .eq("booking_status", "Đang sử dụng")
+        .lt("starttime", nowIso)
+        .gt("endtime", nowIso);
+
+      if (error || !data) return [];
+
+      return data.map(b => b.seatid);
+    }
 
     async function loadSeats(room) {
       currentRoom = room;
@@ -561,17 +577,32 @@
       // dọn booking giữ chỗ hết hạn của room này trước khi render
       await cleanupExpiredHolds(room);
 
-      const { data, error } = await db.from("seat").select("*").eq("roomid", room);
+      // lấy danh sách seat đang được sử dụng
+      const occupiedSeats = await getOccupiedSeats(room);
+
+      // load seat
+      const { data, error } = await db
+        .from("seat")
+        .select("*")
+        .eq("roomid", room);
+
       if (error) {
-        showPopup(
-          "Lỗi tải seat: ",
-          error.message
-        );
+        showPopup("Lỗi tải seat", error.message);
         return;
       }
 
       const map = {};
-      (data || []).forEach(s => map[String(s.seatid)] = s);
+      (data || []).forEach(s => {
+        // nếu seat đang được sử dụng → khóa
+        if (occupiedSeats.includes(s.seatid)) {
+          map[String(s.seatid)] = {
+            ...s,
+            status: "Không thể đặt"
+          };
+        } else {
+          map[String(s.seatid)] = s;
+        }
+      });
 
       for (const z in zones) {
         const box = document.getElementById(z);

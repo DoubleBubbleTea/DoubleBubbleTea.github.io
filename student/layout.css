@@ -398,11 +398,12 @@ table.calendar {
     border-left: 5px solid #2563eb;
     border-radius: 10px;
 
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .reminder-icon {
-    font-size: 34px;              /* to hơn */
+    font-size: 34px;
+    /* to hơn */
     display: inline-block;
     cursor: pointer;
 
@@ -417,13 +418,33 @@ table.calendar {
 
 /* Rung nhẹ – dùng mặc định */
 @keyframes shake-bell {
-    0%   { transform: rotate(0deg); }
-    15%  { transform: rotate(20deg); }
-    30%  { transform: rotate(-20deg); }
-    45%  { transform: rotate(16deg); }
-    60%  { transform: rotate(-16deg); }
-    75%  { transform: rotate(12deg); }
-    100% { transform: rotate(0deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    15% {
+        transform: rotate(20deg);
+    }
+
+    30% {
+        transform: rotate(-20deg);
+    }
+
+    45% {
+        transform: rotate(16deg);
+    }
+
+    60% {
+        transform: rotate(-16deg);
+    }
+
+    75% {
+        transform: rotate(12deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
 }
 
 /* Rung mạnh hơn khi hover */
@@ -456,4 +477,28 @@ iframe[src*="fastbots.ai"] {
     max-height: 85vh !important;
     transform: scale(0.9);
     transform-origin: bottom right;
+}
+
+#room-filter {
+    background: #275167;
+    color: #faf9f9;
+    height: 38px;
+    padding: 0 14px;
+    min-width: 100px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#room-filter:hover {
+    background: #152a36;
+}
+
+#room-filter option {
+    background: white;
+    /* nền option */
+    color: #111;
+    /* chữ đen */
 }

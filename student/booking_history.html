@@ -10,7 +10,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="./layout.css">
     <script src="./student_header.js"></script>
-    <script defer src="https://app.fastbots.ai/embed.js" data-bot-id="cmj49xvd200slpa1pjdwephas"></script>
 
     <style>
         .content {
@@ -19,56 +18,54 @@
             box-sizing: border-box;
         }
 
-        h2 {
-            margin-top: 0;
-        }
-
         table {
             width: 100%;
-            margin-top: 25px;
+            margin-top: 20px;
             border-collapse: collapse;
             font-size: 14px;
         }
 
-        table th {
-            background: #f3f4f6;
-            padding: 10px;
-            text-align: left;
-            border-bottom: 2px solid #e5e7eb;
-        }
-
-        table td {
+        th,
+        td {
             padding: 10px;
             border-bottom: 1px solid #e5e7eb;
+            text-align: left;
         }
 
-        /* BUTTON CHUNG */
+        th {
+            background: #f3f4f6;
+        }
+
+        .action-bar {
+            margin-bottom: 10px;
+        }
+
+        select {
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+        }
+
         .btn-cancel-booking {
             padding: 6px 12px;
-            height: 30px;
-            min-width: 120px;
+            min-width: 110px;
+            border-radius: 10px;
             font-weight: bold;
             border: none;
-            border-radius: 10px;
             color: white;
-            cursor: pointer;
-            transition: background 0.2s ease, transform 0.15s ease;
         }
 
-        /* BUTTON HỦY (CÓ HOVER) */
-        .btn-cancel-booking.cancel {
+        .cancel {
             background: #1E8B38;
-            /* màu Hủy */
+            cursor: pointer;
         }
 
-        .btn-cancel-booking.cancel:hover {
-            background: #166B2D;
-            /* đậm hơn */
-            transform: translateY(-1px);
+        .disabled {
+            background: #DC3546;
+            cursor: not-allowed;
         }
 
-        /* BUTTON ĐÃ HỦY */
-        .btn-cancel-booking.canceled {
+        .canceled {
             background: #FEBF07;
             color: black;
             cursor: not-allowed;
@@ -153,27 +150,20 @@
         <div class="content">
             <h2>Lịch sử đặt phòng của bạn</h2>
 
-            <table id="historyTable">
-                <thead>
-                    <tr>
-                        <th>Mã đặt phòng</th>
-                        <th>MSSV</th>
-                        <th>Mã phòng</th>
-                        <th>Mã ghế</th>
-                        <th>Tiện ích</th>
-                        <th>Số lượng thành viên</th>
-                        <th>Mục đích sử dụng</th>
-                        <th>Thời gian giữ chỗ</th>
-                        <th>Trạng thái</th>
-                        <th>Bắt đầu</th>
-                        <th>Kết thúc</th>
-                        <th>Hủy đăng ký</th>
-                    </tr>
-                </thead>
+            <!-- FILTER -->
+            <div class="action-bar">
+                <select id="room-filter" onchange="filterByRoomType()">
+                    <option value="all">Hiển thị tất cả</option>
+                    <option value="I">Phòng đơn</option>
+                    <option value="G">Phòng nhóm</option>
+                </select>
+            </div>
 
+            <table>
+                <thead id="historyHead"></thead>
                 <tbody id="historyBody">
                     <tr>
-                        <td colspan="12" style="text-align:center;">Đang tải...</td>
+                        <td colspan="13" style="text-align:center;">Đang tải...</td>
                     </tr>
                 </tbody>
             </table>
@@ -215,15 +205,45 @@
     </div>
 
     <script>
-        let bookingToCancel = null;
+        let allBookings = [];
+        async function autoUpdateBookingStatus(data) {
+            const now = new Date();
 
-        /* ====================== LOAD HISTORY ====================== */
+            for (const b of data) {
+                if (!b.starttime || !b.endtime) continue;
+                if (b.booking_status === "Hủy") continue;
+
+                const start = new Date(b.starttime);
+                const end = new Date(b.endtime);
+
+                let newStatus = b.booking_status;
+
+                if (now < start) {
+                    newStatus = "Đang giữ chỗ";
+                } else if (now >= start && now <= end) {
+                    newStatus = "Đang sử dụng";
+                } else if (now > end) {
+                    newStatus = "Đã sử dụng";
+                }
+
+                if (newStatus !== b.booking_status) {
+                    await db
+                        .from("booking")
+                        .update({ booking_status: newStatus })
+                        .eq("bookingid", b.bookingid);
+
+                    // cập nhật local data để render đúng
+                    b.booking_status = newStatus;
+                }
+            }
+        }
+        /* ================= LOAD DATA ================= */
         async function loadBookingHistory() {
             const studentId = localStorage.getItem("studentid");
             const body = document.getElementById("historyBody");
 
             if (!studentId) {
-                body.innerHTML = "<tr><td colspan='12'>Không tìm thấy studentid.</td></tr>";
+                body.innerHTML = `<tr><td colspan="13">Không tìm thấy studentid</td></tr>`;
                 return;
             }
 
@@ -233,98 +253,173 @@
                 .eq("studentid", studentId)
                 .order("starttime", { ascending: false });
 
-            if (error || !data) {
-                body.innerHTML = "<tr><td colspan='12'>Lỗi tải dữ liệu.</td></tr>";
+            if (error) {
+                body.innerHTML = `<tr><td colspan="13">Lỗi tải dữ liệu</td></tr>`;
                 return;
             }
 
-            if (data.length === 0) {
-                body.innerHTML = "<tr><td colspan='12'>Bạn chưa có lịch sử đặt phòng.</td></tr>";
-                return;
+            allBookings = data || [];
+            await autoUpdateBookingStatus(allBookings);
+            filterByRoomType();
+        }
+
+        /* ================= FILTER ================= */
+        function filterByRoomType() {
+            const type = document.getElementById("room-filter").value;
+            let filtered = allBookings;
+
+            if (type === "I") {
+                filtered = allBookings.filter(b => b.roomid?.startsWith("I"));
+            } else if (type === "G") {
+                filtered = allBookings.filter(b => b.roomid?.startsWith("G"));
             }
 
+            renderHeader(type);
+            renderRows(filtered, type);
+        }
+
+        /* ================= HEADER ================= */
+        function renderHeader(type) {
+            const head = document.getElementById("historyHead");
+
+            if (type === "I") {
+                head.innerHTML = `
+                <tr>
+                    <th>Mã đặt</th>
+                    <th>MSSV</th>
+                    <th>Mã ghế</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày đặt</th>
+                    <th>Bắt đầu</th>
+                    <th>Kết thúc</th>
+                    <th>Hủy đăng ký</th>
+                </tr>`;
+            } else if (type === "G") {
+                head.innerHTML = `
+                <tr>
+                    <th>Mã đặt</th>
+                    <th>MSSV</th>
+                    <th>Mã phòng</th>
+                    <th>Cơ sở vật chất</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày đặt</th>
+                    <th>Bắt đầu</th>
+                    <th>Kết thúc</th>
+                    <th>Hủy đăng ký</th>
+                </tr>`;
+            } else {
+                head.innerHTML = `
+                <tr>
+                    <th>Mã đặt</th>
+                    <th>MSSV</th>
+                    <th>Mã phòng</th>
+                    <th>Mã ghế</th>
+                    <th>Tiện ích</th>
+                    <th>Số lượng</th>
+                    <th>Mục đích</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày đặt</th>
+                    <th>Bắt đầu</th>
+                    <th>Kết thúc</th>
+                    <th>Hủy</th>
+                </tr>`;
+            }
+        }
+
+        /* ================= ROWS ================= */
+        function renderRows(data, type) {
+            const body = document.getElementById("historyBody");
             body.innerHTML = "";
+
+            if (!data.length) {
+                body.innerHTML = `<tr><td colspan="13">Không có dữ liệu</td></tr>`;
+                return;
+            }
 
             const now = new Date();
 
-            /* ===== AUTO UPDATE STATUS ===== */
-            for (const b of data) {
-                const start = new Date(b.starttime);
-                const end = new Date(b.endtime);
-                const hold = new Date(b.holdtime);
-                console.log("start booking: ", start);
-                console.log("end booking: ", end);
-                console.log("hold booking: ", hold);
-
-                if (b.booking_status === "Hủy") continue;
-
-                let newStatus = b.booking_status;
-                if (b.holdtime == null) {
-                    if (now < start) {
-                        newStatus = "Đang giữ chỗ";
-                    } else if (now >= start && now <= end) {
-                        newStatus = "Đang sử dụng";
-                    } else if (now > end) {
-                        newStatus = "Đã sử dụng";
-                    }
-
-                    if (newStatus !== b.booking_status) {
-                        await db
-                            .from("booking")
-                            .update({ booking_status: newStatus })
-                            .eq("bookingid", b.bookingid);
-
-                        b.booking_status = newStatus;
-                    }
-                }
-            }
-
-            /* ===== RENDER TABLE ===== */
             data.forEach(b => {
-                const tr = document.createElement("tr");
-
                 const start = new Date(b.starttime);
                 const end = new Date(b.endtime);
-                const hold = b.holdtime ? new Date(b.holdtime).toLocaleString("vi-VN") : "—";
 
-                const allowCancel = new Date() < start && b.booking_status !== "Đã sử dụng";
+                const startFull = start.toLocaleString("vi-VN");
+                const endFull = end.toLocaleString("vi-VN");
 
+                const bookingDate = startFull.split(" ")[1];
+                const startTime = startFull.split(" ")[0];
+                const endTime = endFull.split(" ")[0];
+
+                /* ===== ACTION BUTTON (KHÔI PHỤC ĐẦY ĐỦ) ===== */
+                const allowCancel = now < start && b.booking_status !== "Đã sử dụng";
                 let actionButton = "";
 
                 if (b.booking_status === "Hủy") {
                     actionButton = `<button class="btn-cancel-booking canceled" disabled>Đã hủy</button>`;
-
-                } else if (b.booking_status === "Đã sử dụng") {
-                    actionButton = `<button class="btn-cancel-booking disabled" disabled>Không thể hủy</button>`;
-
                 } else if (!allowCancel) {
                     actionButton = `<button class="btn-cancel-booking disabled" disabled>Không thể hủy</button>`;
-
                 } else {
                     actionButton = `
-        <button class="btn-cancel-booking cancel" onclick="openCancelModal(${b.bookingid})">
-            Hủy
-        </button>`;
+                <button class="btn-cancel-booking cancel"
+                        onclick="openCancelModal(${b.bookingid})">
+                    Hủy
+                </button>`;
                 }
 
-                tr.innerHTML = `
+                let row = "";
+
+                /* ===== PHÒNG ĐƠN ===== */
+                if (type === "I") {
+                    row = `
+                <tr>
+                    <td>${b.bookingid}</td>
+                    <td>${b.studentid}</td>
+                    <td>${b.seatid || "—"}</td>
+                    <td><strong>${b.booking_status}</strong></td>
+                    <td>${bookingDate}</td>
+                    <td>${startTime}</td>
+                    <td>${endTime}</td>
+                    <td>${actionButton}</td>
+                </tr>`;
+                }
+
+                /* ===== PHÒNG NHÓM ===== */
+                else if (type === "G") {
+                    row = `
+                <tr>
+                    <td>${b.bookingid}</td>
+                    <td>${b.studentid}</td>
+                    <td>${b.roomid}</td>
+                    <td>${b.facilities || "—"}</td>
+                    <td><strong>${b.booking_status}</strong></td>
+                    <td>${bookingDate}</td>
+                    <td>${startTime}</td>
+                    <td>${endTime}</td>
+                    <td>${actionButton}</td>
+                </tr>`;
+                }
+
+                /* ===== HIỂN THỊ TẤT CẢ ===== */
+                else {
+                    row = `
+                <tr>
                     <td>${b.bookingid}</td>
                     <td>${b.studentid}</td>
                     <td>${b.roomid || "—"}</td>
                     <td>${b.seatid || "—"}</td>
-                    <td>${b.facilities || "Không"}</td>
+                    <td>${b.facilities || "—"}</td>
                     <td>${b.numbermember ?? "—"}</td>
                     <td>${b.purpose || "—"}</td>
-                    <td>${hold}</td>
                     <td><strong>${b.booking_status}</strong></td>
-                    <td>${start.toLocaleString("vi-VN")}</td>
-                    <td>${end.toLocaleString("vi-VN")}</td>
+                    <td>${bookingDate}</td>
+                    <td>${startTime}</td>
+                    <td>${endTime}</td>
                     <td>${actionButton}</td>
-                `;
-                body.appendChild(tr);
+                </tr>`;
+                }
+
+                body.insertAdjacentHTML("beforeend", row);
             });
         }
-
         /* ==================== OPEN/CLOSE CANCEL MODAL ==================== */
         function openCancelModal(bookingId) {
             bookingToCancel = bookingId;

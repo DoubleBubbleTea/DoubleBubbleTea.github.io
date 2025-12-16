@@ -89,23 +89,20 @@
     </div>
 
     <div class="content">
-      <h2>Toàn bộ lịch sử đặt phòng</h2>
+      <h2>Lịch sử đặt phòng</h2>
+
+      <div class="action-bar" style="margin-bottom:15px;">
+        <select id="room-filter" onchange="filterHistory()">
+          <option value="all">Hiển thị tất cả</option>
+          <option value="I">Phòng đơn</option>
+          <option value="G">Phòng nhóm</option>
+        </select>
+      </div>
 
       <div class="table-scroll">
         <table>
-          <thead>
-            <tr>
-              <th>Mã đặt phòng</th>
-              <th>MSSV</th>
-              <th>Mã phòng</th>
-              <th>Mã chỗ ngồi</th>
-              <th>Cơ sở vật chất</th>
-              <th>Thời gian giữ chỗ</th>
-              <th>Trạng thái đặt phòng</th>
-              <th>Thời gian bắt đầu</th>
-              <th>Thời gian kết thúc</th>
-            </tr>
-          </thead>
+          <thead id="history-head"></thead>
+
           <tbody id="history-table"></tbody>
         </table>
       </div>
@@ -116,6 +113,7 @@
   <script src="./admin_common.js"></script>
 
   <script>
+    let allHistory = [];
 
     function formatDate(dt) {
       if (!dt) return "—";
@@ -129,10 +127,136 @@
         data ? `Xin chào, ${data.fullname}` : "Không tìm thấy admin";
     }
 
+    function renderRows(data, type) {
+      const table = document.getElementById("history-table");
+      table.innerHTML = "";
+
+      data.forEach(row => {
+        const startStr = formatDate(row.starttime);
+        const endStr = formatDate(row.endtime);
+
+        const bookingDate = startStr !== "—" ? startStr.split(" ")[1] : "—";
+        const startTime = startStr !== "—" ? startStr.split(" ")[0] : "—";
+        const endTime = endStr !== "—" ? endStr.split(" ")[0] : "—";
+
+        let html = "";
+
+        if (type === "I") {
+          html = `
+        <tr>
+          <td>${row.bookingid}</td>
+          <td>${row.studentid}</td>
+          <td>${row.seatid || "—"}</td>
+          <td><strong>${row.booking_status}</strong></td>
+          <td>${bookingDate}</td>
+          <td>${startTime}</td>
+          <td>${endTime}</td>
+        </tr>
+      `;
+        }
+        else if (type === "G") {
+          html = `
+        <tr>
+          <td>${row.bookingid}</td>
+          <td>${row.studentid}</td>
+          <td>${row.roomid}</td>
+          <td>${row.facilities || "—"}</td>
+          <td><strong>${row.booking_status}</strong></td>
+          <td>${bookingDate}</td>
+          <td>${startTime}</td>
+          <td>${endTime}</td>
+        </tr>
+      `;
+        }
+        else {
+          html = `
+        <tr>
+          <td>${row.bookingid}</td>
+          <td>${row.studentid}</td>
+          <td>${row.roomid}</td>
+          <td>${row.seatid || "—"}</td>
+          <td>${row.facilities || "—"}</td>
+          <td>${formatDate(row.holdtime)}</td>
+          <td><strong>${row.booking_status}</strong></td>
+          <td>${bookingDate}</td>
+          <td>${startTime}</td>
+          <td>${endTime}</td>
+        </tr>
+      `;
+        }
+
+        table.insertAdjacentHTML("beforeend", html);
+      });
+    }
+
+    function filterHistory() {
+      const type = document.getElementById("room-filter").value;
+      let filtered = allHistory;
+
+      if (type === "I") {
+        filtered = allHistory.filter(b => b.roomid?.startsWith("I"));
+      }
+      else if (type === "G") {
+        filtered = allHistory.filter(b => b.roomid?.startsWith("G"));
+      }
+
+      renderHeader(type);
+      renderRows(filtered, type);
+    }
+
+
+    function renderHeader(type) {
+      const head = document.getElementById("history-head");
+
+      if (type === "I") {
+        head.innerHTML = `
+      <tr>
+        <th>Mã đặt phòng</th>
+        <th>MSSV</th>
+        <th>Mã chỗ ngồi</th>
+        <th>Trạng thái đặt phòng</th>
+        <th>Ngày đặt</th>
+        <th>Thời gian bắt đầu</th>
+        <th>Thời gian kết thúc</th>
+      </tr>
+    `;
+      }
+      else if (type === "G") {
+        head.innerHTML = `
+      <tr>
+        <th>Mã đặt phòng</th>
+        <th>MSSV</th>
+        <th>Mã phòng</th>
+        <th>Cơ sở vật chất</th>
+        <th>Trạng thái đặt phòng</th>
+        <th>Ngày đặt</th>
+        <th>Thời gian bắt đầu</th>
+        <th>Thời gian kết thúc</th>
+      </tr>
+    `;
+      }
+      else {
+        head.innerHTML = `
+      <tr>
+        <th>Mã đặt phòng</th>
+        <th>MSSV</th>
+        <th>Mã phòng</th>
+        <th>Mã chỗ ngồi</th>
+        <th>Cơ sở vật chất</th>
+        <th>Thời gian giữ chỗ</th>
+        <th>Trạng thái đặt phòng</th>
+        <th>Ngày đặt</th>
+        <th>Thời gian bắt đầu</th>
+        <th>Thời gian kết thúc</th>
+      </tr>
+    `;
+      }
+    }
+
     async function loadHistory() {
       const { data, error } = await db
         .from("booking")
-        .select("*")     // LẤY TẤT CẢ DỮ LIỆU
+        .select("*")
         .order("bookingid", { ascending: false });
 
       if (error) {
@@ -140,24 +264,8 @@
         return;
       }
 
-      const table = document.getElementById("history-table");
-      table.innerHTML = "";
-
-      data.forEach(row => {
-        table.innerHTML += `
-          <tr>
-            <td>${row.bookingid}</td>
-            <td>${row.studentid}</td>
-            <td>${row.roomid}</td>
-            <td>${row.seatid || "—"}</td>
-            <td>${row.facilities || "—"}</td>
-            <td>${formatDate(row.holdtime)}</td>
-            <td>${row.booking_status}</td>
-            <td>${formatDate(row.starttime)}</td>
-            <td>${formatDate(row.endtime)}</td>
-          </tr>
-        `;
-      });
+      allHistory = data || [];
+      filterHistory(); // render theo lựa chọn hiện tại
     }
 
     loadHeader();

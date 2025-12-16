@@ -521,3 +521,27 @@ th {
 .table-scroll::-webkit-scrollbar-thumb:hover {
     background: #1f4255;
 }
+
+#room-filter {
+    background: #275167;
+    color: #faf9f9;
+    height: 38px;
+    padding: 0 14px;
+    min-width: 100px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#room-filter:hover {
+    background: #152a36;
+}
+
+#room-filter option {
+    background: white;
+    /* nền option */
+    color: #111;
+    /* chữ đen */
+}
