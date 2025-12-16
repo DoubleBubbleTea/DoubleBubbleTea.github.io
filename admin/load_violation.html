@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách vi phạm</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./admin_common.css">
+
+    <style>
+        .content {
+            flex: 1;
+            padding: 30px 50px;
+            background: #f4f6fa;
+        }
+
+        .content h2 {
+            font-size: 26px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        tr:hover {
+            background: #eef3ff;
+        }
+
+        .btn-add {
+            padding: 10px 18px;
+            background: #275167;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 22px;
+            width: 380px;
+            border-radius: 8px;
+        }
+
+        .modal-box h3 {
+            margin-top: 0;
+        }
+
+        .modal-input,
+        select {
+            width: 100%;
+            padding: 8px;
+            margin: 6px 0;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .modal-buttons {
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .btn-confirm {
+            background: #dc2626;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            background: #6b7280;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+
+        .severity-1 {
+            color: green;
+            font-weight: bold;
+        }
+
+        .severity-2 {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .severity-3 {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div style="margin-top: 15px;">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD VIOLATION MODAL -->
+    <div id="violation-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Thêm vi phạm</h3>
+
+            <label>Sinh viên</label>
+            <select id="v-studentid" onchange="fillStudentName()"></select>
+
+            <label>Họ tên</label>
+            <input id="v-fullname" class="modal-input" disabled>
+
+            <label>Mô tả vi phạm</label>
+            <input id="v-desc" class="modal-input" placeholder="Nhập lỗi vi phạm">
+
+            <label>Mức độ vi phạm</label>
+            <select id="v-severity">
+                <option value="1">1 - Nhẹ</option>
+                <option value="2">2 - Trung bình</option>
+                <option value="3">3 - Nghiêm trọng</option>
+            </select>
+
+            <label>Ngày vi phạm</label>
+            <input type="date" id="v-date" class="modal-input">
+
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="saveViolation()">Lưu</button>
+                <button class="btn-cancel" onclick="closeViolationModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div>Dashboard</div>
+        <div class="header-right">
+            <div class="icon logout-icon" onclick="openLogoutModal()">
+                <img src="../img/logout_new.png" class="icon-img">
+            </div>
+            <div id="header-user">Đang tải...</div>
+        </div>
+    </div>
+
+    <div class="main">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="avatar-box">
+                <img id="student-avatar" src="../img/logo.png">
+                <div class="avatar-name" id="avatar-fullname">—</div>
+            </div>
+            <a href="./dashboard.html">Thông tin cá nhân</a>
+            <a href="./load_student.html">Danh sách sinh viên</a>
+            <a href="./load_history.html">Quản lý lịch sử đặt phòng</a>
+            <a href="./load_notification.html">Quản lý thông báo</a>
+            <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
+            <a href="./load_room.html">Danh sách phòng</a>
+            <a href="./load_seat.html">Danh sách chỗ ngồi</a>
+            <a href="./load_feedback.html">Danh sách phản hồi</a>
+            <a href="./load_violation.html" class="active">Danh sách vi phạm</a>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <h2>Danh sách vi phạm</h2>
+
+            <button class="btn-add" onclick="openViolationModal()">+ Thêm vi phạm</button>
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>MSSV</th>
+                            <th>Họ tên</th>
+                            <th>Mô tả</th>
+                            <th>Mức độ</th>
+                            <th>Ngày vi phạm</th>
+                        </tr>
+                    </thead>
+                    <tbody id="violation-table"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./admin_common.js"></script>
+
+    <script>
+        let studentMap = {};
+
+        function openViolationModal() {
+            document.getElementById("violation-modal").style.display = "flex";
+        }
+
+        function closeViolationModal() {
+            document.getElementById("violation-modal").style.display = "none";
+        }
+
+        async function loadStudentsForDropdown() {
+            const { data } = await db.from("student").select("studentid, fullname");
+            const select = document.getElementById("v-studentid");
+            select.innerHTML = "";
+
+            data.forEach(s => {
+                studentMap[s.studentid] = s.fullname;
+                const opt = document.createElement("option");
+                opt.value = s.studentid;
+                opt.textContent = s.studentid;
+                select.appendChild(opt);
+            });
+
+            fillStudentName();
+        }
+
+        function fillStudentName() {
+            const sid = document.getElementById("v-studentid").value;
+            document.getElementById("v-fullname").value = studentMap[sid] || "";
+        }
+
+        async function saveViolation() {
+            const row = {
+                studentid: document.getElementById("v-studentid").value,
+                fullname: document.getElementById("v-fullname").value,
+                description: document.getElementById("v-desc").value,
+                severity: document.getElementById("v-severity").value,
+                violationdate: document.getElementById("v-date").value
+            };
+
+            const { error } = await db.from("violation").insert(row);
+            if (error) {
+                alert(error.message);
+                return;
+            }
+
+            closeViolationModal();
+            loadViolations();
+        }
+
+        async function loadViolations() {
+            const { data } = await db
+                .from("violation")
+                .select("*")
+                .order("violationid", { ascending: false });
+
+            const table = document.getElementById("violation-table");
+            table.innerHTML = "";
+
+            (data || []).forEach(v => {
+                table.innerHTML += `
+                <tr>
+                    <td>${v.violationid}</td>
+                    <td>${v.studentid}</td>
+                    <td>${v.fullname}</td>
+                    <td>${v.description}</td>
+                    <td class="severity-${v.severity}">${v.severity}</td>
+                    <td>${v.violationdate || "—"}</td>
+                </tr>
+            `;
+            });
+        }
+
+        async function loadHeader() {
+            const adminId = localStorage.getItem("adminid");
+            const { data } = await db.from("admin").select("fullname").eq("adminid", adminId).single();
+            document.getElementById("header-user").innerText =
+                data ? `Xin chào, ${data.fullname}` : "";
+        }
+
+        loadHeader();
+        loadStudentsForDropdown();
+        loadViolations();
+    </script>
+
+</body>
+
+</html>

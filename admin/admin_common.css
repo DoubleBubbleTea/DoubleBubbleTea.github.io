@@ -152,6 +152,9 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    height: calc(100vh - 32px);
+    /* trừ margin top + bottom */
+    overflow-y: auto;
 }
 
 .sidebar h3 {

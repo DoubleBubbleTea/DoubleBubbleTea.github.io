@@ -144,7 +144,7 @@
             <a href="./booking_history.html" class="active">Lịch sử đặt phòng</a>
             <a href="./checkin_room.html">Check-in phòng</a>
             <a href="./checkin_seat.html">Check-in chỗ ngồi</a>
-            <a href="#">Sự kiện của tôi</a>
+            <a href="./student_feedback.html">Phản hồi sinh viên</a>
         </div>
 
         <!-- CONTENT -->
@@ -302,6 +302,8 @@
                     <th>MSSV</th>
                     <th>Mã phòng</th>
                     <th>Cơ sở vật chất</th>
+                    <th>Số lượng</th>
+                    <th>Mục đích</th>
                     <th>Trạng thái</th>
                     <th>Ngày đặt</th>
                     <th>Bắt đầu</th>
@@ -315,7 +317,7 @@
                     <th>MSSV</th>
                     <th>Mã phòng</th>
                     <th>Mã ghế</th>
-                    <th>Tiện ích</th>
+                    <th>Cơ sở vật chất</th>
                     <th>Số lượng</th>
                     <th>Mục đích</th>
                     <th>Trạng thái</th>
@@ -391,6 +393,8 @@
                     <td>${b.studentid}</td>
                     <td>${b.roomid}</td>
                     <td>${b.facilities || "—"}</td>
+                    <td>${b.numbermember ?? "—"}</td>
+                    <td>${b.purpose || "—"}</td>
                     <td><strong>${b.booking_status}</strong></td>
                     <td>${bookingDate}</td>
                     <td>${startTime}</td>

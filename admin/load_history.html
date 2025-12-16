@@ -81,15 +81,17 @@
 
       <a href="./dashboard.html">Thông tin quản trị</a>
       <a href="./load_student.html">Danh sách sinh viên</a>
-      <a href="./load_history.html" class="active">Lịch sử đặt phòng</a>
+      <a href="./load_history.html" class="active">Quản lý lịch sử đặt phòng</a>
       <a href="./load_notification.html">Quản lý thông báo</a>
       <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
       <a href="./load_room.html">Danh sách phòng</a>
       <a href="./load_seat.html">Danh sách chỗ ngồi</a>
+      <a href="./load_feedback.html">Danh sách phản hồi</a>
+      <a href="./load_violation.html">Danh sách vi phạm</a>
     </div>
 
     <div class="content">
-      <h2>Lịch sử đặt phòng</h2>
+      <h2>Quản lý lịch sử đặt phòng</h2>
 
       <div class="action-bar" style="margin-bottom:15px;">
         <select id="room-filter" onchange="filterHistory()">
@@ -161,6 +163,8 @@
           <td>${row.studentid}</td>
           <td>${row.roomid}</td>
           <td>${row.facilities || "—"}</td>
+          <td>${row.numbermember ?? "—"}</td>
+          <td>${row.purpose || "—"}</td>
           <td><strong>${row.booking_status}</strong></td>
           <td>${bookingDate}</td>
           <td>${startTime}</td>
@@ -176,6 +180,8 @@
           <td>${row.roomid}</td>
           <td>${row.seatid || "—"}</td>
           <td>${row.facilities || "—"}</td>
+          <td>${row.numbermember ?? "—"}</td>
+          <td>${row.purpose || "—"}</td>
           <td>${formatDate(row.holdtime)}</td>
           <td><strong>${row.booking_status}</strong></td>
           <td>${bookingDate}</td>
@@ -228,6 +234,8 @@
         <th>MSSV</th>
         <th>Mã phòng</th>
         <th>Cơ sở vật chất</th>
+        <th>Số lượng</th>
+        <th>Mục đích</th>
         <th>Trạng thái đặt phòng</th>
         <th>Ngày đặt</th>
         <th>Thời gian bắt đầu</th>
@@ -243,6 +251,8 @@
         <th>Mã phòng</th>
         <th>Mã chỗ ngồi</th>
         <th>Cơ sở vật chất</th>
+        <th>Số lượng</th>
+        <th>Mục đích</th>
         <th>Thời gian giữ chỗ</th>
         <th>Trạng thái đặt phòng</th>
         <th>Ngày đặt</th>

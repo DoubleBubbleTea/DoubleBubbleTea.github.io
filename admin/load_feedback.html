@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Quản lý phản hồi sinh viên</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./admin_common.css">
+
+    <style>
+        .content {
+            flex: 1;
+            padding: 30px 50px;
+            background: #f4f6fa;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        tr:hover {
+            background: #eef3ff;
+        }
+
+        .rating {
+            font-weight: bold;
+            color: #2563eb;
+        }
+    </style>
+</head>
+
+<!-- LOGOUT MODAL -->
+<div id="logout-modal" class="modal-overlay">
+    <div class="modal-box">
+        <h3>Bạn muốn đăng xuất?</h3>
+        <div style="margin-top: 15px;">
+            <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+            <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+        </div>
+    </div>
+</div>
+
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div>Dashboard</div>
+        <div class="header-right">
+
+            <div class="icon notification-icon" onclick="toggleNotification()">
+                <img src="../img/notification_new.png" class="icon-img">
+                <div id="notif-count" class="notif-count" style="display:none;">0</div>
+            </div>
+
+            <div class="icon logout-icon" onclick="openLogoutModal()">
+                <img src="../img/logout_new.png" class="icon-img">
+            </div>
+
+            <div id="header-user">Đang tải...</div>
+
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-title">Thông báo</div>
+                <div id="notif-list" class="notif-list">Không có thông báo!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+        <div class="sidebar">
+            <div class="avatar-box">
+                <img id="student-avatar" src="../img/logo.png" alt="avatar">
+                <div class="avatar-name" id="avatar-fullname">—</div>
+            </div>
+
+            <a href="./dashboard.html">Thông tin quản trị</a>
+            <a href="./load_student.html">Danh sách sinh viên</a>
+            <a href="./load_history.html">Lịch sử đặt phòng</a>
+            <a href="./load_notification.html">Quản lý thông báo</a>
+            <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
+            <a href="./load_room.html">Danh sách phòng</a>
+            <a href="./load_seat.html">Danh sách chỗ ngồi</a>
+            <a href="./load_feedback.html" class="active">Danh sách phản hồi</a>
+            <a href="./load_violation.html">Danh sách vi phạm</a>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <h2>Phản hồi & mức độ hài lòng của sinh viên</h2>
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>MSSV</th>
+                            <th>Họ tên</th>
+                            <th>Nội dung phản hồi</th>
+                            <th>Mức độ hài lòng</th>
+                            <th>Ngày gửi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="feedback-table"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./admin_common.js"></script>
+
+    <script>
+        function formatDate(d) {
+            if (!d) return "—";
+            return new Date(d).toLocaleDateString("vi-VN");
+        }
+
+        async function loadHeader() {
+            const adminId = localStorage.getItem("adminid");
+            const { data } = await db
+                .from("admin")
+                .select("fullname")
+                .eq("adminid", adminId)
+                .single();
+
+            document.getElementById("header-user").innerText =
+                data ? `Xin chào, ${data.fullname}` : "Không tìm thấy admin";
+        }
+
+        async function loadFeedback() {
+            const { data, error } = await db
+                .from("feedback")
+                .select("*")
+                .order("feedbackid", { ascending: false });
+
+            if (error) {
+                console.error(error);
+                return;
+            }
+
+            const table = document.getElementById("feedback-table");
+            table.innerHTML = "";
+
+            (data || []).forEach(fb => {
+                table.innerHTML += `
+          <tr>
+            <td>${fb.feedbackid}</td>
+            <td>${fb.studentid}</td>
+            <td>${fb.fullname}</td>
+            <td>${fb.feedback || "—"}</td>
+            <td class="rating">${fb.satisfaction}</td>
+            <td>${formatDate(fb.feedbackdate)}</td>
+          </tr>
+        `;
+            });
+        }
+
+        loadHeader();
+        loadFeedback();
+    </script>
+
+</body>
+
+</html>
