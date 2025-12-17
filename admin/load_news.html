@@ -3,13 +3,14 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý tiện ích phòng</title>
+    <title>Quản lý bản tin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
     <link rel="stylesheet" href="./admin_common.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <style>
-        /* ===== CONTENT ===== */
         .content {
             flex: 1;
             padding: 30px 50px;
@@ -22,7 +23,6 @@
             font-weight: bold;
         }
 
-        /* ===== TABLE ===== */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -69,7 +69,6 @@
             cursor: pointer;
         }
 
-        /* ===== MODAL ===== */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -82,7 +81,7 @@
         .modal-box {
             background: white;
             padding: 25px;
-            width: 380px;
+            width: 420px;
             border-radius: 6px;
         }
 
@@ -92,14 +91,6 @@
             margin: 6px 0;
             border-radius: 4px;
             border: 1px solid #ccc;
-        }
-
-        .modal-buttons button {
-            padding: 8px 16px;
-            border: none;
-            margin-top: 10px;
-            border-radius: 4px;
-            cursor: pointer;
         }
     </style>
 </head>
@@ -120,7 +111,6 @@
     <!-- HEADER -->
     <div class="header">
         <div>Dashboard</div>
-
         <div class="header-right">
             <div class="icon notification-icon" onclick="toggleNotification()">
                 <img src="../img/notification_new.png" class="icon-img">
@@ -145,24 +135,24 @@
 
         <!-- SIDEBAR -->
         <div class="sidebar">
-            <!-- AVATAR BOX -->
             <div class="avatar-box">
-                <img id="student-avatar" src="../img/logo.png" alt="avatar">
+                <img src="../img/logo.png">
                 <div class="avatar-name" id="avatar-fullname">—</div>
             </div>
+
             <a href="./dashboard.html">Thông tin cá nhân</a>
             <a href="./load_student.html">Danh sách sinh viên</a>
             <a href="./load_history.html">Quản lý lịch sử đặt phòng</a>
             <a href="./load_notification.html">Quản lý thông báo</a>
-            <a href="./load_news.html">Quản lý bản tin</a>
+            <a href="./load_news.html" class="active">Quản lý bản tin</a>
             <div class="sidebar-group">
-                <a href="javascript:void(0)" class="active" class="sidebar-dropdown-toggle"
+                <a href="javascript:void(0)" class="sidebar-dropdown-toggle"
                     onclick="toggleSidebarDropdown(this)">
                     Danh sách
                     <i class="fa fa-caret-down"></i>
                 </a>
                 <div class="sidebar-dropdown">
-                    <a href="./load_facilities.html" class="active">Danh sách cơ sở vật chất</a>
+                    <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
                     <a href="./load_room.html">Danh sách phòng</a>
                     <a href="./load_seat.html">Danh sách chỗ ngồi</a>
                     <a href="./load_feedback.html">Danh sách phản hồi</a>
@@ -173,53 +163,61 @@
 
         <!-- CONTENT -->
         <div class="content">
-            <h2>Danh sách tiện ích</h2>
+            <h2>Danh sách bản tin</h2>
 
-            <button class="btn-add" onclick="openAddModal()">+ Thêm tiện ích</button>
+            <button class="btn-add" onclick="openAddModal()">+ Thêm bản tin</button>
 
             <table>
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Loại tiện ích</th>
-                        <th>Chi phí (VND/giờ)</th>
+                        <th>Tiêu đề</th>
+                        <th>Section</th>
+                        <th>Ảnh</th>
+                        <th>Hiển thị</th>
                         <th>Hành động</th>
                     </tr>
                 </thead>
-                <tbody id="facility-table"></tbody>
+                <tbody id="news-table"></tbody>
             </table>
         </div>
     </div>
 
-    <!-- MODAL -->
+    <!-- MODAL ADD / EDIT -->
     <div id="modal" class="modal-overlay">
         <div class="modal-box">
-            <h3 id="modal-title">Thêm tiện ích</h3>
+            <h3 id="modal-title">Thêm bản tin</h3>
 
-            <input id="facility-type" class="modal-input" placeholder="Tên tiện ích (VD: Máy lạnh)">
-            <input id="facility-cost" class="modal-input" placeholder="Chi phí / giờ" type="number">
+            <input id="news-title" class="modal-input" placeholder="Tiêu đề">
+            <textarea id="news-summary" class="modal-input" rows="3"
+                placeholder="Mô tả ngắn"></textarea>
+            <input id="news-image" class="modal-input" placeholder="Tên ảnh (vd: hinh1.png)">
+            <input id="news-section" type="number" class="modal-input"
+                placeholder="Section (1,2,3,...)">
 
-            <div class="modal-buttons">
-                <button class="btn-save" onclick="saveFacility()">Lưu</button>
+            <select id="news-active" class="modal-input">
+                <option value="Có">Hiển thị</option>
+                <option value="Không">Ẩn</option>
+            </select>
+
+            <div style="margin-top:10px; text-align:right;">
+                <button class="btn-save" onclick="saveNews()">Lưu</button>
                 <button class="btn-cancel" onclick="closeModal()">Hủy</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL DELETE CONFIRM -->
+    <!-- DELETE MODAL -->
     <div id="delete-modal" class="modal-overlay">
         <div class="modal-box">
-            <h3 style="margin-bottom: 10px;">Xóa tiện ích?</h3>
-            <p style="margin-bottom: 18px;">Bạn có chắc muốn xóa tiện ích này?</p>
-
-            <div style="display:flex; justify-content:center; gap:12px;">
-                <button class="btn-confirm" onclick="confirmDeleteFacility()">Xóa</button>
-                <button class="btn-cancel" onclick="closeDeleteModal()">Hủy</button>
-            </div>
+            <h3>Xóa bản tin?</h3>
+            <p>Bạn có chắc muốn xóa bản tin này?</p>
+            <button class="btn-confirm" onclick="confirmDelete()">Xóa</button>
+            <button class="btn-cancel" onclick="closeDeleteModal()">Hủy</button>
         </div>
     </div>
 
-    <!-- SCRIPTS -->
+    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./admin_common.js"></script>
 
@@ -227,38 +225,25 @@
         let editingId = null;
         let deleteId = null;
 
-        function deleteFacility(id) {
-            deleteId = id;
-            document.getElementById("delete-modal").style.display = "flex";
-        }
-        function closeDeleteModal() {
-            document.getElementById("delete-modal").style.display = "none";
-        }
-        async function confirmDeleteFacility() {
-            if (!deleteId) return;
-
-            await db.from("facilities")
-                .delete()
-                .eq("facility_id", deleteId);
-
-            deleteId = null;
-            closeDeleteModal();
-            loadFacilities();
-        }
-
         function openAddModal() {
             editingId = null;
-            document.getElementById("modal-title").innerText = "Thêm tiện ích";
-            document.getElementById("facility-type").value = "";
-            document.getElementById("facility-cost").value = "";
+            document.getElementById("modal-title").innerText = "Thêm bản tin";
+            document.getElementById("news-title").value = "";
+            document.getElementById("news-summary").value = "";
+            document.getElementById("news-image").value = "";
+            document.getElementById("news-section").value = "";
+            document.getElementById("news-active").value = "Có";
             document.getElementById("modal").style.display = "flex";
         }
 
         function openEditModal(item) {
-            editingId = item.facility_id;
-            document.getElementById("modal-title").innerText = "Sửa tiện ích";
-            document.getElementById("facility-type").value = item.facility_type;
-            document.getElementById("facility-cost").value = item.cost;
+            editingId = item.newsid;
+            document.getElementById("modal-title").innerText = "Sửa bản tin";
+            document.getElementById("news-title").value = item.title;
+            document.getElementById("news-summary").value = item.summary || "";
+            document.getElementById("news-image").value = item.image_url || "";
+            document.getElementById("news-section").value = item.section_order;
+            document.getElementById("news-active").value = item.is_active;
             document.getElementById("modal").style.display = "flex";
         }
 
@@ -266,68 +251,80 @@
             document.getElementById("modal").style.display = "none";
         }
 
-        async function saveFacility() {
-            const type = document.getElementById("facility-type").value.trim();
-            const costValue = document.getElementById("facility-cost").value;
+        async function saveNews() {
+            const data = {
+                title: document.getElementById("news-title").value,
+                summary: document.getElementById("news-summary").value,
+                image_url: document.getElementById("news-image").value,
+                section_order: Number(document.getElementById("news-section").value),
+                is_active: document.getElementById("news-active").value
+            };
 
-            // costValue là string → kiểm tra rỗng
-            if (!type || costValue === "") {
-                alert("Vui lòng nhập đầy đủ thông tin!");
-                return;
+            if (!data.title || !data.section_order) {
+                return alert("Vui lòng nhập đầy đủ thông tin!");
             }
 
-            const cost = Number(costValue);
-
-            const newData = { facility_type: type, cost };
-
             if (editingId) {
-                await db.from("facilities")
-                    .update(newData)
-                    .eq("facility_id", editingId);
+                await db.from("news").update(data).eq("newsid", editingId);
             } else {
-                await db.from("facilities").insert(newData);
+                await db.from("news").insert(data);
             }
 
             closeModal();
-            loadFacilities();
+            loadNews();
         }
 
-        async function loadFacilities() {
-            const { data } = await db.from("facilities").select("*").order("facility_id");
+        function deleteNews(id) {
+            deleteId = id;
+            document.getElementById("delete-modal").style.display = "flex";
+        }
 
-            const table = document.getElementById("facility-table");
+        function closeDeleteModal() {
+            deleteId = null;
+            document.getElementById("delete-modal").style.display = "none";
+        }
+
+        async function confirmDelete() {
+            await db.from("news").delete().eq("newsid", deleteId);
+            closeDeleteModal();
+            loadNews();
+        }
+
+        async function loadNews() {
+            const { data } = await db
+                .from("news")
+                .select("*")
+                .order("section_order");
+
+            const table = document.getElementById("news-table");
             table.innerHTML = "";
 
-            data.forEach(item => {
+            data.forEach(n => {
                 table.innerHTML += `
-                    <tr>
-                        <td>${item.facility_id}</td>
-                        <td>${item.facility_type}</td>
-                        <td>${item.cost.toLocaleString()}</td>
-                        <td>
-                            <button class="btn-edit" onclick='openEditModal(${JSON.stringify(item)})'>Sửa</button>
-                            <button class="btn-delete" onclick="deleteFacility(${item.facility_id})">Xóa</button>
-                        </td>
-                    </tr>
-                `;
+                <tr>
+                    <td>${n.newsid}</td>
+                    <td>${n.title}</td>
+                    <td>${n.section_order}</td>
+                    <td>${n.image_url || "—"}</td>
+                    <td>${n.is_active}</td>
+                    <td>
+                        <button class="btn-edit" onclick='openEditModal(${JSON.stringify(n)})'>Sửa</button>
+                        <button class="btn-delete" onclick="deleteNews('${n.newsid}')">Xóa</button>
+                    </td>
+                </tr>
+            `;
             });
         }
 
         async function loadHeader() {
             const adminId = localStorage.getItem("adminid");
-
-            const { data } = await db
-                .from("admin")
-                .select("fullname")
-                .eq("adminid", adminId)
-                .single();
-
+            const { data } = await db.from("admin").select("fullname").eq("adminid", adminId).single();
             document.getElementById("header-user").innerText =
                 data ? `Xin chào, ${data.fullname}` : "";
         }
 
         loadHeader();
-        loadFacilities();
+        loadNews();
     </script>
 
 </body>

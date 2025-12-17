@@ -6,6 +6,7 @@
     <title>Danh sách vi phạm</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./admin_common.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <style>
         .content {
@@ -156,6 +157,11 @@
 
             <label>Ngày vi phạm</label>
             <input type="date" id="v-date" class="modal-input">
+            <label>Trạng thái vi phạm</label>
+            <select id="v-status">
+                <option value="Chưa xử lý">Chưa xử lý</option>
+                <option value="Đã xử lý">Đã xử lý</option>
+            </select>
 
             <div class="modal-buttons">
                 <button class="btn-confirm" onclick="saveViolation()">Lưu</button>
@@ -187,11 +193,21 @@
             <a href="./load_student.html">Danh sách sinh viên</a>
             <a href="./load_history.html">Quản lý lịch sử đặt phòng</a>
             <a href="./load_notification.html">Quản lý thông báo</a>
-            <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
-            <a href="./load_room.html">Danh sách phòng</a>
-            <a href="./load_seat.html">Danh sách chỗ ngồi</a>
-            <a href="./load_feedback.html">Danh sách phản hồi</a>
-            <a href="./load_violation.html" class="active">Danh sách vi phạm</a>
+            <a href="./load_news.html">Quản lý bản tin</a>
+            <div class="sidebar-group">
+                <a href="javascript:void(0)" class="active" class="sidebar-dropdown-toggle"
+                    onclick="toggleSidebarDropdown(this)">
+                    Danh sách
+                    <i class="fa fa-caret-down"></i>
+                </a>
+                <div class="sidebar-dropdown">
+                    <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
+                    <a href="./load_room.html">Danh sách phòng</a>
+                    <a href="./load_seat.html">Danh sách chỗ ngồi</a>
+                    <a href="./load_feedback.html">Danh sách phản hồi</a>
+                    <a href="./load_violation.html" class="active">Danh sách vi phạm</a>
+                </div>
+            </div>
         </div>
 
         <!-- CONTENT -->
@@ -210,6 +226,7 @@
                             <th>Mô tả</th>
                             <th>Mức độ</th>
                             <th>Ngày vi phạm</th>
+                            <th>Trạng thái vi phạm</th>
                         </tr>
                     </thead>
                     <tbody id="violation-table"></tbody>
@@ -259,7 +276,8 @@
                 fullname: document.getElementById("v-fullname").value,
                 description: document.getElementById("v-desc").value,
                 severity: document.getElementById("v-severity").value,
-                violationdate: document.getElementById("v-date").value
+                violationdate: document.getElementById("v-date").value,
+                violationstatus: document.getElementById("v-status").value   // ✅ thêm
             };
 
             const { error } = await db.from("violation").insert(row);
@@ -290,6 +308,7 @@
                     <td>${v.description}</td>
                     <td class="severity-${v.severity}">${v.severity}</td>
                     <td>${v.violationdate || "—"}</td>
+                    <td>${v.violationstatus || "Chưa xử lý"}</td>
                 </tr>
             `;
             });
@@ -301,12 +320,70 @@
             document.getElementById("header-user").innerText =
                 data ? `Xin chào, ${data.fullname}` : "";
         }
+        async function autoUpdateTrustScoreForAllStudents() {
+
+            // 1. Lấy toàn bộ violation CHƯA XỬ LÝ
+            const { data: violations, error } = await db
+                .from("violation")
+                .select("violationid, studentid, severity")
+                .eq("violationstatus", "Chưa xử lý");
+
+            if (error || !violations || violations.length === 0) {
+                console.log("Không có vi phạm chưa xử lý");
+                return;
+            }
+
+            // 2. Gom violation theo studentid
+            const violationMap = {};
+            violations.forEach(v => {
+                if (!violationMap[v.studentid]) {
+                    violationMap[v.studentid] = {
+                        totalSeverity: 0,
+                        violationIds: []
+                    };
+                }
+                violationMap[v.studentid].totalSeverity += Number(v.severity);
+                violationMap[v.studentid].violationIds.push(v.violationid);
+            });
+
+            // 3. Với mỗi studentid → trừ trust_score
+            for (const studentId in violationMap) {
+                const { totalSeverity, violationIds } = violationMap[studentId];
+
+                // Lấy trust_score hiện tại
+                const { data: student } = await db
+                    .from("student")
+                    .select("trust_score")
+                    .eq("studentid", studentId)
+                    .single();
+
+                if (!student) continue;
+
+                const newTrust = Math.max(0, (student.trust_score || 0) - totalSeverity);
+
+                // Update trust_score
+                await db
+                    .from("student")
+                    .update({ trust_score: newTrust })
+                    .eq("studentid", studentId);
+
+                // Đánh dấu violation đã xử lý
+                await db
+                    .from("violation")
+                    .update({ violationstatus: "Đã xử lý" })
+                    .in("violationid", violationIds);
+            }
+
+            console.log("Đã cập nhật trust_score cho tất cả sinh viên");
+        }
 
         loadHeader();
         loadStudentsForDropdown();
         loadViolations();
+        // Chạy lại mỗi 2 giây
+        setInterval(() => {
+            autoUpdateTrustScoreForAllStudents();
+        }, 2000);    
     </script>
-
 </body>
-
 </html>

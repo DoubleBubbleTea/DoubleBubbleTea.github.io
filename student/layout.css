@@ -293,20 +293,11 @@ body {
     }
 }
 
-/* Phần dưới cho các trang booking (giữ nguyên nếu bạn đã dùng) */
-/* .booking-box {
-    width: 900px;
-    max-width: 95vw;
-} */
 
 .payment-box {
     width: 420px;
     max-width: 90vw;
 }
-
-/* .calendar-wrapper {
-    overflow-x: auto;
-} */
 
 table.calendar {
     min-width: 750px;
@@ -446,17 +437,6 @@ table.calendar {
         transform: rotate(0deg);
     }
 }
-
-/* Rung mạnh hơn khi hover */
-/* @keyframes shake-bell-strong {
-    0%   { transform: rotate(0deg); }
-    15%  { transform: rotate(20deg); }
-    30%  { transform: rotate(-20deg); }
-    45%  { transform: rotate(16deg); }
-    60%  { transform: rotate(-16deg); }
-    75%  { transform: rotate(12deg); }
-    100% { transform: rotate(0deg); }
-} */
 
 .reminder-title {
     font-weight: 700;

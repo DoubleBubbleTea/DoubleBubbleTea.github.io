@@ -161,7 +161,6 @@
     </style>
 </head>
 
-
 <!-- POPUP SUCCESS -->
 <div id="popupModal" class="modal-overlay">
     <div class="modal-box">
@@ -221,6 +220,7 @@
             </div>
 
             <h3>Danh sách</h3>
+            <a href="../news.html">Bản tin</a>
             <a href="./information.html" class="active">Thông tin cá nhân</a>
             <a href="#" onclick="checkTrustBeforeBooking()">Đặt phòng</a>
             <a href="./booking_history.html">Lịch sử đặt phòng</a>
@@ -228,7 +228,6 @@
             <a href="./checkin_seat.html">Check-in chỗ ngồi</a>
             <a href="./student_feedback.html">Phản hồi sinh viên</a>
         </div>
-
 
         <!-- CONTENT -->
         <div class="content">
@@ -289,7 +288,6 @@
 
     </div>
 
-
     <!-- MODAL ĐỔI MẬT KHẨU -->
     <div id="passModal" class="modal-overlay">
         <div class="modal-box">
@@ -317,7 +315,6 @@
         </div>
     </div>
 
-
     <!-- LOGOUT MODAL -->
     <div id="logout-modal" class="modal-overlay">
         <div class="modal-box">
@@ -326,7 +323,6 @@
             <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
         </div>
     </div>
-
 
     <!-- SUPABASE + HEADER SCRIPT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -360,7 +356,6 @@
             eyeIcon.textContent = isHidden ? "👁️" : "🙈";
         }
 
-
         /* ============================
            REALTIME CHECK MATCH
         ============================ */
@@ -376,7 +371,6 @@
 
             errorIcon.style.display = (newPass !== confirm) ? "block" : "none";
         }
-
 
         /* ============================
            LOAD STUDENT INFO
@@ -407,7 +401,6 @@
             document.getElementById("edit-trust").value = data.trust_score ?? "";
         }
 
-
         /* ============================
            EDIT MODE SWITCH
         ============================ */
@@ -420,7 +413,6 @@
             document.getElementById("info-view-mode").style.display = "block";
             document.getElementById("info-edit-mode").style.display = "none";
         }
-
 
         /* ============================
            SAVE INFO
@@ -484,13 +476,11 @@
             showPopup("Thành công", "Đổi mật khẩu thành công!");
             closePasswordModal();
         }
-
         /* INIT */
         loadStudentName();
-        loadStudentInfo();
         loadStudentAvatar();
+        loadStudentInfo();
     </script>
-
 </body>
 
 </html>

@@ -77,3 +77,12 @@ window.addEventListener("DOMContentLoaded", () => {
     loadAdminHeader();
     loadAdminNotifications();
 });
+
+function toggleSidebarDropdown(el) {
+    el.classList.toggle("open");
+
+    const dropdown = el.nextElementSibling;
+    if (!dropdown) return;
+
+    dropdown.classList.toggle("open");
+}
