@@ -524,7 +524,7 @@
                 );
             }
             const facText = selectedFacilities.length
-                ? selectedFacilities.map(f => `${f.name} (+${f.cost.toLocaleString()}đ/giờ)`).join(", ")
+                ? selectedFacilities.map(f => `${f.name}`).join(", ")
                 : "Không sử dụng";
 
             document.getElementById("paymentDetails").innerHTML = `
