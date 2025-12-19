@@ -46,50 +46,7 @@
             border-radius: 6px;
             border: 1px solid #d1d5db;
         }
-
-        .btn-cancel-booking {
-            padding: 6px 12px;
-            min-width: 110px;
-            border-radius: 10px;
-            font-weight: bold;
-            border: none;
-            color: white;
-        }
-
-        .cancel {
-            background: #1E8B38;
-            cursor: pointer;
-        }
-
-        .disabled {
-            background: #DC3546;
-            cursor: not-allowed;
-        }
-
-        .canceled {
-            background: #FEBF07;
-            color: black;
-            cursor: not-allowed;
-            opacity: 0.95;
-        }
-
-        .btn-cancel-booking.canceled:hover {
-            background: #FEBF07 !important;
-            /* không đổi */
-            transform: none !important;
-        }
-
-        /* BUTTON KHÔNG THỂ HỦY */
-        .btn-cancel-booking.disabled {
-            background: #DC3546;
-            cursor: not-allowed;
-            opacity: 0.9;
-        }
-
-        .btn-cancel-booking.disabled:hover {
-            background: #DC3546 !important;
-            transform: none !important;
-        }
+        
     </style>
 </head>
 
@@ -139,12 +96,15 @@
                 <div class="avatar-name" id="avatar-fullname">—</div>
             </div>
             <h3>Danh sách</h3>
+            <a href="../news.html">Bản tin</a>
             <a href="./information.html">Thông tin cá nhân</a>
             <a href="#" onclick="checkTrustBeforeBooking()">Đặt phòng</a>
             <a href="./booking_history.html" class="active">Lịch sử đặt phòng</a>
             <a href="./checkin_room.html">Check-in phòng</a>
             <a href="./checkin_seat.html">Check-in chỗ ngồi</a>
             <a href="./student_feedback.html">Phản hồi sinh viên</a>
+            <a href="./reward.html">Đổi phần thưởng</a>
+            <a href="./student_reward.html">Danh sách phần thưởng</a>
         </div>
 
         <!-- CONTENT -->

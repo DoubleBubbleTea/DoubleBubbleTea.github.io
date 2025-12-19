@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch sử đổi thưởng</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="./layout.css">
+    <script src="./student_header.js"></script>
+    <script defer src="https://app.fastbots.ai/embed.js" data-bot-id="cmj49xvd200slpa1pjdwephas"></script>
+
+    <style>
+        .content {
+            flex: 1;
+            padding: 40px 80px;
+            box-sizing: border-box;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+
+        th {
+            background: #f3f4f6;
+        }
+
+        .status-used {
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .status-unused {
+            color: #2563eb;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- MODAL XÁC NHẬN SỬ DỤNG -->
+    <div id="use-reward-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Xác nhận sử dụng phần thưởng?</h3>
+            <p>Thao tác này không thể hoàn tác.</p>
+
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="confirmUseReward()">Xác nhận</button>
+                <button class="btn-cancel" onclick="closeUseRewardModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-title">LỊCH SỬ ĐỔI THƯỞNG</div>
+        <div class="header-right">
+            <div class="icon notification-icon" onclick="toggleNotification()">
+                <img src="../img/notification_new.png" class="icon-img">
+                <div id="notif-count" class="notif-count" style="display:none;">0</div>
+            </div>
+
+            <div class="icon logout-icon" onclick="openLogoutModal()">
+                <img src="../img/logout_new.png" class="icon-img">
+            </div>
+
+            <div id="header-user">Đang tải...</div>
+
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-title">Thông báo</div>
+                <div id="notif-list" class="notif-list">Không có thông báo!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="avatar-box">
+                <img id="student-avatar" src="../img/logo.png">
+                <div class="avatar-name" id="avatar-fullname">—</div>
+            </div>
+
+            <h3>Danh sách</h3>
+            <a href="../news.html">Bản tin</a>
+            <a href="./information.html">Thông tin cá nhân</a>
+            <a href="#" onclick="checkTrustBeforeBooking()">Đặt phòng</a>
+            <a href="./booking_history.html">Lịch sử đặt phòng</a>
+            <a href="./checkin_room.html">Check-in phòng</a>
+            <a href="./checkin_seat.html">Check-in chỗ ngồi</a>
+            <a href="./student_feedback.html">Phản hồi sinh viên</a>
+            <a href="./reward.html">Đổi phần thưởng</a>
+            <a href="./student_reward.html">Danh sách phần thưởng</a>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <h2>Lịch sử đổi thưởng của bạn</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Mã đổi</th>
+                        <th>MSSV</th>
+                        <th>Họ tên</th>
+                        <th>Phần thưởng</th>
+                        <th>Điểm đã dùng</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày đổi</th>
+                        <th>Sử dụng</th>
+                    </tr>
+                </thead>
+                <tbody id="rewardBody">
+                    <tr>
+                        <td colspan="8" style="text-align:center;">Đang tải...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let rewardToUse = null;
+        function openUseRewardModal(redemptionId) {
+            rewardToUse = redemptionId;
+            document.getElementById("use-reward-modal").style.display = "flex";
+        }
+
+        function closeUseRewardModal() {
+            rewardToUse = null;
+            document.getElementById("use-reward-modal").style.display = "none";
+        }
+
+        async function confirmUseReward() {
+            if (!rewardToUse) return;
+
+            const { error } = await db
+                .from("reward_redemption")
+                .update({ status_redemption: "Đã sử dụng" })
+                .eq("redemption_id", rewardToUse);
+
+            if (error) {
+                showPopup("Lỗi", "Không thể cập nhật trạng thái phần thưởng!");
+                return;
+            }
+
+            closeUseRewardModal();
+
+            // 🔥 reload NGAY
+            await loadRewardHistory();
+
+            showPopup("Thành công", "Phần thưởng đã được đánh dấu là đã sử dụng!");
+        }
+
+        async function loadRewardHistory() {
+            const studentId = localStorage.getItem("studentid");
+            const body = document.getElementById("rewardBody");
+
+            if (!studentId) {
+                body.innerHTML = `<tr><td colspan="8">Không tìm thấy studentid</td></tr>`;
+                return;
+            }
+
+            const { data, error } = await db
+                .from("reward_redemption")
+                .select(`
+                redemption_id,
+                studentid,
+                used_score,
+                status_redemption,
+                redeemed_at,
+                reward (
+                    reward_name
+                ),
+                student (
+                    fullname
+                )
+            `)
+                .eq("studentid", studentId)
+                .order("redeemed_at", { ascending: false });
+
+            if (error || !data || data.length === 0) {
+                body.innerHTML = `<tr><td colspan="8">Chưa có lịch sử đổi thưởng</td></tr>`;
+                return;
+            }
+
+            body.innerHTML = "";
+
+            data.forEach(r => {
+                const date = new Date(r.redeemed_at).toLocaleString("vi-VN");
+
+                let useButton = "";
+
+                if (r.status_redemption === "Chưa sử dụng") {
+                    useButton = `
+            <button class="btn-cancel-booking cancel"
+                onclick="openUseRewardModal(${r.redemption_id})">
+                Sử dụng
+            </button>
+        `;
+                } else {
+                    useButton = `
+                    <button class="btn-cancel-booking disabled" disabled>
+                        Đã dùng
+                    </button>
+                `;
+                }
+
+                body.innerHTML += `
+                <tr>
+                    <td>${r.redemption_id}</td>
+                    <td>${r.studentid}</td>
+                    <td>${r.student?.fullname || "—"}</td>
+                    <td>${r.reward?.reward_name || "—"}</td>
+                    <td>${r.used_score}</td>
+                    <td><strong>${r.status_redemption}</strong></td>
+                    <td>${date}</td>
+                    <td>${useButton}</td>
+                </tr>
+            `;
+            });
+        }
+
+        // INIT
+        window.addEventListener("DOMContentLoaded", () => {
+            loadStudentName();
+            loadNotifications();
+            loadRewardHistory();
+        });
+    </script>
+
+</body>
+
+</html>

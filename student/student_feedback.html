@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" href="./layout.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="https://app.fastbots.ai/embed.js" data-bot-id="cmj49xvd200slpa1pjdwephas"></script>
 
     <style>
         .content {
@@ -98,6 +99,16 @@
             <button class="btn-primary" onclick="closeModal()">OK</button>
         </div>
     </div>
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
     <!-- HEADER -->
     <div class="header">
         <div class="header-title">ĐẶT PHÒNG</div>
@@ -129,12 +140,15 @@
                 <div class="avatar-name" id="avatar-fullname">—</div>
             </div>
             <h3>Danh sách</h3>
+            <a href="../news.html">Bản tin</a>
             <a href="./information.html">Thông tin cá nhân</a>
             <a href="#" onclick="checkTrustBeforeBooking()">Đặt phòng</a>
             <a href="./booking_history.html">Lịch sử đặt phòng</a>
             <a href="./checkin_room.html">Check-in phòng</a>
             <a href="./checkin_seat.html">Check-in chỗ ngồi</a>
             <a href="./student_feedback.html" class="active">Phản hồi sinh viên</a>
+            <a href="./reward.html">Đổi phần thưởng</a>
+            <a href="./student_reward.html">Danh sách phần thưởng</a>
         </div>
 
         <!-- CONTENT -->
@@ -162,16 +176,6 @@
                 <div class="submit-box">
                     <button class="btn-submit" onclick="submitFeedback()">Xác nhận</button>
                 </div>
-            </div>
-        </div>
-    </div>
-    <!-- LOGOUT MODAL -->
-    <div id="logout-modal" class="modal-overlay">
-        <div class="modal-box">
-            <h3>Bạn muốn đăng xuất?</h3>
-            <div class="modal-buttons">
-                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
-                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
             </div>
         </div>
     </div>

@@ -86,3 +86,13 @@ function toggleSidebarDropdown(el) {
 
     dropdown.classList.toggle("open");
 }
+
+function showPopup(title, message) {
+    document.getElementById("modal-title").innerText = title;
+    document.getElementById("modal-message").innerText = message;
+    document.getElementById("popupModal").style.display = "flex";
+}
+
+function closeModalInfo() {
+    document.getElementById("popupModal").style.display = "none";
+}

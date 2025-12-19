@@ -164,7 +164,6 @@
 <!-- POPUP SUCCESS -->
 <div id="popupModal" class="modal-overlay">
     <div class="modal-box">
-        <div class="modal-icon" style="font-size:40px; margin-bottom:10px; color: red;">X</div>
         <h3 id="modal-title">Completed</h3>
         <p id="modal-message">Message here</p>
         <button onclick="closeModal()">OK</button>
@@ -227,6 +226,9 @@
             <a href="./checkin_room.html">Check-in phòng</a>
             <a href="./checkin_seat.html">Check-in chỗ ngồi</a>
             <a href="./student_feedback.html">Phản hồi sinh viên</a>
+            <a href="./reward.html">Đổi phần thưởng</a>
+            <a href="./reward.html">Đổi phần thưởng</a>
+            <a href="./student_reward.html">Danh sách phần thưởng</a>
         </div>
 
         <!-- CONTENT -->
@@ -245,9 +247,15 @@
                     <div id="info-view-mode">
                         <div class="info-item"><label>Mã số sinh viên:</label><span id="info-studentid">...</span></div>
                         <div class="info-item"><label>Họ và tên:</label><span id="info-fullname">...</span></div>
+                        <div class="info-item"><label>Ngày sinh:</label><span id="info-birthdate">—</span></div>
+                        <div class="info-item"><label>Giới tính:</label><span id="info-gender">—</span></div>
                         <div class="info-item"><label>Email:</label><span id="info-email">...</span></div>
                         <div class="info-item"><label>Số điện thoại:</label><span id="info-phonenumber">—</span></div>
                         <div class="info-item"><label>Ngành học:</label><span id="info-major">—</span></div>
+                        <div class="info-item"><label>Nơi sinh:</label><span id="info-placebirth">—</span></div>
+                        <div class="info-item"><label>Địa chỉ thường trú:</label><span id="info-address">—</span></div>
+                        <div class="info-item"><label>Hệ đào tạo:</label><span id="info-education">—</span></div>
+                        <div class="info-item"><label>Niên khoá:</label><span id="info-academicyear">—</span></div>
                         <div class="info-item"><label>Điểm uy tín:</label><span id="info-trust">—</span></div>
 
                         <div style="margin-top: 25px;">
@@ -264,6 +272,19 @@
                         <div class="info-item"><label>Họ và tên:</label>
                             <input id="edit-fullname" class="info-edit">
                         </div>
+                        <div class="info-item">
+                            <label>Ngày sinh:</label>
+                            <input type="date" id="edit-birthdate" class="info-edit">
+                        </div>
+                        <div class="info-item">
+                            <label>Giới tính:</label>
+                            <select id="edit-gender" class="info-edit">
+                                <option value="">-- Chọn --</option>
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                        </div>
                         <div class="info-item"><label>Email:</label>
                             <input id="edit-email" class="info-edit">
                         </div>
@@ -272,6 +293,35 @@
                         </div>
                         <div class="info-item"><label>Ngành học:</label>
                             <input id="edit-major" class="info-edit">
+                        </div>
+                        <div class="info-item">
+                            <label>Nơi sinh:</label>
+                            <input id="edit-placebirth" class="info-edit">
+                        </div>
+                        <div class="info-item">
+                            <label>Địa chỉ thường trú:</label>
+                            <input id="edit-address" class="info-edit">
+                        </div>
+                        <div class="info-item">
+                            <label>Hệ đào tạo:</label>
+                            <select id="edit-education" class="info-edit">
+                                <option value="">-- Chọn --</option>
+                                <option value="Đại trà">Đại trà</option>
+                                <option value="Chất lượng cao">Chất lượng cao</option>
+                                <option value="Liên kết quốc tế">Liên kết quốc tế</option>
+                            </select>
+                        </div>
+                        <div class="info-item">
+                            <label>Niên khoá:</label>
+                            <select id="edit-academicyear" class="info-edit">
+                                <option value="">-- Chọn --</option>
+                                <option>2020-2021</option>
+                                <option>2021-2022</option>
+                                <option>2022-2023</option>
+                                <option>2023-2024</option>
+                                <option>2024-2025</option>
+                                <option>2025-2026</option>
+                            </select>
                         </div>
                         <div class="info-item"><label>Điểm uy tín:</label>
                             <input id="edit-trust" class="info-edit" disabled>
@@ -391,7 +441,13 @@
             document.getElementById("info-phonenumber").innerText = data.phonenumber || "—";
             document.getElementById("info-major").innerText = data.major || "—";
             document.getElementById("info-trust").innerText = data.trust_score ?? "—";
+            document.getElementById("info-birthdate").innerText = data.birth_date ? new Date(data.birth_date).toLocaleDateString("vi-VN") : "—";
 
+            document.getElementById("info-gender").innerText = data.gender || "—";
+            document.getElementById("info-placebirth").innerText = data.place_of_birth || "—";
+            document.getElementById("info-address").innerText = data.permanent_address || "—";
+            document.getElementById("info-education").innerText = data.education_type || "—";
+            document.getElementById("info-academicyear").innerText = data.academic_year || "—";
             // Fill edit mode
             document.getElementById("edit-studentid").value = data.studentid;
             document.getElementById("edit-fullname").value = data.fullname;
@@ -399,6 +455,12 @@
             document.getElementById("edit-phonenumber").value = data.phonenumber || "";
             document.getElementById("edit-major").value = data.major || "";
             document.getElementById("edit-trust").value = data.trust_score ?? "";
+            document.getElementById("edit-birthdate").value = data.birth_date || "";
+            document.getElementById("edit-gender").value = data.gender || "";
+            document.getElementById("edit-placebirth").value = data.place_of_birth || "";
+            document.getElementById("edit-address").value = data.permanent_address || "";
+            document.getElementById("edit-education").value = data.education_type || "";
+            document.getElementById("edit-academicyear").value = data.academic_year || "";
         }
 
         /* ============================
@@ -420,23 +482,68 @@
         async function saveInfo() {
             const studentId = localStorage.getItem("studentid");
 
+            const fullname = document.getElementById("edit-fullname").value.trim();
+            const email = document.getElementById("edit-email").value.trim();
+            const phonenumber = document.getElementById("edit-phonenumber").value.trim();
+
+            /* ======================
+               VALIDATION
+            ====================== */
+
+            // Không được để trống
+            if (!fullname) {
+                showPopup("Lỗi", "Họ và tên không được để trống!");
+                return;
+            }
+
+            if (!email) {
+                showPopup("Lỗi", "Email không được để trống!");
+                return;
+            }
+
+            // Chỉ toàn số
+            const numberRegex = /^\d+$/;
+
+            if (phonenumber && !numberRegex.test(phonenumber)) {
+                showPopup("Lỗi", "Số điện thoại chỉ được chứa chữ số!");
+                return;
+            }
+
+            /* ======================
+               DATA OBJECT
+            ====================== */
+
             const updated = {
-                fullname: document.getElementById("edit-fullname").value,
-                email: document.getElementById("edit-email").value,
-                phonenumber: document.getElementById("edit-phonenumber").value,
+                fullname,
+                email,
+                phonenumber: phonenumber || null,
                 major: document.getElementById("edit-major").value,
+
+                birth_date: document.getElementById("edit-birthdate").value || null,
+                gender: document.getElementById("edit-gender").value || null,
+
+                place_of_birth: document.getElementById("edit-placebirth").value,
+                permanent_address: document.getElementById("edit-address").value,
+
+                education_type: document.getElementById("edit-education").value,
+                academic_year: document.getElementById("edit-academicyear").value
             };
 
-            const { error } = await db.from("student").update(updated).eq("studentid", studentId);
+            const { error } = await db
+                .from("student")
+                .update(updated)
+                .eq("studentid", studentId);
 
-            if (error) return showPopup("Lỗi", "Không thể lưu thông tin!");
+            if (error) {
+                console.error(error);
+                showPopup("Lỗi", "Không thể lưu thông tin!");
+                return;
+            }
 
             showPopup("Thành công", "Thông tin đã được cập nhật!");
             loadStudentInfo();
             cancelEdit();
         }
-
-
         /* ============================
            PASSWORD HANDLING
         ============================ */

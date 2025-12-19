@@ -122,16 +122,31 @@
             transform: translateY(0);
             box-shadow: 0 3px 8px rgba(39, 81, 103, 0.25);
         }
+        .news-date {
+            font-size: 13px;
+            color: #6b7280;
+            margin: 4px 0 8px;
+            font-weight: bold;
+        }
     </style>
 </head>
 
 <body>
-
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
     <!-- HEADER (CHỈ ĐĂNG NHẬP) -->
     <div class="header">
         <div class="header-title">BẢNG TIN</div>
-        <div class="header-right">
-            <a href="./index.html" class="btn-login">Đăng nhập</a>
+        <div class="header-right" id="header-right">
+            <!-- JS sẽ render nội dung ở đây -->
         </div>
     </div>
 
@@ -156,16 +171,62 @@
 
     <!-- SUPABASE -->
     <script>
+        function renderHeaderByLoginStatus() {
+            const headerRight = document.getElementById("header-right");
+            if (!headerRight) return;
+
+            const studentId = localStorage.getItem("studentid");
+
+            // ❌ CHƯA ĐĂNG NHẬP
+            if (!studentId) {
+                headerRight.innerHTML = `
+            <a href="./index.html" class="btn-login">Đăng nhập</a>
+        `;
+                return;
+            }
+
+            // ✅ ĐÃ ĐĂNG NHẬP
+            headerRight.innerHTML = `
+        <div class="icon notification-icon" onclick="toggleNotification()">
+            <img src="../img/notification_new.png" class="icon-img">
+            <div id="notif-count" class="notif-count" style="display:none;">0</div>
+        </div>
+
+        <div class="icon logout-icon" onclick="openLogoutModal()">
+            <img src="../img/logout_new.png" class="icon-img">
+        </div>
+
+        <div id="header-user">Đang tải...</div>
+
+        <div id="notif-dropdown" class="notif-dropdown">
+            <div class="notif-title">Thông báo</div>
+            <div id="notif-list" class="notif-list">Không có thông báo!</div>
+        </div>
+    `;
+
+            // load tên + thông báo nếu đã đăng nhập
+            if (typeof loadStudentName === "function") loadStudentName();
+            if (typeof loadNotifications === "function") loadNotifications();
+        }
+
         function renderNews(item) {
             const img = `./img/${item.image_url}`;
 
+            // format ngày đăng
+            let postDate = "—";
+            if (item.day_post) {
+                const d = new Date(item.day_post);
+                postDate = d.toLocaleDateString("vi-VN");
+            }
+
             return `
-                <img src="${img}">
-                <div class="news-body">
-                    <h3>${item.title}</h3>
-                    <p>${item.summary || ""}</p>
-                </div>
-            `;
+        <img src="${img}">
+        <div class="news-body">
+            <h3>${item.title}</h3>
+            <p>${item.summary || ""}</p><br>
+            <p class="news-date">📅 Ngày đăng: ${postDate}</p>
+        </div>
+    `;
         }
 
         async function loadNews() {
@@ -193,10 +254,10 @@
                 }
             });
         }
-
+        // GỌI KHI LOAD TRANG
+        window.addEventListener("DOMContentLoaded", renderHeaderByLoginStatus);
         loadNews();
     </script>
-
 </body>
 
 </html>

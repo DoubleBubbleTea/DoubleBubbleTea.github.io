@@ -78,15 +78,35 @@
 </head>
 
 <body>
-
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
     <!-- HEADER -->
     <div class="header">
-        <div class="header-title">CHECK-IN GHẾ</div>
+        <div class="header-title">ĐẶT PHÒNG</div>
         <div class="header-right">
+            <div class="icon notification-icon" onclick="toggleNotification()">
+                <img src="../img/notification_new.png" class="icon-img">
+                <div id="notif-count" class="notif-count" style="display:none;">0</div>
+            </div>
+
             <div class="icon logout-icon" onclick="openLogoutModal()">
                 <img src="../img/logout_new.png" class="icon-img">
             </div>
+
             <div id="header-user">Đang tải...</div>
+
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-title">Thông báo</div>
+                <div id="notif-list" class="notif-list">Không có thông báo!</div>
+            </div>
         </div>
     </div>
 
@@ -106,12 +126,15 @@
                 <div class="avatar-name" id="avatar-fullname">—</div>
             </div>
             <h3>Danh sách</h3>
+            <a href="../news.html">Bản tin</a>
             <a href="./information.html">Thông tin cá nhân</a>
             <a href="#" onclick="checkTrustBeforeBooking()">Đặt phòng</a>
             <a href="./booking_history.html">Lịch sử đặt phòng</a>
             <a href="./checkin_room.html">Check-in phòng</a>
             <a href="./checkin_seat.html" class="active">Check-in chỗ ngồi</a>
             <a href="./student_feedback.html">Phản hồi sinh viên</a>
+            <a href="./reward.html">Đổi phần thưởng</a>
+            <a href="./student_reward.html">Danh sách phần thưởng</a>
         </div>
 
         <div class="content">

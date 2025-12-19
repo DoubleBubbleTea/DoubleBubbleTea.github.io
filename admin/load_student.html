@@ -156,10 +156,28 @@
             color: #111;
             /* chữ đen */
         }
+
+        /* Popup thông báo (showPopup) */
+        #popupModal {
+            z-index: 10001 !important;
+        }
+
+        /* Modal Add/Edit sinh viên */
+        #modal {
+            z-index: 9999;
+        }
     </style>
 </head>
 
 <body>
+    <div id="popupModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modal-title">Completed</h3>
+            <p id="modal-message">Message here</p>
+            <button onclick="closeModalInfo()">OK</button>
+        </div>
+    </div>
+
     <!-- LOGOUT MODAL -->
     <div id="logout-modal" class="modal-overlay">
         <div class="modal-box">
@@ -185,12 +203,10 @@
     <div class="header">
         <div>Dashboard</div>
         <div class="header-right">
-
             <div class="icon notification-icon" onclick="toggleNotification()">
                 <img src="../img/notification_new.png" class="icon-img">
                 <div id="notif-count" class="notif-count" style="display:none;">0</div>
             </div>
-
             <div class="icon logout-icon" onclick="openLogoutModal()">
                 <img src="../img/logout_new.png" class="icon-img">
             </div>
@@ -205,7 +221,6 @@
     </div>
 
     <div class="main">
-
         <!-- SIDEBAR -->
         <div class="sidebar">
             <!-- AVATAR BOX -->
@@ -213,7 +228,6 @@
                 <img id="student-avatar" src="../img/logo.png" alt="avatar">
                 <div class="avatar-name" id="avatar-fullname">—</div>
             </div>
-
             <a href="./dashboard.html">Thông tin cá nhân</a>
             <a href="./load_student.html" class="active">Danh sách sinh viên</a>
             <a href="./load_history.html">Quản lý lịch sử đặt phòng</a>
@@ -222,7 +236,7 @@
             <div class="sidebar-group">
                 <a href="javascript:void(0)" class="sidebar-dropdown-toggle" onclick="toggleSidebarDropdown(this)">
                     Danh sách
-                    <i class="fa fa-caret-down"></i> 
+                    <i class="fa fa-caret-down"></i>
                 </a>
                 <div class="sidebar-dropdown">
                     <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
@@ -256,8 +270,14 @@
                             <th>MSSV</th>
                             <th>Họ tên</th>
                             <th>Email</th>
+                            <th>Ngày sinh</th>
+                            <th>Giới tính</th>
                             <th>SĐT</th>
                             <th>Ngành</th>
+                            <th>Nơi sinh</th>
+                            <th>Địa chỉ thường trú</th>
+                            <th>Hệ đào tạo</th>
+                            <th>Niên khoá</th>
                             <th>Trạng thái</th>
                             <th>Uy tín</th>
                             <th>Hành động</th>
@@ -274,17 +294,45 @@
     <div id="modal" class="modal-overlay">
         <div class="modal-box">
             <h3 id="modal-title">Thêm sinh viên</h3>
-
             <input id="st-id" class="modal-input" placeholder="Mã số sinh viên">
             <input id="st-name" class="modal-input" placeholder="Họ tên">
             <input id="st-email" class="modal-input" placeholder="Email">
+            <input id="st-birthdate" type="date" class="modal-input">
+
+            <select id="st-gender" class="modal-input">
+                <option value="">— Giới tính —</option>
+                <option value="Nam">Nam</option>
+                <option value="Nữ">Nữ</option>
+                <option value="Khác">Khác</option>
+            </select>
+
             <input id="st-phone" class="modal-input" placeholder="Số điện thoại">
             <input id="st-major" class="modal-input" placeholder="Ngành học">
+
+            <input id="st-placebirth" class="modal-input" placeholder="Nơi sinh">
+            <input id="st-address" class="modal-input" placeholder="Địa chỉ thường trú">
+
+            <select id="st-education" class="modal-input">
+                <option value="">— Hệ đào tạo —</option>
+                <option value="Đại trà">Đại trà</option>
+                <option value="Chất lượng cao">Chất lượng cao</option>
+                <option value="Liên kết quốc tế">Liên kết quốc tế</option>
+            </select>
+
+            <select id="st-academicyear" class="modal-input">
+                <option value="">— Niên khoá —</option>
+                <option>2020-2021</option>
+                <option>2021-2022</option>
+                <option>2022-2023</option>
+                <option>2023-2024</option>
+                <option>2024-2025</option>
+                <option>2025-2026</option>
+            </select>
+
             <select id="st-status" class="modal-input">
                 <option value="" disabled selected>— Chọn trạng thái —</option>
-                <option value="Đang học">Đang học</option>
-                <option value="Tốt nghiệp">Tốt nghiệp</option>
-                <option value="Bị khóa">Bị khóa</option>
+                <option value="Đang hoạt động">Đang hoạt động</option>
+                <option value="Vô hiệu hóa">Vô hiệu hóa</option>
             </select>
             <input id="st-trust" class="modal-input" placeholder="Điểm uy tín">
 
@@ -318,6 +366,12 @@
             document.getElementById("st-email").value = student.email;
             document.getElementById("st-phone").value = student.phonenumber;
             document.getElementById("st-major").value = student.major;
+            document.getElementById("st-birthdate").value = student.birth_date || "";
+            document.getElementById("st-gender").value = student.gender || "";
+            document.getElementById("st-placebirth").value = student.place_of_birth || "";
+            document.getElementById("st-address").value = student.permanent_address || "";
+            document.getElementById("st-education").value = student.education_type || "";
+            document.getElementById("st-academicyear").value = student.academic_year || "";
             document.getElementById("st-status").value = student.status;
             document.getElementById("st-trust").value = student.trust_score;
 
@@ -330,8 +384,15 @@
             document.getElementById("st-email").value = "";
             document.getElementById("st-phone").value = "";
             document.getElementById("st-major").value = "";
-            document.getElementById("st-status").value = "";   // 🟢 thêm here
+            document.getElementById("st-status").value = "";
             document.getElementById("st-trust").value = "";
+            document.getElementById("st-birthdate").value = "";
+            document.getElementById("st-gender").value = "";
+            document.getElementById("st-placebirth").value = "";
+            document.getElementById("st-address").value = "";
+            document.getElementById("st-education").value = "";
+            document.getElementById("st-academicyear").value = "";
+
         }
 
         function closeModal() {
@@ -367,34 +428,95 @@
            SAVE STUDENT
         ====================== */
         async function saveStudent() {
+            const studentid = document.getElementById("st-id").value.trim();
+            const fullname = document.getElementById("st-name").value.trim();
+            const email = document.getElementById("st-email").value.trim();
+            const phonenumber = document.getElementById("st-phone").value.trim();
+            const trust_score = document.getElementById("st-trust").value.trim();
+
+            /* ======================
+               VALIDATION
+            ====================== */
+
+            // Không được để trống
+            if (!fullname) {
+                showPopup("Lỗi", "Họ và tên không được để trống!");
+                return;
+            }
+
+            if (!email) {
+                showPopup("Lỗi", "Email không được để trống!");
+                return;
+            }
+
+            // Chỉ toàn số
+            const numberRegex = /^\d+$/;
+
+            if (!numberRegex.test(studentid)) {
+                showPopup("Lỗi", "Mã số sinh viên chỉ được chứa chữ số!");
+                return;
+            }
+
+            if (phonenumber && !numberRegex.test(phonenumber)) {
+                showPopup("Lỗi", "Số điện thoại chỉ được chứa chữ số!");
+                return;
+            }
+
+            if (trust_score && !numberRegex.test(trust_score)) {
+                showPopup("Lỗi", "Điểm uy tín chỉ được chứa chữ số!");
+                return;
+            }
+
+            /* ======================
+               DATA OBJECT
+            ====================== */
+
             const newData = {
-                studentid: document.getElementById("st-id").value,
-                fullname: document.getElementById("st-name").value,
-                email: document.getElementById("st-email").value,
-                phonenumber: document.getElementById("st-phone").value,
+                studentid: Number(studentid),
+                fullname,
+                email,
+
+                birth_date: document.getElementById("st-birthdate").value || null,
+                gender: document.getElementById("st-gender").value || null,
+
+                phonenumber: phonenumber || null,
                 major: document.getElementById("st-major").value,
+
+                place_of_birth: document.getElementById("st-placebirth").value,
+                permanent_address: document.getElementById("st-address").value,
+
+                education_type: document.getElementById("st-education").value,
+                academic_year: document.getElementById("st-academicyear").value,
+
                 status: document.getElementById("st-status").value,
-                trust_score: document.getElementById("st-trust").value,
-                password: "123"   // 🟢 password mặc định
+                trust_score: trust_score ? Number(trust_score) : null,
+                password: "123"
             };
 
             let result;
 
             if (editingId) {
-                result = await db.from("student").update(newData).eq("studentid", editingId);
+                result = await db
+                    .from("student")
+                    .update(newData)
+                    .eq("studentid", editingId);
             } else {
-                result = await db.from("student").insert(newData);
+                result = await db
+                    .from("student")
+                    .insert(newData);
             }
 
             if (result.error) {
                 console.error(result.error);
-                alert(result.error.message);
+                showPopup("Lỗi", result.error.message);
                 return;
             }
 
+            showPopup("Thành công", "Đã lưu thông tin sinh viên!");
             closeModal();
             loadStudents();
         }
+
 
         /* ======================
            LOAD STUDENTS
@@ -408,19 +530,31 @@
 
             data.forEach(st => {
                 table.innerHTML += `
-                    <tr>
-                        <td>${st.studentid}</td>
-                        <td>${st.fullname}</td>
-                        <td>${st.email}</td>
-                        <td>${st.phonenumber || "—"}</td>
-                        <td>${st.major || "—"}</td>
-                        <td>${st.status || "—"}</td>
-                        <td>${st.trust_score ?? "—"}</td>
-                        <td>
-                            <button class="btn-edit" onclick='openEditModal(${JSON.stringify(st)})'>Sửa</button>
-                            <button class="btn-delete" onclick="deleteStudent('${st.studentid}')">Xóa</button>
-                        </td>
-                    </tr>
+                <tr>
+                    <td>${st.studentid}</td>
+                    <td>${st.fullname}</td>
+                    <td>${st.email}</td>
+
+                    <td>${st.birth_date ? new Date(st.birth_date).toLocaleDateString("vi-VN") : "—"}</td>
+                    <td>${st.gender || "—"}</td>
+
+                    <td>${st.phonenumber || "—"}</td>
+                    <td>${st.major || "—"}</td>
+
+                    <td>${st.place_of_birth || "—"}</td>
+                    <td>${st.permanent_address || "—"}</td>
+
+                    <td>${st.education_type || "—"}</td>
+                    <td>${st.academic_year || "—"}</td>
+
+                    <td>${st.status || "—"}</td>
+                    <td>${st.trust_score ?? "—"}</td>
+
+                    <td>
+                        <button class="btn-edit" onclick='openEditModal(${JSON.stringify(st)})'>Sửa</button>
+                        <button class="btn-delete" onclick="deleteStudent('${st.studentid}')">Xóa</button>
+                    </td>
+                </tr>
                 `;
             });
         }
@@ -441,7 +575,7 @@
                 .select("major");
 
             if (error) {
-                console.error("Không load được danh sách ngành", error);
+                showPopup("Lỗi", "Không load được danh sách ngành!");
                 return;
             }
 
@@ -471,7 +605,7 @@
                 .eq("major", major);
 
             if (error) {
-                showPopup("error", "Lỗi", "Không thể lọc sinh viên");
+                showPopup("Lỗi", "Không thể lọc sinh viên!");
                 return;
             }
 
@@ -480,20 +614,32 @@
 
             data.forEach(st => {
                 table.innerHTML += `
-            <tr>
-                <td>${st.studentid}</td>
-                <td>${st.fullname}</td>
-                <td>${st.email}</td>
-                <td>${st.phonenumber || "—"}</td>
-                <td>${st.major || "—"}</td>
-                <td>${st.status || "—"}</td>
-                <td>${st.trust_score ?? "—"}</td>
-                <td>
-                    <button class="btn-edit" onclick='openEditModal(${JSON.stringify(st)})'>Sửa</button>
-                    <button class="btn-delete" onclick="deleteStudent('${st.studentid}')">Xóa</button>
-                </td>
-            </tr>
-        `;
+                <tr>
+                    <td>${st.studentid}</td>
+                    <td>${st.fullname}</td>
+                    <td>${st.email}</td>
+
+                    <td>${st.birth_date ? new Date(st.birth_date).toLocaleDateString("vi-VN") : "—"}</td>
+                    <td>${st.gender || "—"}</td>
+
+                    <td>${st.phonenumber || "—"}</td>
+                    <td>${st.major || "—"}</td>
+
+                    <td>${st.place_of_birth || "—"}</td>
+                    <td>${st.permanent_address || "—"}</td>
+
+                    <td>${st.education_type || "—"}</td>
+                    <td>${st.academic_year || "—"}</td>
+
+                    <td>${st.status || "—"}</td>
+                    <td>${st.trust_score ?? "—"}</td>
+
+                    <td>
+                        <button class="btn-edit" onclick='openEditModal(${JSON.stringify(st)})'>Sửa</button>
+                        <button class="btn-delete" onclick="deleteStudent('${st.studentid}')">Xóa</button>
+                    </td>
+                </tr>
+                `;
             });
         }
         loadMajorList();

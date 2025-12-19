@@ -146,36 +146,39 @@ async function checkTrustBeforeBooking() {
 =================================================================== */
 function initWeekDates() {
     const today = new Date();
-    const dow = today.getDay();          // 0 = CN, 1 = T2, ...
-    const diff = (dow === 0 ? -6 : 1 - dow); // lùi về thứ 2
+    const dow = today.getDay(); // 0 = CN, 1 = T2, ..., 6 = T7
 
-    const monday = new Date(today);
-    monday.setDate(today.getDate() + diff);
-    monday.setHours(0, 0, 0, 0);
+    // ⬅️ lùi về Chủ nhật đầu tuần
+    const sunday = new Date(today);
+    sunday.setDate(today.getDate() - dow);
+    sunday.setHours(0, 0, 0, 0);
 
     weekDates = [];
     for (let i = 0; i < 7; i++) {
-        const d = new Date(monday);
-        d.setDate(monday.getDate() + i);
+        const d = new Date(sunday);
+        d.setDate(sunday.getDate() + i);
         weekDates.push(d);
     }
 
     const select = document.getElementById("daySelect");
+    if (!select) return;
+
     select.innerHTML = "";
 
-    const names = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "CN"];
+    const names = ["CN", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
 
     weekDates.forEach((d, i) => {
         const opt = document.createElement("option");
         opt.value = i;
-        opt.textContent = `${names[i]} - ${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1).toString().padStart(2, "0")}`;
+        opt.textContent =
+            `${names[i]} - ${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1).toString().padStart(2, "0")}`;
         select.appendChild(opt);
     });
 
-    // chọn đúng hôm nay
-    const idx = Math.min(Math.max(dow - 1, 0), 6);
-    select.value = String(idx);
+    // chọn đúng ngày hôm nay
+    select.value = String(dow);
 }
+
 
 function initSlots() {
     slotDefs = [];
@@ -266,9 +269,10 @@ function renderCalendar() {
     const headerRow = document.createElement("tr");
 
     headerRow.innerHTML = `<th>Tiết</th>`;
-
-    const shortNames = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
-    weekDates.forEach((d, i) => {
+    const columnOrder = [0, 1, 2, 3, 4, 5, 6];
+    const shortNames = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+    columnOrder.forEach(i => {
+        const d = weekDates[i];
         const th = document.createElement("th");
         th.innerHTML = `${shortNames[i]}<br>${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1).toString().padStart(2, "0")}`;
         headerRow.appendChild(th);
@@ -287,7 +291,9 @@ function renderCalendar() {
         tdTime.innerText = slot.label;
         tr.appendChild(tdTime);
 
-        for (let col = 0; col < 7; col++) {
+        for (let idx = 0; idx < 7; idx++) {
+            const col = columnOrder[idx];
+
             const td = document.createElement("td");
             const div = document.createElement("div");
             div.className = "slot";
@@ -299,7 +305,16 @@ function renderCalendar() {
             const end = new Date(start);
             end.setMinutes(start.getMinutes() + 30);
 
-            // lưu theo local (VN), không có Z
+            // KHÔNG CHO ĐẶT T7 & CN
+            // const dayOfWeek = start.getDay(); // 0 = CN, 6 = T7
+            // if (dayOfWeek === 0 || dayOfWeek === 6) {
+            //     div.classList.add("past");        // xám
+            //     div.title = "Không cho phép đặt phòng vào Thứ 7 & Chủ nhật";
+            //     td.appendChild(div);
+            //     tr.appendChild(td);
+            //     continue; // bỏ qua xử lý booking khác
+            // }
+
             div.dataset.start = toLocalTimestampString(start);
             div.dataset.end = toLocalTimestampString(end);
 
@@ -313,7 +328,6 @@ function renderCalendar() {
             } else if (status === "booked") {
                 div.classList.add("booked");
             }
-            // free -> giữ nguyên .slot
 
             td.appendChild(div);
             tr.appendChild(td);
@@ -323,7 +337,6 @@ function renderCalendar() {
     });
 
     table.appendChild(tbody);
-
     enableSlotSelection();
 }
 

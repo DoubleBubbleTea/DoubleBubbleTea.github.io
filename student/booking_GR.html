@@ -61,12 +61,15 @@
             </div>
 
             <h3>Danh sách</h3>
+            <a href="../news.html">Bản tin</a>
             <a href="./information.html">Thông tin cá nhân</a>
-            <a href="#" onclick="checkTrustBeforeBooking()">Đặt phòng</a>
+            <a href="#" onclick="checkTrustBeforeBooking()" class="active">Đặt phòng</a>
             <a href="./booking_history.html">Lịch sử đặt phòng</a>
             <a href="./checkin_room.html">Check-in phòng</a>
             <a href="./checkin_seat.html">Check-in chỗ ngồi</a>
             <a href="./student_feedback.html">Phản hồi sinh viên</a>
+            <a href="./reward.html">Đổi phần thưởng</a>
+            <a href="./student_reward.html">Danh sách phần thưởng</a>
         </div>
 
         <!-- ==================== PAGE CONTENT ==================== -->
@@ -488,6 +491,29 @@
                 minutes += (itv.end - itv.start) / 60000;
             });
             const hours = minutes / 60;
+
+            // KHÔNG CHO ĐẶT TRONG NGÀY HÔM NAY
+            // const today = new Date();
+            // today.setHours(0, 0, 0, 0);
+
+            // for (const itv of mergedIntervals) {
+            //     const bookingDate = new Date(itv.start);
+            //     bookingDate.setHours(0, 0, 0, 0);
+
+            //     if (bookingDate.getTime() === today.getTime()) {
+            //         return showPopup(
+            //             "Lỗi",
+            //             "Bạn không thể đặt phòng trong ngày hôm nay. Vui lòng đặt trước ít nhất 1 ngày."
+            //         );
+            //     }
+            // }
+
+            if (hours > 2) {
+                return showPopup(
+                    "Lỗi",
+                    "Thời gian đặt phòng tối đa là 2 giờ. Vui lòng chọn lại khung giờ."
+                );
+            }
 
             const room = roomDataMap[selectedRoomId];
             const roomCost = (room.cost || 0) * hours;
