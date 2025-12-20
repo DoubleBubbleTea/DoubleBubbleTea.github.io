@@ -136,6 +136,7 @@
                     <a href="./load_seat.html">Danh sách chỗ ngồi</a>
                     <a href="./load_feedback.html">Danh sách phản hồi</a>
                     <a href="./load_violation.html">Danh sách vi phạm</a>
+                    <a href="./load_reward.html">Danh sách đổi thưởng</a>
                 </div>
             </div>
         </div>
@@ -209,6 +210,8 @@
                 const startTime = startStr !== "—" ? startStr.split(" ")[0] : "—";
                 const endTime = endStr !== "—" ? endStr.split(" ")[0] : "—";
 
+                const holdStr = formatDate(row.holdtime);
+                const holdTime = holdStr.split(" ")[0];
                 // Nút con mắt để xem chi tiết
                 const viewBtn = `<td><button class="btn-view" onclick="showMemberDetails('${row.bookingid}')"><i class="fa fa-eye"></i></button></td>`;
 
@@ -247,7 +250,7 @@
                 <td>${row.facilities || "—"}</td>
                 <td>${row.numbermember ?? "—"}</td>
                 <td>${row.purpose || "—"}</td>
-                <td>${formatDate(row.holdtime)}</td>
+                <td>${holdTime}</td>
                 <td><strong>${row.booking_status}</strong></td>
                 <td>${bookingDate}</td>
                 <td>${startTime}</td>

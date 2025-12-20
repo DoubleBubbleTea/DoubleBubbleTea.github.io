@@ -21,86 +21,6 @@
             margin-bottom: 25px;
             font-weight: bold;
         }
-
-        /* ===== TABLE ===== */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        th,
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
-        }
-
-        tr:hover {
-            background: #eef3ff;
-        }
-
-        .btn-add {
-            padding: 10px 18px;
-            background: #275167;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-bottom: 15px;
-        }
-
-        .btn-edit {
-            background: #003b73;
-            color: white;
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .btn-delete {
-            background: #dc2626;
-            color: white;
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        /* ===== MODAL ===== */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.55);
-            display: none;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-box {
-            background: white;
-            padding: 25px;
-            width: 380px;
-            border-radius: 6px;
-        }
-
-        .modal-input {
-            width: 100%;
-            padding: 8px;
-            margin: 6px 0;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-
-        .modal-buttons button {
-            padding: 8px 16px;
-            border: none;
-            margin-top: 10px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
     </style>
 </head>
 
@@ -167,6 +87,7 @@
                     <a href="./load_seat.html">Danh sách chỗ ngồi</a>
                     <a href="./load_feedback.html">Danh sách phản hồi</a>
                     <a href="./load_violation.html">Danh sách vi phạm</a>
+                    <a href="./load_reward.html">Danh sách đổi thưởng</a>
                 </div>
             </div>
         </div>
@@ -176,21 +97,21 @@
             <h2>Danh sách tiện ích</h2>
 
             <button class="btn-add" onclick="openAddModal()">+ Thêm tiện ích</button>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Loại tiện ích</th>
-                        <th>Chi phí (VND/giờ)</th>
-                        <th>Hành động</th>
-                    </tr>
-                </thead>
-                <tbody id="facility-table"></tbody>
-            </table>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Loại tiện ích</th>
+                            <th>Chi phí (VND/giờ)</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="facility-table"></tbody>
+                </table>
+            </div>
         </div>
     </div>
-
     <!-- MODAL -->
     <div id="modal" class="modal-overlay">
         <div class="modal-box">

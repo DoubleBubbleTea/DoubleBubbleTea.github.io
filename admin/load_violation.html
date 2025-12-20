@@ -122,7 +122,14 @@
 </head>
 
 <body>
-
+    <div id="popupModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modal-title">Completed</h3>
+            <p id="modal-message">Message here</p>
+            <button onclick="closeModalInfo()">OK</button>
+        </div>
+    </div>
+    
     <!-- LOGOUT MODAL -->
     <div id="logout-modal" class="modal-overlay">
         <div class="modal-box">
@@ -206,6 +213,7 @@
                     <a href="./load_seat.html">Danh sách chỗ ngồi</a>
                     <a href="./load_feedback.html">Danh sách phản hồi</a>
                     <a href="./load_violation.html" class="active">Danh sách vi phạm</a>
+                    <a href="./load_reward.html">Danh sách đổi thưởng</a>
                 </div>
             </div>
         </div>
@@ -215,7 +223,6 @@
             <h2>Danh sách vi phạm</h2>
 
             <button class="btn-add" onclick="openViolationModal()">+ Thêm vi phạm</button>
-
             <div class="table-scroll">
                 <table>
                     <thead>
@@ -386,4 +393,5 @@
         }, 1000);    
     </script>
 </body>
+
 </html>

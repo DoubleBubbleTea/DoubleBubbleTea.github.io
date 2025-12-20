@@ -258,6 +258,26 @@
 
         document.getElementById("roomSelect").onchange = loadBookings;
         document.getElementById("bookingSelect").onchange = updateMemberInfo;
+        
+        async function increaseTrustScore(studentId, point = 5) {
+            const { data, error } = await db
+                .from("student")
+                .select("trust_score")
+                .eq("studentid", studentId)
+                .single();
+
+            if (error || !data) {
+                console.error("Không lấy được trust_score", error);
+                return;
+            }
+
+            const newScore = (data.trust_score || 0) + point;
+
+            await db
+                .from("student")
+                .update({ trust_score: newScore })
+                .eq("studentid", studentId);
+        }
 
         function handleCheckin() {
             const bookingId = Number(document.getElementById("bookingSelect").value);
@@ -304,6 +324,12 @@
             count++;
             localStorage.setItem(key, count);
             updateMemberInfo();
+
+            // CỘNG ĐIỂM UY TÍN
+            const studentId = Number(localStorage.getItem("studentid"));
+            if (studentId) {
+                increaseTrustScore(studentId, 5);
+            }
 
             showPopup(
                 "Thành công",

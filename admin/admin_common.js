@@ -3,7 +3,11 @@ const db = supabase.createClient(
     "https://oxaimnemcnqudtdguoyk.supabase.co",
     "sb_publishable_6p-lVAZg_ATPz1a1cDjlOg_9vIcR42c"
 );
-
+function toLocalTimestampString(date) {
+    const pad = (n) => n.toString().padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+        `T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+}
 /* ====================== HEADER USER ======================= */
 async function loadAdminHeader() {
     const adminId = localStorage.getItem("adminid");
