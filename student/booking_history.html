@@ -46,7 +46,6 @@
             border-radius: 6px;
             border: 1px solid #d1d5db;
         }
-        
     </style>
 </head>
 
@@ -179,11 +178,44 @@
 
                 let newStatus = b.booking_status;
 
+                // CHECK VI PHẠM: KHÔNG CHECK-IN
+                const lateCheckinTime = new Date(start.getTime() + 15 * 60 * 1000);
+
+                if (
+                    b.booking_status === "Đang giữ chỗ" &&
+                    now > lateCheckinTime
+                ) {
+                    // 1️⃣ Cập nhật trạng thái booking → Hủy
+                    await db
+                        .from("booking")
+                        .update({ booking_status: "Hủy" })
+                        .eq("bookingid", b.bookingid);
+
+                    // 2️⃣ Lấy fullname sinh viên
+                    const { data: studentData } = await db
+                        .from("student")
+                        .select("fullname")
+                        .eq("studentid", b.studentid)
+                        .single();
+
+                    // 3️⃣ Ghi violation
+                    await db.from("violation").insert({
+                        studentid: b.studentid,
+                        fullname: studentData?.fullname || "—",
+                        description: "Không checkin",
+                        violationdate: new Date().toISOString().split("T")[0]
+                    });
+
+                    // update local state
+                    b.booking_status = "Hủy";
+                    continue;
+                }
+
+                // UPDATE STATUS BÌNH THƯỜNG
                 if (now < start) {
                     newStatus = "Đang giữ chỗ";
-                } else if (now >= start && now <= end) {
-                    newStatus = "Đang sử dụng";
-                } else if (now > end) {
+                }
+                else if (now > end) {
                     newStatus = "Đã sử dụng";
                 }
 
@@ -193,11 +225,11 @@
                         .update({ booking_status: newStatus })
                         .eq("bookingid", b.bookingid);
 
-                    // cập nhật local data để render đúng
                     b.booking_status = newStatus;
                 }
             }
         }
+
         /* ================= LOAD DATA ================= */
         async function loadBookingHistory() {
             const studentId = localStorage.getItem("studentid");

@@ -49,15 +49,21 @@ function toggleNotification() {
 }
 
 async function loadNotifications() {
+    const studentid = localStorage.getItem("studentid");
+
+    if (!studentid) return;
+
     const { data, error } = await db
         .from("notification")
-        .select("*")
+        .select("notification_id, message")
+        .eq("studentid", studentid)              // 👈 lọc theo sinh viên đang đăng nhập
         .order("notification_id", { ascending: false });
 
     const list = document.getElementById("notif-list");
     const count = document.getElementById("notif-count");
 
     if (error) {
+        console.error(error);
         list.innerHTML = "<div class='notif-item'>Lỗi tải thông báo</div>";
         count.style.display = "none";
         return;
@@ -69,16 +75,15 @@ async function loadNotifications() {
         return;
     }
 
-    // Hiển thị số lượng thông báo
+    // ✅ Hiển thị số lượng thông báo
     count.style.display = "block";
     count.innerText = data.length;
 
-    // Danh sách thông báo
+    // ✅ Render danh sách thông báo của SINH VIÊN HIỆN TẠI
     list.innerHTML = data
         .map(n => `<div class="notif-item">${n.message}</div>`)
         .join("");
 }
-
 
 /* ===== LOGOUT ===== */
 function openLogoutModal() {
@@ -114,30 +119,28 @@ async function checkTrustBeforeBooking() {
         return;
     }
 
-    // Lấy trust_score từ database
+    // 🔍 Lấy status của sinh viên
     const { data, error } = await db
         .from("student")
-        .select("trust_score")
+        .select("status")
         .eq("studentid", studentId)
         .single();
 
     if (error || !data) {
-        showPopup("Lỗi", "Không thể kiểm tra điểm uy tín!");
+        showPopup("Lỗi", "Không thể kiểm tra trạng thái tài khoản!");
         return;
     }
 
-    const trust = data.trust_score ?? 0;
-
-    // Kiểm tra điều kiện
-    if (trust < 60) {
+    // 🚫 Nếu bị vô hiệu hóa → chặn đặt phòng
+    if (data.status === "Vô hiệu hóa") {
         showPopup(
-            "Tài khoản bị hạn chế",
-            "Tài khoản bị khóa vì không đạt điểm uy tín, bạn không thể đặt phòng!"
+            "Tài khoản bị vô hiệu hóa",
+            "Bạn đã bị khóa quyền đặt phòng do vi phạm quy định check-in."
         );
         return;
     }
 
-    // Nếu đủ điểm uy tín → chuyển trang
+    // ✅ Hợp lệ → cho phép đặt phòng
     window.location.href = "./pre_booking.html";
 }
 
@@ -182,11 +185,11 @@ function initWeekDates() {
 
 function initSlots() {
     slotDefs = [];
-    for (let m = 7 * 60; m < 20 * 60; m += 30) { // 7h -> 20h, mỗi 30'
+    for (let m = 7 * 60; m < 20 * 60; m += 60) { // 7h -> 20h, mỗi 30'
         slotDefs.push({
             startMinutes: m,
-            endMinutes: m + 30,
-            label: `${formatTime(m)} - ${formatTime(m + 30)}`
+            endMinutes: m + 60,
+            label: `${formatTime(m)} - ${formatTime(m + 60)}`
         });
     }
 }
@@ -390,3 +393,53 @@ window.addEventListener("load", () => {
     // Tự động refresh mỗi 1 phút
     setInterval(checkUpcomingBooking, 60 * 1000);
 });
+
+async function insertNotification(studentId, message) {
+    if (!studentId || !message) {
+        showPopup(
+            "Lỗi",
+            "Thiếu thông tin sinh viên hoặc nội dung thông báo."
+        );
+        return;
+    }
+    console.log("insertNotification studentId: ", studentId);
+    console.log("insertNotification message: ", message);
+
+    // 1️⃣ Lấy fullname từ bảng student
+    const { data: student, error: studentError } = await db
+        .from("student")
+        .select("fullname")
+        .eq("studentid", studentId)
+        .single();
+
+    if (studentError || !student) {
+        showPopup(
+            "Lỗi",
+            "Không tìm thấy thông tin sinh viên."
+        );
+        return;
+    }
+
+    // 2️⃣ Insert notification
+    const { error } = await db
+        .from("notification")
+        .insert({
+            studentid: studentId,
+            fullname: student.fullname,
+            message: message
+        });
+
+    if (error) {
+        showPopup(
+            "Lỗi",
+            "Không thể gửi thông báo. Vui lòng thử lại."
+        );
+    }
+}
+
+function formatTimeRange(start, end) {
+    const s = new Date(start).toLocaleString("vi-VN");
+    const e = new Date(end).toLocaleString("vi-VN");
+    return `${s} - ${e}`;
+}
+

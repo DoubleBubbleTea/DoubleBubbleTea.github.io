@@ -129,7 +129,17 @@
             <button onclick="closeModalInfo()">OK</button>
         </div>
     </div>
-    
+    <!-- DELETE CONFIRM MODAL -->
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Xóa vi phạm?</h3>
+            <p style="margin-bottom: 15px;">Hành động này không thể hoàn tác.</p>
+
+            <button class="btn-confirm" onclick="confirmDeleteViolation()">Xóa</button>
+            <button class="btn-cancel" onclick="closeDeleteModal()">Hủy</button>
+        </div>
+    </div>
+
     <!-- LOGOUT MODAL -->
     <div id="logout-modal" class="modal-overlay">
         <div class="modal-box">
@@ -155,20 +165,8 @@
             <label>Mô tả vi phạm</label>
             <input id="v-desc" class="modal-input" placeholder="Nhập lỗi vi phạm">
 
-            <label>Mức độ vi phạm</label>
-            <select id="v-severity">
-                <option value="1">1 - Nhẹ</option>
-                <option value="2">2 - Trung bình</option>
-                <option value="3">3 - Nghiêm trọng</option>
-            </select>
-
             <label>Ngày vi phạm</label>
             <input type="date" id="v-date" class="modal-input">
-            <label>Trạng thái vi phạm</label>
-            <select id="v-status">
-                <option value="Chưa xử lý">Chưa xử lý</option>
-                <option value="Đã xử lý">Đã xử lý</option>
-            </select>
 
             <div class="modal-buttons">
                 <button class="btn-confirm" onclick="saveViolation()">Lưu</button>
@@ -179,12 +177,23 @@
 
     <!-- HEADER -->
     <div class="header">
-        <div>Dashboard</div>
+        <div class="header-title">ĐẶT PHÒNG</div>
         <div class="header-right">
+            <div class="icon notification-icon" onclick="toggleNotification()">
+                <img src="../img/notification_new.png" class="icon-img">
+                <div id="notif-count" class="notif-count" style="display:none;">0</div>
+            </div>
+
             <div class="icon logout-icon" onclick="openLogoutModal()">
                 <img src="../img/logout_new.png" class="icon-img">
             </div>
+
             <div id="header-user">Đang tải...</div>
+
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-title">Thông báo</div>
+                <div id="notif-list" class="notif-list">Không có thông báo!</div>
+            </div>
         </div>
     </div>
 
@@ -231,9 +240,8 @@
                             <th>MSSV</th>
                             <th>Họ tên</th>
                             <th>Mô tả</th>
-                            <th>Mức độ</th>
                             <th>Ngày vi phạm</th>
-                            <th>Trạng thái vi phạm</th>
+                            <th>Hành động</th>
                         </tr>
                     </thead>
                     <tbody id="violation-table"></tbody>
@@ -247,8 +255,49 @@
 
     <script>
         let studentMap = {};
+        let editingViolationId = null;
+        let deleteViolationId = null;
+        function openDeleteModal(id) {
+            deleteViolationId = id;
+            document.getElementById("delete-modal").style.display = "flex";
+        }
+
+        function closeDeleteModal() {
+            deleteViolationId = null;
+            document.getElementById("delete-modal").style.display = "none";
+        }
+        async function confirmDeleteViolation() {
+            if (!deleteViolationId) return;
+
+            const { error } = await db
+                .from("violation")
+                .delete()
+                .eq("violationid", deleteViolationId);
+
+            if (error) {
+                alert(error.message);
+                return;
+            }
+
+            closeDeleteModal();
+            loadViolations();
+        }
+
+        function openEditViolation(v) {
+            editingViolationId = v.violationid;
+
+            document.getElementById("v-studentid").value = v.studentid;
+            document.getElementById("v-fullname").value = v.fullname;
+            document.getElementById("v-desc").value = v.description;
+            document.getElementById("v-date").value = v.violationdate;
+
+            document.getElementById("violation-modal").style.display = "flex";
+        }
 
         function openViolationModal() {
+            editingViolationId = null;
+            document.getElementById("v-desc").value = "";
+            document.getElementById("v-date").value = "";
             document.getElementById("violation-modal").style.display = "flex";
         }
 
@@ -282,17 +331,29 @@
                 studentid: document.getElementById("v-studentid").value,
                 fullname: document.getElementById("v-fullname").value,
                 description: document.getElementById("v-desc").value,
-                severity: document.getElementById("v-severity").value,
                 violationdate: document.getElementById("v-date").value,
-                violationstatus: document.getElementById("v-status").value   // ✅ thêm
             };
 
-            const { error } = await db.from("violation").insert(row);
-            if (error) {
-                alert(error.message);
+            let result;
+            if (editingViolationId) {
+                // UPDATE
+                result = await db
+                    .from("violation")
+                    .update(row)
+                    .eq("violationid", editingViolationId);
+            } else {
+                // INSERT
+                result = await db
+                    .from("violation")
+                    .insert(row);
+            }
+
+            if (result.error) {
+                showPopup("Lỗi", result.error.message);
                 return;
             }
 
+            editingViolationId = null;
             closeViolationModal();
             loadViolations();
         }
@@ -308,16 +369,18 @@
 
             (data || []).forEach(v => {
                 table.innerHTML += `
-                <tr>
-                    <td>${v.violationid}</td>
-                    <td>${v.studentid}</td>
-                    <td>${v.fullname}</td>
-                    <td>${v.description}</td>
-                    <td class="severity-${v.severity}">${v.severity}</td>
-                    <td>${v.violationdate || "—"}</td>
-                    <td>${v.violationstatus || "Chưa xử lý"}</td>
-                </tr>
-            `;
+            <tr>
+                <td>${v.violationid}</td>
+                <td>${v.studentid}</td>
+                <td>${v.fullname}</td>
+                <td>${v.description}</td>
+                <td>${v.violationdate || "—"}</td>
+                <td>
+                    <button class="btn-edit" onclick='openEditViolation(${JSON.stringify(v)})'>Sửa</button>
+                    <button class="btn-delete" onclick="openDeleteModal(${v.violationid})">Xóa</button>
+                </td>
+            </tr>
+        `;
             });
         }
 
@@ -327,70 +390,60 @@
             document.getElementById("header-user").innerText =
                 data ? `Xin chào, ${data.fullname}` : "";
         }
-        async function autoUpdateTrustScoreForAllStudents() {
 
-            // 1. Lấy toàn bộ violation CHƯA XỬ LÝ
-            const { data: violations, error } = await db
+        async function checkAndDisableStudents() {
+            // 1️⃣ Lấy các student có >= 3 lỗi "Không checkin"
+            const { data, error } = await db
                 .from("violation")
-                .select("violationid, studentid, severity")
-                .eq("violationstatus", "Chưa xử lý");
+                .select("studentid, description");
 
-            if (error || !violations || violations.length === 0) {
-                console.log("Không có vi phạm chưa xử lý");
+            if (error || !data) {
+                console.error("Load violation error:", error?.message);
                 return;
             }
 
-            // 2. Gom violation theo studentid
-            const violationMap = {};
-            violations.forEach(v => {
-                if (!violationMap[v.studentid]) {
-                    violationMap[v.studentid] = {
-                        totalSeverity: 0,
-                        violationIds: []
-                    };
+            // 2️⃣ Đếm số lỗi "Không checkin" theo studentid
+            const counter = {};
+
+            data.forEach(v => {
+                if (v.description === "Không checkin") {
+                    counter[v.studentid] = (counter[v.studentid] || 0) + 1;
                 }
-                violationMap[v.studentid].totalSeverity += Number(v.severity);
-                violationMap[v.studentid].violationIds.push(v.violationid);
             });
 
-            // 3. Với mỗi studentid → trừ trust_score
-            for (const studentId in violationMap) {
-                const { totalSeverity, violationIds } = violationMap[studentId];
+            // 3️⃣ Duyệt các student vi phạm ≥ 3 lần
+            for (const studentid in counter) {
+                if (counter[studentid] >= 3) {
 
-                // Lấy trust_score hiện tại
-                const { data: student } = await db
-                    .from("student")
-                    .select("trust_score")
-                    .eq("studentid", studentId)
-                    .single();
+                    // 4️⃣ Kiểm tra status hiện tại
+                    const { data: student } = await db
+                        .from("student")
+                        .select("status")
+                        .eq("studentid", studentid)
+                        .single();
 
-                if (!student) continue;
+                    if (!student || student.status === "Vô hiệu hóa") continue;
 
-                const newTrust = Math.max(0, (student.trust_score || 0) - totalSeverity);
+                    // 5️⃣ Update status
+                    await db
+                        .from("student")
+                        .update({ status: "Vô hiệu hóa" })
+                        .eq("studentid", studentid);
 
-                // Update trust_score
-                await db
-                    .from("student")
-                    .update({ trust_score: newTrust })
-                    .eq("studentid", studentId);
-
-                // Đánh dấu violation đã xử lý
-                await db
-                    .from("violation")
-                    .update({ violationstatus: "Đã xử lý" })
-                    .in("violationid", violationIds);
+                    console.warn(`🚫 Student ${studentid} bị vô hiệu hóa do >= 3 lần không checkin`);
+                }
             }
-
-            console.log("Đã cập nhật trust_score cho tất cả sinh viên");
         }
 
         loadHeader();
         loadStudentsForDropdown();
         loadViolations();
         // Chạy lại mỗi 2 giây
+        // fallback mỗi 15 giây
         setInterval(() => {
-            autoUpdateTrustScoreForAllStudents();
-        }, 1000);    
+            checkAndDisableStudents();
+        }, 1000);
+
     </script>
 </body>
 

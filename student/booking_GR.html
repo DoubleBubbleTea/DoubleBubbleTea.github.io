@@ -489,9 +489,6 @@
             document.querySelectorAll(".facility").forEach(f => f.checked = false);
             document.querySelectorAll(".slot.selected").forEach(s => s.classList.remove("selected"));
 
-            // Cập nhật placeholder cho đúng logic 2-7
-            // document.getElementById("memberCount").placeholder = `Từ 2 đến 7 người`;
-
             // Lấy thông tin user hiện tại để chuẩn bị điền vào form
             const studentid = localStorage.getItem("studentid");
             if (studentid) {
@@ -622,6 +619,13 @@
             });
             const hours = minutes / 60;
 
+            // --- CHECK THỜI GIAN: TỐI ĐA 4 GIỜ ---
+            if (hours > 4) {
+                return showPopup(
+                    "Lỗi",
+                    "Thời gian đặt phòng tối đa là 4 giờ. Vui lòng chọn lại khung giờ."
+                );
+            }
             // KHÔNG CHO ĐẶT TRONG NGÀY HÔM NAY
             // const today = new Date();
             // today.setHours(0, 0, 0, 0);
@@ -637,14 +641,6 @@
             //         );
             //     }
             // }
-            // --- CHECK THỜI GIAN: TỐI ĐA 4 GIỜ ---
-            if (hours > 4) {
-                return showPopup(
-                    "Lỗi",
-                    "Thời gian đặt phòng tối đa là 4 giờ. Vui lòng chọn lại khung giờ."
-                );
-            }
-
             const room = roomDataMap[selectedRoomId];
             const roomCost = (room.cost || 0) * hours;
 
@@ -692,9 +688,7 @@
                 );
             }
 
-            // ============================================
             // CHECK THÔNG TIN THÀNH VIÊN (VALIDATION)
-            // ============================================
             const memberRows = document.querySelectorAll(".member-row");
             let memberList = [];
             let missingInfo = false;
@@ -816,7 +810,6 @@
                 return showPopup("Lỗi", "Lưu thanh toán thất bại!");
             }
 
-            // 3️⃣ INSERT MEMBER LIST (NEW STEP)
             // Chuẩn bị dữ liệu insert
             const memberRows = pendingPayment.memberList.map(mem => ({
                 bookingid: bookingid,
@@ -843,10 +836,23 @@
 
             showPopup("Thành công", "Đặt phòng và thanh toán thành công!");
 
+            const booking = bookingData[0];
+
+            const start = new Date(booking.starttime);
+            const end = new Date(booking.endtime);
+
+            const startTime = start.toLocaleTimeString("vi-VN", { hour12: false });
+            const endTime = end.toLocaleTimeString("vi-VN", { hour12: false });
+            const dateText = start.toLocaleDateString("vi-VN");
+
+            await insertNotification(
+                booking.studentid,
+                `Bạn đã đặt phòng ${booking.roomid} thành công từ ${startTime} - ${endTime} ngày ${dateText}`
+            );
+
             await loadBookingsForRoom();
             renderCalendar();
         }
-
 
         /* ===================================================================
             INIT PAGE

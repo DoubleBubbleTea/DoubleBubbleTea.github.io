@@ -12,10 +12,18 @@
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- <script defer src="https://app.fastbots.ai/embed.js" data-bot-id="cmj49xvd200slpa1pjdwephas"></script> -->
+  <script defer src="https://app.fastbots.ai/embed.js" data-bot-id="cmj49xvd200slpa1pjdwephas"></script>
 </head>
 
 <body>
+  <div id="popupModal" class="modal-overlay">
+    <div class="modal-box small-popup">
+      <h3 id="modal-title"></h3>
+      <p id="modal-message"></p>
+      <button class="btn-primary" onclick="closeModal()">OK</button>
+    </div>
+  </div>
+
   <!-- LOGOUT MODAL -->
   <div id="logout-modal" class="modal-overlay">
     <div class="modal-box">
@@ -77,32 +85,23 @@
         </select>
       </div>
 
-      <!-- ========== BOOKING MODAL ========== -->
-      <div id="seatBookingModal" class="modal-overlay">
+      <!-- ========== SLOT BOOKING MODAL ========== -->
+      <div id="slotBookingModal" class="modal-overlay">
         <div class="modal-box">
-          <h3>Xác nhận đặt chỗ</h3>
+          <h3>Chọn khung giờ sử dụng</h3>
 
-          <div id="seatBookingInfo" class="modal-info">—</div>
-
-          <div class="modal-note">
-            ⏱ Thời gian sử dụng: <strong>2 tiếng</strong><br><br>
-
-            ⌛ Thời gian giữ chỗ: <strong>5 phút</strong><br><br>
-
-            ⏰ Chỉ được đặt trong khung giờ: <strong>07:00 → 20:00</strong>
-
+          <div class="calendar-wrapper">
+            <table id="calendarTable" class="calendar"></table>
           </div>
 
-          <!-- <div id="timeWarn" class="warn-time">Hiện tại bạn đang ngoài khung giờ cho phép đặt phòng.</div> -->
           <div class="modal-actions">
-            <button class="btn-outline" onclick="closeSeatBookingModal()">Hủy</button>
-            <button id="confirmBtn" class="btn-primary" onclick="confirmSeatBooking()">Xác nhận</button>
+            <button class="btn-outline" onclick="closeSlotModal()">Hủy</button>
+            <button class="btn-primary" onclick="confirmSeatSlotBooking()">Xác nhận</button>
           </div>
         </div>
       </div>
 
       <div class="map-container">
-
         <!-- WALLS -->
         <div class="wall" style="left:330px;top:0;width:6px;height:220px"></div>
         <div class="wall" style="left:330px;top:320px;width:6px;height:600px"></div>
@@ -197,7 +196,42 @@
         let selectedRoomId, selectedSeatId, startTime, endTime, holdUntil;
         let CURRENT_ROOM = null;
 
+        function toggleSlot(el, select) {
+          if (select) el.classList.add("selected");
+          else el.classList.remove("selected");
+        }
+        function enableSlotSelection() {
+          const table = document.getElementById("calendarTable");
+          let mouseDown = false;
+          let mode = true;
 
+          table.onmousedown = e => {
+            if (
+              e.target.classList.contains("slot") &&
+              !e.target.classList.contains("booked") &&
+              !e.target.classList.contains("past")
+            ) {
+              mouseDown = true;
+              mode = !e.target.classList.contains("selected");
+              toggleSlot(e.target, mode);
+            }
+          };
+
+          table.onmouseover = e => {
+            if (
+              mouseDown &&
+              e.target.classList.contains("slot") &&
+              !e.target.classList.contains("booked") &&
+              !e.target.classList.contains("past")
+            ) {
+              toggleSlot(e.target, mode);
+            }
+          };
+
+          document.onmouseup = () => {
+            mouseDown = false;
+          };
+        }
         async function loadRoomDropdown() {
           const select = document.getElementById("roomSelect");
 
@@ -316,15 +350,123 @@
           });
         }
 
+        async function confirmSeatSlotBooking() {
+          const selected = [...document.querySelectorAll(".slot.selected")];
+          if (selected.length === 0) {
+            showPopup("Lỗi", "Vui lòng chọn giờ.");
+            return;
+          }
+
+          // gom slot liên tiếp
+          const intervals = selected.map(s => ({
+            start: new Date(s.dataset.start),
+            end: new Date(s.dataset.end)
+          })).sort((a, b) => a.start - b.start);
+
+          let merged = [];
+          let cur = intervals[0];
+
+          for (let i = 1; i < intervals.length; i++) {
+            if (intervals[i].start.getTime() === cur.end.getTime()) {
+              cur.end = intervals[i].end;
+            } else {
+              merged.push(cur);
+              cur = intervals[i];
+            }
+          }
+          merged.push(cur);
+
+          // ❌ không cho đặt trong ngày
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+
+          for (const itv of merged) {
+            const d = new Date(itv.start);
+            d.setHours(0, 0, 0, 0);
+            if (d.getTime() === today.getTime()) {
+              showPopup(
+                "Lỗi",
+                "Bạn không thể đặt chỗ trong ngày hôm nay. Vui lòng đặt trước ít nhất 1 ngày."
+              );
+              return;
+            }
+          }
+
+          const studentid = Number(localStorage.getItem("studentid"));
+
+          const rows = merged.map(itv => ({
+            studentid,
+            roomid: selectedRoomId,
+            seatid: selectedSeatId,
+            starttime: toLocalTimestampString(itv.start),
+            endtime: toLocalTimestampString(itv.end),
+            booking_status: "Đang giữ chỗ"
+          }));
+
+          await db.from("booking").insert(rows);
+
+          // ===== TẠO MESSAGE THÔNG BÁO (GỌN) =====
+          const first = merged[0];
+          const start = first.start;
+          const end = first.end;
+
+          const timeRange =
+            `${start.toLocaleTimeString("vi-VN", { hour12: false })} - ` +
+            `${end.toLocaleTimeString("vi-VN", { hour12: false })} ` +
+            `ngày ${start.toLocaleDateString("vi-VN")}`;
+
+          await insertNotification(
+            studentid,
+            `Bạn đã đặt chỗ ${selectedSeatId} phòng ${selectedRoomId} thành công từ ${timeRange}`
+          );
+
+          closeSlotModal();
+          loadSeats(selectedRoomId);
+          showPopup("Thành công", "Đặt chỗ thành công!");
+        }
+
+        async function loadSeatBookings() {
+          currentBookings = [];
+
+          const { data } = await db
+            .from("booking")
+            .select("starttime,endtime,booking_status")
+            .eq("seatid", selectedSeatId)
+            .neq("booking_status", "Hủy");
+
+          if (!data) return;
+
+          currentBookings = data.map(b => ({
+            start: new Date(b.starttime),
+            end: new Date(b.endtime),
+            status: b.booking_status
+          }));
+        }
+
+        async function openSlotModal() {
+          initWeekDates();     // giống booking_GR.html
+          initSlots();         // giống booking_GR.html
+          await loadSeatBookings(); // load booking ghế
+          renderCalendar();    // vẽ lịch
+
+          document.getElementById("slotBookingModal").style.display = "flex";
+        }
+
+        function closeSlotModal() {
+          document.getElementById("slotBookingModal").style.display = "none";
+        }
+
         function onSeatClick(seatNumber) {
           if (!CURRENT_ROOM) {
-            alert("Vui lòng chọn phòng trước");
+            showPopup("Lỗi", "Vui lòng chọn phòng trước.");
             return;
           }
 
           const seatNo = String(seatNumber).padStart(2, "0");
-          const seatId = `${CURRENT_ROOM}${seatNo}`;
-          openSeatBookingModal(CURRENT_ROOM, seatId);
+          selectedSeatId = `${CURRENT_ROOM}${seatNo}`;
+          selectedRoomId = CURRENT_ROOM;
+
+          openSlotModal();
         }
 
         document.getElementById("roomSelect").addEventListener("change", e => {

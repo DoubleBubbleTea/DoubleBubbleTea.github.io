@@ -164,7 +164,7 @@
             <div class="sidebar-group">
                 <a href="javascript:void(0)" class="sidebar-dropdown-toggle" onclick="toggleSidebarDropdown(this)">
                     Danh sách
-                    <i class="fa fa-caret-down"></i> 
+                    <i class="fa fa-caret-down"></i>
                 </a>
                 <div class="sidebar-dropdown">
                     <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
@@ -184,8 +184,9 @@
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>MSSV</th>
+                        <th>Họ tên</th>
                         <th>Nội dung</th>
-                        <th>Admin</th>
                         <th>Hành động</th>
                     </tr>
                 </thead>
@@ -198,6 +199,8 @@
     <div id="modal" class="modal-overlay">
         <div class="modal-box">
             <h3 id="modal-title">Thêm thông báo</h3>
+            <input id="notif-studentid" class="modal-input" placeholder="MSSV sinh viên">
+            <input id="notif-fullname" class="modal-input" placeholder="Họ tên sinh viên">
 
             <textarea id="notif-message" class="modal-input" placeholder="Nhập nội dung thông báo" rows="4"></textarea>
 
@@ -229,33 +232,55 @@
         function openAddModal() {
             editingId = null;
             document.getElementById("modal-title").innerText = "Thêm thông báo";
+
+            document.getElementById("notif-studentid").value = "";
+            document.getElementById("notif-fullname").value = "";
             document.getElementById("notif-message").value = "";
+
             document.getElementById("modal").style.display = "flex";
         }
 
         function openEditModal(item) {
             editingId = item.notification_id;
             document.getElementById("modal-title").innerText = "Sửa thông báo";
+
+            document.getElementById("notif-studentid").value = item.studentid;
+            document.getElementById("notif-fullname").value = item.fullname;
             document.getElementById("notif-message").value = item.message;
+
             document.getElementById("modal").style.display = "flex";
         }
+
 
         function closeModal() {
             document.getElementById("modal").style.display = "none";
         }
 
         async function saveNotification() {
-            const adminId = localStorage.getItem("adminid");
-            const msg = document.getElementById("notif-message").value;
+            const studentid = Number(document.getElementById("notif-studentid").value);
+            const fullname = document.getElementById("notif-fullname").value.trim();
+            const msg = document.getElementById("notif-message").value.trim();
 
-            if (!msg.trim()) return alert("Vui lòng nhập nội dung!");
+            if (!studentid || !fullname || !msg) {
+                alert("Vui lòng nhập đầy đủ MSSV, Họ tên và nội dung!");
+                return;
+            }
 
-            const newData = { message: msg, adminid: adminId };
+            const newData = {
+                studentid,
+                fullname,
+                message: msg
+            };
 
             if (editingId) {
-                await db.from("notification").update(newData).eq("notification_id", editingId);
+                await db
+                    .from("notification")
+                    .update(newData)
+                    .eq("notification_id", editingId);
             } else {
-                await db.from("notification").insert(newData);
+                await db
+                    .from("notification")
+                    .insert(newData);
             }
 
             closeModal();
@@ -289,26 +314,30 @@
         async function loadNotifications() {
             const { data } = await db
                 .from("notification")
-                .select("notification_id, message, adminid");
+                .select("notification_id, studentid, fullname, message")
+                .order("notification_id", { ascending: false });
 
             const table = document.getElementById("notif-table");
             table.innerHTML = "";
 
             data.forEach(n => {
                 table.innerHTML += `
-                    <tr>
-                        <td>${n.notification_id}</td>
-                        <td>${n.message}</td>
-                        <td>${n.adminid ?? "—"}</td>
-
-                        <td>
-                            <button class="btn-edit" onclick='openEditModal(${JSON.stringify(n)})'>Sửa</button>
-                            <button class="btn-delete" onclick="deleteNotification('${n.notification_id}')">Xóa</button>
-                        </td>
-                    </tr>
-                `;
+            <tr>
+                <td>${n.notification_id}</td>
+                <td>${n.studentid}</td>
+                <td>${n.fullname}</td>
+                <td>${n.message}</td>
+                <td>
+                    <button class="btn-edit"
+                        onclick='openEditModal(${JSON.stringify(n)})'>Sửa</button>
+                    <button class="btn-delete"
+                        onclick="deleteNotification(${n.notification_id})">Xóa</button>
+                </td>
+            </tr>
+        `;
             });
         }
+
 
         async function loadHeader() {
             const adminId = localStorage.getItem("adminid");
