@@ -6,38 +6,66 @@
     <title>USSH - Đặt Phòng Lớn (Group Room)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="./layout.css">
     <link rel="stylesheet" href="./booking_GR.css">
+
+    <style>
+        /* CSS THÊM CHO DANH SÁCH THÀNH VIÊN */
+        .member-list-container {
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            background: #f9f9f9;
+        }
+
+        .member-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .member-row input {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 13px;
+            width: 100%;
+        }
+
+        .member-index {
+            font-weight: bold;
+            font-size: 12px;
+            width: 20px;
+        }
+    </style>
 </head>
 
 <body>
-    <!-- ================= HEADER ================= -->
     <div class="header">
         <div class="header-title">Đặt phòng nhóm</div>
         <div class="header-right">
-            <!-- ICON NOTIFICATION -->
             <div class="icon notification-icon" onclick="toggleNotification()">
                 <img src="../img/notification_new.png" class="icon-img">
                 <div id="notif-count" class="notif-count" style="display:none;">0</div>
             </div>
 
-            <!-- ICON LOGOUT -->
             <div class="icon logout-icon" onclick="openLogoutModal()">
                 <img src="../img/logout_new.png" class="icon-img">
             </div>
 
             <div id="header-user">Đang tải...</div>
 
-            <!-- DROPDOWN NOTIFICATION -->
             <div id="notif-dropdown" class="notif-dropdown">
                 <div class="notif-title">Thông báo</div>
                 <div id="notif-list" class="notif-list">Không có thông báo!</div>
             </div>
         </div>
     </div>
-    <!-- ================= REMINDER BOX ================= -->
     <div id="bookingReminder" class="booking-reminder" style="display:none;">
         <div class="reminder-icon">⏰</div>
         <div class="reminder-content">
@@ -49,12 +77,9 @@
             </div>
         </div>
     </div>
-    <!-- ================= MAIN LAYOUT ================= -->
     <div class="main">
 
-        <!-- ============= SIDEBAR ============= -->
         <div class="sidebar">
-            <!-- AVATAR BOX -->
             <div class="avatar-box">
                 <img id="student-avatar" src="../img/logo.png" alt="avatar">
                 <div class="avatar-name" id="avatar-fullname">—</div>
@@ -72,16 +97,13 @@
             <a href="./student_reward.html">Danh sách phần thưởng</a>
         </div>
 
-        <!-- ==================== PAGE CONTENT ==================== -->
         <div class="content">
             <div class="page-container">
                 <div class="page-title">Danh sách phòng nhóm</div>
                 <div id="roomList"></div>
             </div>
-        </div> <!-- END CONTENT -->
-    </div> <!-- END MAIN -->
-
-    <!-- ==================== BOOKING MODAL ==================== -->
+        </div>
+    </div>
     <div id="bookingModal" class="modal-overlay">
         <div class="modal-box booking-box">
 
@@ -96,7 +118,6 @@
                 <table id="calendarTable" class="calendar"></table>
             </div>
 
-            <!-- FORM DƯỚI LỊCH -->
             <div class="extra-options">
                 <h3>Thông tin thêm</h3>
 
@@ -104,7 +125,6 @@
                     <div class="extra-column">
                         <label>Tiện ích:</label>
                         <div id="facilityContainer" class="facility-list">
-                            <!-- Checkbox tiện ích sẽ được load từ DB -->
                         </div>
                     </div>
 
@@ -112,8 +132,22 @@
                         <label>Mục đích sử dụng:</label>
                         <input type="text" id="purpose" placeholder="VD: Họp nhóm, thảo luận..." />
 
-                        <label>Số người tham gia:</label>
-                        <input type="number" id="memberCount" min="1" max="50" placeholder="Nhập số người" />
+                        <label for="memberCount">Số người tham gia:</label>
+                        <input type="number" id="memberCount" placeholder="Nhập số người"
+                            oninput="renderMemberInputs()" />
+                        <div id="limit-warning"
+                            style="display:none; color:red; font-size:13px; margin-top:5px; font-weight:bold;">
+                        </div>
+
+                        <div id="min-warning"
+                            style="display:none; color:red; font-size:13px; margin-top:5px; font-weight:bold;">
+                        </div>
+
+                        <div id="required-note"
+                            style="display: none; color: #555; font-size: 13px; margin-top: 5px; font-style: italic;">
+                            Bắt buộc phải nhập đầy đủ MSSV và Họ tên
+                        </div>
+                        <div id="memberListContainer" class="member-list-container" style="display:none;"></div>
                     </div>
                 </div>
 
@@ -129,7 +163,6 @@
         </div>
     </div>
 
-    <!-- ==================== PAYMENT MODAL ==================== -->
     <div id="paymentModal" class="modal-overlay">
         <div class="modal-box payment-box">
             <div class="payment-header">
@@ -165,7 +198,6 @@
         </div>
     </div>
 
-    <!-- ==================== CHECK-IN QR MODAL ==================== -->
     <div id="checkinQRModal" class="modal-overlay">
         <div class="modal-box small-popup">
             <h3>Check-in phòng</h3>
@@ -190,7 +222,6 @@
         </div>
     </div>
 
-    <!-- ==================== POPUP ==================== -->
     <div id="popupModal" class="modal-overlay">
         <div class="modal-box small-popup">
             <h3 id="modal-title"></h3>
@@ -199,7 +230,6 @@
         </div>
     </div>
 
-    <!-- LOGOUT MODAL -->
     <div id="logout-modal" class="modal-overlay">
         <div class="modal-box">
             <h3>Bạn muốn đăng xuất?</h3>
@@ -225,17 +255,22 @@
 
     <script>
         let currentRooms = [];
-        let roomDataMap = {};      // roomid -> room object
-        let facilityData = [];     // danh sách tiện ích từ DB
+        let roomDataMap = {};       // roomid -> room object
+        let facilityData = [];      // danh sách tiện ích từ DB
         let selectedRoomId = null;
 
         let weekDates = [];
         let slotDefs = [];
-        let currentBookings = [];  // {start, end, status}
+        let currentBookings = [];   // {start, end, status}
         let mergedIntervals = [];
         let selectedFacilities = [];
         let pendingPayment = null;
 
+        // Biến lưu trữ thông tin user hiện tại để điền tự động
+        let currentUserInfo = {
+            id: '',
+            name: ''
+        };
 
         function handlePaymentConfirm() {
             const method = document.querySelector(
@@ -321,7 +356,7 @@
 
                 ${isAvailable
                         ? `<p><strong>Mô tả:</strong> ${room.description || "—"}</p>
-                           <p><strong>Giá phòng:</strong> ${(room.cost || 0).toLocaleString()} đ/giờ</p>`
+                            <p><strong>Giá phòng:</strong> ${(room.cost || 0).toLocaleString()} đ/giờ</p>`
                         : `<p style="color:#ef4444; font-weight:600">
                              Phòng học hiện không mở cho việc đăng ký.<br> 
                              Vui lòng thử lại sau.
@@ -362,7 +397,7 @@
             if (error || !data) return;
 
             currentBookings = data
-                .filter(b => b.booking_status !== "Hủy")   // ← BỎ QUA BOOKING HỦY
+                .filter(b => b.booking_status !== "Hủy")    // ← BỎ QUA BOOKING HỦY
                 .map(b => ({
                     start: new Date(b.starttime),
                     end: new Date(b.endtime),
@@ -423,6 +458,18 @@
                 showPopup("Lỗi", "Không tìm thấy thông tin phòng.");
                 return;
             }
+            const memberInput = document.getElementById("memberCount");
+            // cập nhật min / max động
+            memberInput.min = 2;
+            memberInput.max = room.capacity;
+
+            // cập nhật placeholder
+            memberInput.placeholder = `Từ 2 đến ${room.capacity} người`;
+
+            const label = document.querySelector('label[for="memberCount"]');
+            if (label) {
+                label.innerText = `Số người tham gia (2-${room.capacity} người):`;
+            }
 
             document.getElementById("feeNote").innerHTML =
                 `Giá phòng: <strong>${(room.cost || 0).toLocaleString()}đ/giờ</strong><br>` +
@@ -431,10 +478,27 @@
             // reset form
             document.getElementById("purpose").value = "";
             document.getElementById("memberCount").value = "";
+            // Reset list thành viên
+            document.getElementById("memberListContainer").innerHTML = "";
+            document.getElementById("memberListContainer").style.display = "none";
+            // Ẩn các cảnh báo
+            document.getElementById("limit-warning").style.display = "none";
+            document.getElementById("min-warning").style.display = "none";
+            document.getElementById("required-note").style.display = "none";
+
             document.querySelectorAll(".facility").forEach(f => f.checked = false);
             document.querySelectorAll(".slot.selected").forEach(s => s.classList.remove("selected"));
-            document.getElementById("memberCount").placeholder =
-                `Tối đa ${room.capacity || 50} người`;
+
+            // Cập nhật placeholder cho đúng logic 2-7
+            // document.getElementById("memberCount").placeholder = `Từ 2 đến 7 người`;
+
+            // Lấy thông tin user hiện tại để chuẩn bị điền vào form
+            const studentid = localStorage.getItem("studentid");
+            if (studentid) {
+                const { data } = await db.from("student").select("fullname").eq("studentid", studentid).single();
+                currentUserInfo.id = studentid;
+                currentUserInfo.name = data ? data.fullname : "";
+            }
 
             initWeekDates();
             initSlots();
@@ -450,6 +514,72 @@
 
         function closePaymentModal() {
             document.getElementById("paymentModal").style.display = "none";
+        }
+
+        /* ===================================================================
+            RENDER MEMBER INPUTS (MODIFIED LOGIC)
+        =================================================================== */
+        function renderMemberInputs() {
+            const countInput = document.getElementById("memberCount");
+            const container = document.getElementById("memberListContainer");
+            const count = parseInt(countInput.value);
+
+            const limitWarning = document.getElementById("limit-warning");
+            const minWarning = document.getElementById("min-warning");
+            const noteText = document.getElementById("required-note");
+
+            container.style.display = "none";
+            container.innerHTML = "";
+            limitWarning.style.display = "none";
+            minWarning.style.display = "none";
+            noteText.style.display = "none";
+
+            if (isNaN(count)) return;
+
+            const room = roomDataMap[selectedRoomId];
+            const maxCap = room?.capacity || 7;
+
+            // > capacity
+            if (count > maxCap) {
+                limitWarning.innerText = `Số người tham gia không vượt quá ${maxCap}`;
+                limitWarning.style.display = "block";
+                return;
+            }
+
+            // < 2
+            if (count < 2) {
+                minWarning.innerText = `Số người tham gia phải từ 2-${maxCap} người`;
+                minWarning.style.display = "block";
+                return;
+            }
+
+            noteText.style.display = "block";
+            container.style.display = "block";
+
+            let html = '';
+            for (let i = 1; i <= count; i++) {
+                if (i === 1) {
+                    html += `
+            <div class="member-row">
+                <span class="member-index">#1</span>
+                <input type="text" class="mem-id"
+                       value="${currentUserInfo.id}" disabled>
+                <input type="text" class="mem-name"
+                       value="${currentUserInfo.name}" disabled>
+            </div>`;
+                } else {
+                    html += `
+            <div class="member-row">
+                <span class="member-index">#${i}</span>
+                <input type="text" class="mem-id"
+                       placeholder="MSSV thành viên ${i}">
+                <input type="text" class="mem-name"
+                       placeholder="Họ tên thành viên ${i}">
+            </div>`;
+                }
+            }
+
+            container.innerHTML = html;
         }
 
         /* ===================================================================
@@ -507,11 +637,11 @@
             //         );
             //     }
             // }
-
-            if (hours > 2) {
+            // --- CHECK THỜI GIAN: TỐI ĐA 4 GIỜ ---
+            if (hours > 4) {
                 return showPopup(
                     "Lỗi",
-                    "Thời gian đặt phòng tối đa là 2 giờ. Vui lòng chọn lại khung giờ."
+                    "Thời gian đặt phòng tối đa là 4 giờ. Vui lòng chọn lại khung giờ."
                 );
             }
 
@@ -534,11 +664,23 @@
             const memberCountInput = document.getElementById("memberCount").value;
             const memberCount = Number(memberCountInput);
 
-            // CHECK SỐ NGƯỜI
-            if (!memberCountInput || isNaN(memberCount) || memberCount <= 0) {
+            // --- CHECK SỐ NGƯỜI (VALIDATION CUỐI CÙNG) ---
+            if (!memberCountInput || isNaN(memberCount)) {
+                return showPopup("Lỗi", "Vui lòng nhập số người tham gia hợp lệ.");
+            }
+
+            // Check > 7
+            if (memberCount > room.capacity) {
                 return showPopup(
                     "Lỗi",
-                    "Vui lòng nhập số người tham gia hợp lệ."
+                    `Số người tham gia không vượt quá ${room.capacity} người.`
+                );
+            }
+
+            if (memberCount < 2) {
+                return showPopup(
+                    "Lỗi",
+                    `Số người tham gia phải từ 2-${room.capacity} người`
                 );
             }
 
@@ -549,6 +691,37 @@
                      Số lượng tối đa của phòng là ${room.capacity}.`
                 );
             }
+
+            // ============================================
+            // CHECK THÔNG TIN THÀNH VIÊN (VALIDATION)
+            // ============================================
+            const memberRows = document.querySelectorAll(".member-row");
+            let memberList = [];
+            let missingInfo = false;
+
+            // Nếu logic đúng, số lượng memberRow phải bằng memberCount
+            if (memberRows.length !== memberCount) {
+                return showPopup("Lỗi", "Số lượng thành viên không khớp với danh sách nhập hoặc bạn chưa nhập đúng điều kiện.");
+            }
+
+            memberRows.forEach(row => {
+                const idVal = row.querySelector(".mem-id").value.trim();
+                const nameVal = row.querySelector(".mem-name").value.trim();
+
+                if (!idVal || !nameVal) {
+                    missingInfo = true;
+                }
+                memberList.push({
+                    studentid: idVal,
+                    fullname: nameVal
+                });
+            });
+
+            if (missingInfo) {
+                return showPopup("Lỗi", "Vui lòng nhập đủ MSSV và Họ tên tất cả người tham gia");
+            }
+            // ============================================
+
             const facText = selectedFacilities.length
                 ? selectedFacilities.map(f => `${f.name}`).join(", ")
                 : "Không sử dụng";
@@ -559,18 +732,26 @@
                 <div class="payment-row"><span>Mục đích:</span> <strong>${purpose}</strong></div>
                 <div class="payment-row"><span>Số người:</span> <strong>${memberCount}</strong></div>
                 <div class="payment-row"><span>Tiện ích:</span> <strong>${facText}</strong></div>
+                
+                <div style="margin-top:10px; font-size:13px; font-style:italic; color:#555;">
+                    Danh sách thành viên (${memberCount} người): <br>
+                    ${memberList.map(m => `- ${m.studentid} - ${m.fullname}`).join("<br>")}
+                </div>
+
                 <hr>
                 <div class="payment-row"><span>Phí phòng:</span> <strong>${roomCost.toLocaleString()} đ</strong></div>
                 <div class="payment-row"><span>Phí tiện ích:</span> <strong>${facilityCost.toLocaleString()} đ</strong></div>
                 <div class="payment-total">Tổng cộng: <strong>${total.toLocaleString()} đ</strong></div>
             `;
+
             pendingPayment = {
                 studentid,
                 studentname: "",
                 totalCost: total,
                 paymentmethod: "Tiền mặt", // default
                 purpose: purpose,
-                numbermember: memberCount
+                numbermember: memberCount,
+                memberList: memberList // Lưu danh sách thành viên để insert sau
             };
 
             document.getElementById("paymentModal").style.display = "flex";
@@ -582,7 +763,7 @@
         async function finalizeBookingWithPayment() {
 
             const studentid = pendingPayment.studentid;
-            // 🔍 LẤY TÊN SINH VIÊN
+            // 🔍 LẤY TÊN SINH VIÊN (Người đặt)
             const { data: studentData, error: studentError } = await db
                 .from("student")
                 .select("fullname")
@@ -613,7 +794,8 @@
                 await db.from("booking").insert(rows).select();
 
             if (bookingError) {
-                return showPopup("Lỗi", "Đặt phòng thất bại!");
+                console.error(bookingError);
+                return showPopup("Lỗi", "Đặt phòng thất bại! " + bookingError.message);
             }
 
             const bookingid = bookingData[0].bookingid;
@@ -634,7 +816,24 @@
                 return showPopup("Lỗi", "Lưu thanh toán thất bại!");
             }
 
-            // 3️⃣ CLEANUP
+            // 3️⃣ INSERT MEMBER LIST (NEW STEP)
+            // Chuẩn bị dữ liệu insert
+            const memberRows = pendingPayment.memberList.map(mem => ({
+                bookingid: bookingid,
+                studentid: mem.studentid,
+                fullname: mem.fullname
+            }));
+
+            // Insert vào bảng 'booking_members'
+            const { error: memError } = await db.from("booking_members").insert(memberRows);
+
+            if (memError) {
+                // Nếu lỗi lưu thành viên, có thể cảnh báo nhưng booking chính đã thành công
+                console.error("Lỗi lưu thành viên:", memError);
+                alert("Lưu danh sách thành viên thất bại, nhưng phòng đã được đặt.");
+            }
+
+            // 4️⃣ CLEANUP
             mergedIntervals = [];
             selectedFacilities = [];
             pendingPayment = null;
@@ -658,7 +857,6 @@
             await loadFacilities();
         };
     </script>
-    <!-- JS load header -->
     <script src="./student_header.js"></script>
 </body>
 
