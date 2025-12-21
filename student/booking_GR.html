@@ -582,7 +582,7 @@
         /* ===================================================================
             CALCULATE PAYMENT
         =================================================================== */
-        function calculatePayment() {
+        async function calculatePayment() {
             const studentid = localStorage.getItem("studentid");
             if (!studentid) {
                 return showPopup("Lỗi", "Không tìm thấy mã số sinh viên! Có thể bạn chưa đăng nhập.");
@@ -611,7 +611,13 @@
                 }
             }
             mergedIntervals.push(cur);
+            // ❌ CHECK KHÔNG CHO ĐẶT 2 PHÒNG CÙNG GIỜ
+            const isDuplicated = await checkDuplicateBookingTime(
+                studentid,
+                mergedIntervals
+            );
 
+            if (isDuplicated) return;
             // tổng thời lượng
             let minutes = 0;
             mergedIntervals.forEach(itv => {
@@ -847,7 +853,8 @@
 
             await insertNotification(
                 booking.studentid,
-                `Bạn đã đặt phòng ${booking.roomid} thành công từ ${startTime} - ${endTime} ngày ${dateText}`
+                `Bạn đã đặt phòng ${booking.roomid} thành công từ ${startTime} - ${endTime} ngày ${dateText}`,
+                "Thông tin"
             );
 
             await loadBookingsForRoom();

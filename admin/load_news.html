@@ -7,8 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="./admin_common.css">
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <style>
         .content {
@@ -146,8 +145,7 @@
             <a href="./load_notification.html">Quản lý nhắc nhở</a>
             <a href="./load_news.html" class="active">Quản lý bản tin</a>
             <div class="sidebar-group">
-                <a href="javascript:void(0)" class="sidebar-dropdown-toggle"
-                    onclick="toggleSidebarDropdown(this)">
+                <a href="javascript:void(0)" class="sidebar-dropdown-toggle" onclick="toggleSidebarDropdown(this)">
                     Danh sách
                     <i class="fa fa-caret-down"></i>
                 </a>
@@ -167,20 +165,21 @@
             <h2>Danh sách bản tin</h2>
 
             <button class="btn-add" onclick="openAddModal()">+ Thêm bản tin</button>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Tiêu đề</th>
-                        <th>Section</th>
-                        <th>Ảnh</th>
-                        <th>Hiển thị</th>
-                        <th>Hành động</th>
-                    </tr>
-                </thead>
-                <tbody id="news-table"></tbody>
-            </table>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tiêu đề</th>
+                            <th>Section</th>
+                            <th>Ảnh</th>
+                            <th>Hiển thị</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="news-table"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -190,11 +189,9 @@
             <h3 id="modal-title">Thêm bản tin</h3>
 
             <input id="news-title" class="modal-input" placeholder="Tiêu đề">
-            <textarea id="news-summary" class="modal-input" rows="3"
-                placeholder="Mô tả ngắn"></textarea>
+            <textarea id="news-summary" class="modal-input" rows="3" placeholder="Mô tả ngắn"></textarea>
             <input id="news-image" class="modal-input" placeholder="Tên ảnh (vd: hinh1.png)">
-            <input id="news-section" type="number" class="modal-input"
-                placeholder="Section (1,2,3,...)">
+            <input id="news-section" type="number" class="modal-input" placeholder="Section (1,2,3,...)">
 
             <select id="news-active" class="modal-input">
                 <option value="Có">Hiển thị</option>

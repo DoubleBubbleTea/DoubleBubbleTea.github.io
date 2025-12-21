@@ -271,13 +271,13 @@
             if (!data) return showPopup("Lỗi", "Không tìm thấy booking.");
 
             const now = new Date();
-            const end = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+            // const end = new Date(now.getTime() + 2 * 60 * 60 * 1000);
 
             await db.from("booking")
                 .update({
                     booking_status: "Đang sử dụng",
-                    starttime: toLocalTimestampString(now),
-                    endtime: toLocalTimestampString(end)
+                    starttime: toLocalTimestampString(now)
+                    // endtime: toLocalTimestampString(end)
                 })
                 .eq("bookingid", data.bookingid);
 

@@ -89,23 +89,23 @@ body {
 
 /* ---------------- Notification Dropdown ---------------- */
 .notif-dropdown {
-    position: absolute;
-    top: 48px;
-    right: 0;
-    width: 270px;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     display: none;
+    position: absolute;
+    right: 0;
+    top: 42px;
+    width: 360px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+    z-index: 50;
     overflow: hidden;
-    z-index: 9999;
 }
 
 .notif-title {
-    padding: 12px 14px;
-    font-size: 15px;
-    font-weight: bold;
     background: #f3f4f6;
+    padding: 12px 16px;
+    font-weight: 700;
+    font-size: 15px;
     border-bottom: 1px solid #e5e7eb;
 }
 
@@ -114,22 +114,68 @@ body {
     overflow-y: auto;
 }
 
+/* ===== ITEM ===== */
 .notif-item {
-    padding: 12px 14px;
-    font-size: 14px;
-    color: #374151;
-    border-bottom: 1px solid #e5e7eb;
-    background: white;
+    display: flex;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.notif-item:hover {
+    background: #f8fafc;
 }
 
 .notif-item:last-child {
     border-bottom: none;
 }
+/* ===== MINI ICON ===== */
+.notif-mini-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    flex-shrink: 0;
 
-.notif-item:hover {
-    background: #f9fafb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
 }
 
+/* icon theo trạng thái */
+.notif-mini-icon.success { background: #22c55e; }
+.notif-mini-icon.info { background: #3b82f6; }
+.notif-mini-icon.warning { background: #ef4444; }
+
+/* ===== CONTENT ===== */
+.notif-content {
+    flex: 1;
+}
+
+.notif-item-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.35;
+}
+
+.notif-item-time {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+.notif-item-link {
+    font-size: 13px;
+    color: #2563eb;
+    margin-top: 4px;
+}
 /* =========================================================
    MAIN LAYOUT
 ========================================================= */

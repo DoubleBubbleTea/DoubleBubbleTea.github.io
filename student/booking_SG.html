@@ -268,7 +268,6 @@
         document.getElementById("roomSelect").addEventListener("change", e => {
           if (!e.target.value) return;
           CURRENT_ROOM = e.target.value;
-          reloadSeatMap();
         });
 
         function pad(n) { return String(n).padStart(2, "0"); }
@@ -280,43 +279,6 @@
         function isWithinBookingHours(d) {
           const m = d.getHours() * 60 + d.getMinutes();
           return m >= 420 && m <= 1200;
-        }
-
-        function openSeatBookingModal(room, seat) {
-          selectedRoomId = room; selectedSeatId = seat;
-          const now = new Date();
-          startTime = now;
-          endTime = new Date(now.getTime() + 2 * 3600000);
-          holdUntil = new Date(now.getTime() + 5 * 60000);
-
-          document.getElementById("seatBookingInfo").innerHTML = `
-            Ghế <b>${seat}</b><br>
-            ${pad(now.getHours())}:${pad(now.getMinutes())}
-            → ${pad(endTime.getHours())}:${pad(endTime.getMinutes())}
-          `;
-          // document.getElementById("confirmBtn").disabled = !isWithinBookingHours(now);
-          // document.getElementById("timeWarn").style.display = isWithinBookingHours(now) ? "none" : "block";
-          document.getElementById("seatBookingModal").style.display = "flex";
-        }
-
-        function closeSeatBookingModal() {
-          document.getElementById("seatBookingModal").style.display = "none";
-        }
-
-        async function confirmSeatBooking() {
-
-          await db.from("booking").insert({
-            studentid: Number(localStorage.getItem("studentid")),
-            roomid: selectedRoomId,
-            seatid: selectedSeatId,
-            booking_status: "Đang giữ chỗ",
-            starttime: toLocalTimestampString(startTime),
-            endtime: toLocalTimestampString(endTime),
-            holdtime: toLocalTimestampString(holdUntil)
-          });
-
-          closeSeatBookingModal();
-          loadSeats();
         }
 
         async function loadSeats(room) {
@@ -377,31 +339,39 @@
           merged.push(cur);
 
           // ❌ không cho đặt trong ngày
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
+          // const today = new Date();
+          // today.setHours(0, 0, 0, 0);
 
-          for (const itv of merged) {
-            const d = new Date(itv.start);
-            d.setHours(0, 0, 0, 0);
-            if (d.getTime() === today.getTime()) {
-              showPopup(
-                "Lỗi",
-                "Bạn không thể đặt chỗ trong ngày hôm nay. Vui lòng đặt trước ít nhất 1 ngày."
-              );
-              return;
-            }
-          }
+          // for (const itv of merged) {
+          //   const d = new Date(itv.start);
+          //   d.setHours(0, 0, 0, 0);
+          //   if (d.getTime() === today.getTime()) {
+          //     showPopup(
+          //       "Lỗi",
+          //       "Bạn không thể đặt chỗ trong ngày hôm nay. Vui lòng đặt trước ít nhất 1 ngày."
+          //     );
+          //     return;
+          //   }
+          // }
 
           const studentid = Number(localStorage.getItem("studentid"));
+          // ❌ CHECK TRÙNG KHUNG GIỜ
+          const isDuplicated = await checkDuplicateBookingTime(studentid, merged);
+          if (isDuplicated) return;
+          
+          const rows = merged.map(itv => {
+            const hold = new Date(itv.start.getTime() + 15 * 60 * 1000); // +15 phút
 
-          const rows = merged.map(itv => ({
-            studentid,
-            roomid: selectedRoomId,
-            seatid: selectedSeatId,
-            starttime: toLocalTimestampString(itv.start),
-            endtime: toLocalTimestampString(itv.end),
-            booking_status: "Đang giữ chỗ"
-          }));
+            return {
+              studentid,
+              roomid: selectedRoomId,
+              seatid: selectedSeatId,
+              starttime: toLocalTimestampString(itv.start),
+              endtime: toLocalTimestampString(itv.end),
+              holdtime: toLocalTimestampString(hold),
+              booking_status: "Đang giữ chỗ"
+            };
+          });
 
           await db.from("booking").insert(rows);
 
@@ -417,7 +387,8 @@
 
           await insertNotification(
             studentid,
-            `Bạn đã đặt chỗ ${selectedSeatId} phòng ${selectedRoomId} thành công từ ${timeRange}`
+            `Bạn đã đặt chỗ ${selectedSeatId} phòng ${selectedRoomId} thành công từ ${timeRange}`,
+            "Thông tin"
           );
 
           closeSlotModal();
@@ -444,9 +415,9 @@
         }
 
         async function openSlotModal() {
-          initWeekDates();     // giống booking_GR.html
-          initSlots();         // giống booking_GR.html
-          await loadSeatBookings(); // load booking ghế
+          initWeekDates();
+          initSlots();
+          await loadSeatBookings();
           renderCalendar();    // vẽ lịch
 
           document.getElementById("slotBookingModal").style.display = "flex";

@@ -44,9 +44,9 @@
             transition: 0.3s;
         }
 
-            .btn-view:hover {
-                background: #2980b9;
-            }
+        .btn-view:hover {
+            background: #2980b9;
+        }
 
         .modal {
             display: none;
@@ -166,18 +166,21 @@
                 <h3>Thông tin sinh viên đi cùng</h3>
                 <span class="close" onclick="closeModal()">&times;</span>
             </div>
-            <table style="margin-top: 15px;">
-                <thead>
-                    <tr>
-                        <th>MSSV</th>
-                        <th>Họ tên</th>
-                        <th>Check-in</th>
-                        <th>Check-out</th>
-                    </tr>
-                </thead>
-                <tbody id="memberListBody">
-                </tbody>
-            </table>
+            <div class="table-scroll">
+
+                <table style="margin-top: 15px;">
+                    <thead>
+                        <tr>
+                            <th>MSSV</th>
+                            <th>Họ tên</th>
+                            <th>Check-in</th>
+                            <th>Check-out</th>
+                        </tr>
+                    </thead>
+                    <tbody id="memberListBody">
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -337,4 +340,5 @@
         loadHistory();
     </script>
 </body>
+
 </html>

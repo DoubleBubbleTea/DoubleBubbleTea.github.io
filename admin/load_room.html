@@ -28,7 +28,8 @@
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
         }
 
-        th, td {
+        th,
+        td {
             padding: 12px;
             border-bottom: 1px solid #ddd;
             text-align: left;
@@ -70,7 +71,7 @@
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.55);
+            background: rgba(0, 0, 0, 0.55);
             display: none;
             justify-content: center;
             align-items: center;
@@ -175,9 +176,10 @@
             <a href="./load_notification.html">Quản lý nhắc nhở</a>
             <a href="./load_news.html">Quản lý bản tin</a>
             <div class="sidebar-group">
-                <a href="javascript:void(0)" class="active" class="sidebar-dropdown-toggle" onclick="toggleSidebarDropdown(this)">
+                <a href="javascript:void(0)" class="active" class="sidebar-dropdown-toggle"
+                    onclick="toggleSidebarDropdown(this)">
                     Danh sách
-                    <i class="fa fa-caret-down"></i> 
+                    <i class="fa fa-caret-down"></i>
                 </a>
                 <div class="sidebar-dropdown">
                     <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
@@ -195,22 +197,23 @@
             <h2>Danh sách phòng</h2>
 
             <button class="btn-add" onclick="openAddModal()">+ Thêm phòng</button>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Mã phòng</th>
-                        <th>Loại phòng</th>
-                        <th>Vị trí</th>
-                        <th>Sức chứa</th>
-                        <th>Giá (đ/giờ)</th>
-                        <th>Trạng thái</th>
-                        <th>Mô tả</th>
-                        <th>Hành động</th>
-                    </tr>
-                </thead>
-                <tbody id="room-table"></tbody>
-            </table>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã phòng</th>
+                            <th>Loại phòng</th>
+                            <th>Vị trí</th>
+                            <th>Sức chứa</th>
+                            <th>Giá (đ/giờ)</th>
+                            <th>Trạng thái</th>
+                            <th>Mô tả</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="room-table"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -270,7 +273,7 @@
         }
 
         function clearForm() {
-            ["room-id","room-type","room-location","room-capacity","room-cost","room-status","room-desc"]
+            ["room-id", "room-type", "room-location", "room-capacity", "room-cost", "room-status", "room-desc"]
                 .forEach(id => document.getElementById(id).value = "");
         }
 
@@ -357,4 +360,5 @@
     </script>
 
 </body>
+
 </html>

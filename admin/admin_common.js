@@ -31,39 +31,66 @@ function toggleNotification() {
 async function loadAdminNotifications() {
     const { data, error } = await db
         .from("notification")
-        .select("*")
+        .select("notification_id, message, type, notidate")
         .order("notification_id", { ascending: false });
 
     const list = document.getElementById("notif-list");
     const count = document.getElementById("notif-count");
 
-    // Lỗi truy vấn
+    // ❌ Lỗi truy vấn
     if (error) {
-        list.innerHTML = "<div class='notif-item'>Lỗi tải thông báo!</div>";
+        console.error(error);
+        list.innerHTML = `
+            <div class="notif-item">
+                <div class="notif-mini-icon warning">!</div>
+                <div class="notif-content">
+                    <div class="notif-item-title">Lỗi tải thông báo</div>
+                </div>
+            </div>`;
         count.style.display = "none";
         return;
     }
 
-    // Không có thông báo
+    // ℹ️ Không có thông báo
     if (!data || data.length === 0) {
-        list.innerHTML = "<div class='notif-item'>Không có thông báo</div>";
+        list.innerHTML = `
+            <div class="notif-item">
+                <div class="notif-mini-icon info">i</div>
+                <div class="notif-content">
+                    <div class="notif-item-title">Không có thông báo</div>
+                </div>
+            </div>`;
         count.style.display = "none";
         return;
     }
 
-    // Có thông báo → hiện badge số lượng
+    // ✅ Có thông báo → hiện badge
     count.style.display = "block";
     count.innerText = data.length;
 
-    // Hiển thị danh sách thông báo theo format giống student
-    list.innerHTML = data
-        .map(n =>
-            `<div class="notif-item">${n.message}</div>`
-        )
-        .join("");
+    // ✅ Render danh sách theo format mới
+    list.innerHTML = data.map(n => {
+        const isWarning = n.type === "Cảnh báo";
+        const iconClass = isWarning ? "warning" : "success";
+        const iconText = isWarning ? "!" : "✓";
+
+        const dateText = n.notidate
+            ? new Date(n.notidate).toLocaleDateString("vi-VN")
+            : "";
+
+        return `
+            <div class="notif-item">
+                <div class="notif-mini-icon ${iconClass}">
+                    ${iconText}
+                </div>
+                <div class="notif-content">
+                    <div class="notif-item-title">${n.message}</div>
+                    <div class="notif-item-time">${dateText}</div>
+                </div>
+            </div>
+        `;
+    }).join("");
 }
-
-
 /* ====================== LOGOUT CONTROL ======================= */
 function openLogoutModal() {
     document.getElementById("logout-modal").style.display = "flex";
@@ -99,4 +126,52 @@ function showPopup(title, message) {
 
 function closeModalInfo() {
     document.getElementById("popupModal").style.display = "none";
+}
+
+async function insertNotification(studentId, message, type = "Thông tin") {
+    if (!studentId || !message) {
+        showPopup(
+            "Lỗi",
+            "Thiếu thông tin sinh viên hoặc nội dung thông báo."
+        );
+        return;
+    }
+
+    // validate type
+    if (!["Thông tin", "Cảnh báo"].includes(type)) {
+        type = "Thông tin";
+    }
+
+    // 1️⃣ Lấy fullname từ bảng student
+    const { data: student, error: studentError } = await db
+        .from("student")
+        .select("fullname")
+        .eq("studentid", studentId)
+        .single();
+
+    if (studentError || !student) {
+        showPopup(
+            "Lỗi",
+            "Không tìm thấy thông tin sinh viên."
+        );
+        return;
+    }
+
+    // 2️⃣ Insert notification (có type)
+    const { error } = await db
+        .from("notification")
+        .insert({
+            studentid: studentId,
+            fullname: student.fullname,
+            message: message,
+            type: type
+            // notidate sẽ tự CURRENT_DATE
+        });
+
+    if (error) {
+        showPopup(
+            "Lỗi",
+            "Không thể gửi thông báo. Vui lòng thử lại."
+        );
+    }
 }

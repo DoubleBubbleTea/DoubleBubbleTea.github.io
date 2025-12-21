@@ -429,8 +429,12 @@
                         .from("student")
                         .update({ status: "Vô hiệu hóa" })
                         .eq("studentid", studentid);
-
-                    console.warn(`🚫 Student ${studentid} bị vô hiệu hóa do >= 3 lần không checkin`);
+                    
+                    await insertNotification(
+                        studentid,
+                        `Tài khoản của bạn đã bị vô hiệu hóa do không checkin hơn 2 lần `,
+                        "Cảnh báo"
+                    );
                 }
             }
         }

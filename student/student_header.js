@@ -50,13 +50,12 @@ function toggleNotification() {
 
 async function loadNotifications() {
     const studentid = localStorage.getItem("studentid");
-
     if (!studentid) return;
 
     const { data, error } = await db
         .from("notification")
-        .select("notification_id, message")
-        .eq("studentid", studentid)              // 👈 lọc theo sinh viên đang đăng nhập
+        .select("notification_id, message, type, notidate")
+        .eq("studentid", studentid)
         .order("notification_id", { ascending: false });
 
     const list = document.getElementById("notif-list");
@@ -64,13 +63,25 @@ async function loadNotifications() {
 
     if (error) {
         console.error(error);
-        list.innerHTML = "<div class='notif-item'>Lỗi tải thông báo</div>";
+        list.innerHTML = `
+            <div class="notif-item">
+                <div class="notif-mini-icon warning">!</div>
+                <div class="notif-content">
+                    <div class="notif-item-title">Lỗi tải thông báo</div>
+                </div>
+            </div>`;
         count.style.display = "none";
         return;
     }
 
     if (!data || data.length === 0) {
-        list.innerHTML = "<div class='notif-item'>Không có thông báo</div>";
+        list.innerHTML = `
+            <div class="notif-item">
+                <div class="notif-mini-icon info">i</div>
+                <div class="notif-content">
+                    <div class="notif-item-title">Không có thông báo</div>
+                </div>
+            </div>`;
         count.style.display = "none";
         return;
     }
@@ -79,10 +90,29 @@ async function loadNotifications() {
     count.style.display = "block";
     count.innerText = data.length;
 
-    // ✅ Render danh sách thông báo của SINH VIÊN HIỆN TẠI
-    list.innerHTML = data
-        .map(n => `<div class="notif-item">${n.message}</div>`)
-        .join("");
+    // ✅ Render notification + icon + ngày
+    list.innerHTML = data.map(n => {
+        const isWarning = n.type === "Cảnh báo";
+        const iconClass = isWarning ? "warning" : "success";
+        const iconText = isWarning ? "!" : "✓";
+
+        // format ngày kiểu VN
+        const dateText = n.notidate
+            ? new Date(n.notidate).toLocaleDateString("vi-VN")
+            : "";
+
+        return `
+            <div class="notif-item">
+                <div class="notif-mini-icon ${iconClass}">
+                    ${iconText}
+                </div>
+                <div class="notif-content">
+                    <div class="notif-item-title">${n.message}</div>
+                    <div class="notif-item-time">${dateText}</div>
+                </div>
+            </div>
+        `;
+    }).join("");
 }
 
 /* ===== LOGOUT ===== */
@@ -210,6 +240,9 @@ function formatTime(min) {
 =================================================================== */
 function getSlotStatus(slotStart, slotEnd) {
     const now = new Date();
+    console.log("getSlotStatus slotStart: ", slotStart);
+    console.log("getSlotStatus now: ", now);
+    console.log("getSlotStatus slotEnd: ", slotEnd);
 
     if (slotEnd <= now) {
         return "past";
@@ -306,7 +339,7 @@ function renderCalendar() {
             start.setMinutes(slot.startMinutes);
 
             const end = new Date(start);
-            end.setMinutes(start.getMinutes() + 30);
+            end.setMinutes(start.getMinutes() + 60);
 
             // KHÔNG CHO ĐẶT T7 & CN
             // const dayOfWeek = start.getDay(); // 0 = CN, 6 = T7
@@ -394,7 +427,7 @@ window.addEventListener("load", () => {
     setInterval(checkUpcomingBooking, 60 * 1000);
 });
 
-async function insertNotification(studentId, message) {
+async function insertNotification(studentId, message, type = "Thông tin") {
     if (!studentId || !message) {
         showPopup(
             "Lỗi",
@@ -402,8 +435,11 @@ async function insertNotification(studentId, message) {
         );
         return;
     }
-    console.log("insertNotification studentId: ", studentId);
-    console.log("insertNotification message: ", message);
+
+    // validate type
+    if (!["Thông tin", "Cảnh báo"].includes(type)) {
+        type = "Thông tin";
+    }
 
     // 1️⃣ Lấy fullname từ bảng student
     const { data: student, error: studentError } = await db
@@ -420,13 +456,15 @@ async function insertNotification(studentId, message) {
         return;
     }
 
-    // 2️⃣ Insert notification
+    // 2️⃣ Insert notification (có type)
     const { error } = await db
         .from("notification")
         .insert({
             studentid: studentId,
             fullname: student.fullname,
-            message: message
+            message: message,
+            type: type
+            // notidate sẽ tự CURRENT_DATE
         });
 
     if (error) {
@@ -443,3 +481,46 @@ function formatTimeRange(start, end) {
     return `${s} - ${e}`;
 }
 
+/**
+ * ❌ Không cho SV đặt 2 chỗ/phòng cùng 1 khung giờ
+ * @param {number} studentid
+ * @param {Array<{start: Date, end: Date}>} intervals
+ * @returns {boolean} true = bị trùng | false = hợp lệ
+ */
+async function checkDuplicateBookingTime(studentid, intervals) {
+    if (!studentid || !intervals || intervals.length === 0) return false;
+
+    // Lấy tất cả booking của SV (chưa bị hủy)
+    const { data, error } = await db
+        .from("booking")
+        .select("starttime")
+        .eq("studentid", studentid)
+        .neq("booking_status", "Hủy");
+
+    if (error) {
+        console.error("Check duplicate booking error:", error.message);
+        return false; // fail-safe: không chặn
+    }
+
+    // Convert starttime hiện tại sang string để so sánh
+    const newStartTimes = intervals.map(itv =>
+        toLocalTimestampString(itv.start)
+    );
+
+    // Check trùng starttime
+    const duplicated = data.some(b =>
+        newStartTimes.includes(
+            toLocalTimestampString(new Date(b.starttime))
+        )
+    );
+
+    if (duplicated) {
+        showPopup(
+            "Không thể đặt",
+            "Bạn đã đặt khung giờ này rồi. Bạn không thể đặt 2 phòng/chỗ cùng 1 khung giờ."
+        );
+        return true;
+    }
+
+    return false;
+}
