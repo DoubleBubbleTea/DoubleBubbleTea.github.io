@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./admin_common.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./admin_common.js"></script>
+
+<div id="logout-modal" class="modal-overlay">
+    <div class="modal-box">
+        <h3>Bạn muốn đăng xuất?</h3>
+        <div style="margin-top: 15px;">
+            <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+            <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+        </div>
+    </div>
+</div>
+
+<body>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-title">Dashboard</div>
+
+        <div class="header-right">
+
+            <!-- NOTIFICATION ICON -->
+            <div class="icon notification-icon" onclick="toggleNotification()">
+                <img src="../img/notification_new.png" class="icon-img">
+                <div id="notif-count" class="notif-count" style="display:none;">0</div>
+            </div>
+
+            <!-- LOGOUT ICON -->
+            <div class="icon logout-icon" onclick="openLogoutModal()">
+                <img src="../img/logout_new.png" class="icon-img">
+            </div>
+
+            <div id="header-user">Đang tải...</div>
+
+            <!-- NOTIFICATION DROPDOWN -->
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-title">Thông báo</div>
+                <div id="notif-list" class="notif-list">Không có thông báo!</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <!-- AVATAR BOX -->
+            <div class="avatar-box">
+                <img id="student-avatar" src="../img/logo.png" alt="avatar">
+                <div class="avatar-name" id="avatar-fullname">—</div>
+            </div>
+            <a href="./dashboard.html">Báo cáo thống kê</a>
+            <a href="./information_admin.html" class="active">Thông tin quản trị viên</a>
+            <a href="./load_student.html">Danh sách sinh viên</a>
+            <a href="./load_history.html">Quản lý lịch sử đặt phòng</a>
+            <a href="./load_notification.html">Quản lý nhắc nhở</a>
+            <a href="./load_news.html">Quản lý bản tin</a>
+            <div class="sidebar-group">
+                <a href="javascript:void(0)" class="sidebar-dropdown-toggle" onclick="toggleSidebarDropdown(this)">
+                    Danh sách
+                    <i class="fa fa-caret-down"></i>
+                </a>
+                <div class="sidebar-dropdown">
+                    <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
+                    <a href="./load_room.html">Danh sách phòng</a>
+                    <a href="./load_seat.html">Danh sách chỗ ngồi</a>
+                    <a href="./load_feedback.html">Danh sách phản hồi</a>
+                    <a href="./load_violation.html">Danh sách vi phạm</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <h2>Thông tin quản trị viên viên</h2>
+
+            <div class="info-box">
+
+                <!-- VIEW MODE -->
+                <div id="view-mode">
+                    <div class="info-item">
+                        <label>Họ tên:</label>
+                        <span id="view-fullname">...</span>
+                    </div>
+
+                    <div class="info-item">
+                        <label>Email:</label>
+                        <span id="view-email">...</span>
+                    </div>
+
+                    <div class="info-item">
+                        <label>Trạng thái:</label>
+                        <span id="view-status">...</span>
+                    </div>
+
+                    <div style="margin-top: 25px;">
+                        <button class="btn-change-pass" onclick="openPasswordModal()">Đổi mật khẩu</button>
+                        <button class="btn-edit" onclick="enableEdit()">Sửa</button>
+                    </div>
+                </div>
+
+                <!-- EDIT MODE -->
+                <div id="edit-mode" style="display:none;">
+                    <div class="info-item">
+                        <label>Họ tên:</label>
+                        <input id="edit-fullname" class="info-edit">
+                    </div>
+
+                    <div class="info-item">
+                        <label>Email:</label>
+                        <input id="edit-email" class="info-edit">
+                    </div>
+
+                    <div class="info-item">
+                        <label>Trạng thái:</label>
+                        <input id="edit-status" class="info-edit">
+                    </div>
+
+                    <button class="btn-save" onclick="saveAdmin()">Lưu</button>
+                    <button class="btn-cancel" onclick="cancelEdit()">Hủy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal-box">
+            <h3 id="modal-title"></h3>
+            <p id="modal-message"></p>
+            <button onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
+    <!-- MODAL ĐỔI MẬT KHẨU -->
+    <div id="passModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Đổi mật khẩu</h3>
+
+            <div class="input-wrapper">
+                <input id="pass-old" type="password" class="info-edit" placeholder="Mật khẩu hiện tại">
+                <span class="toggle-emoji" onclick="togglePassword('pass-old', this)">🙈</span>
+            </div>
+
+            <div class="input-wrapper">
+                <input id="pass-new" type="password" class="info-edit" placeholder="Mật khẩu mới">
+                <span class="toggle-emoji" onclick="togglePassword('pass-new', this)">🙈</span>
+            </div>
+
+            <div class="input-wrapper">
+                <input id="pass-confirm" type="password" class="info-edit" placeholder="Nhập lại mật khẩu"
+                    oninput="checkPasswordMatch()">
+                <span class="error-x" id="pw-error">✖</span>
+                <span class="toggle-emoji" onclick="togglePassword('pass-confirm', this)">🙈</span>
+            </div>
+
+            <button class="btn-save" onclick="savePassword()">Lưu mật khẩu</button>
+            <button class="btn-cancel" onclick="closePasswordModal()">Hủy</button>
+        </div>
+    </div>
+
+
+
+    <script>
+        function togglePassword(id, eyeIcon) {
+            const input = document.getElementById(id);
+            const isHidden = input.type === "password";
+
+            input.type = isHidden ? "text" : "password";
+            eyeIcon.textContent = isHidden ? "👁️" : "🙈";
+        }
+
+        function checkPasswordMatch() {
+            const newPass = document.getElementById("pass-new").value;
+            const confirm = document.getElementById("pass-confirm").value;
+            const errorIcon = document.getElementById("pw-error");
+
+            if (confirm === "") {
+                errorIcon.style.display = "none";
+                return;
+            }
+
+            errorIcon.style.display = (newPass !== confirm) ? "block" : "none";
+        }
+
+        function openPasswordModal() {
+            // Reset input
+            document.getElementById("pass-old").value = "";
+            document.getElementById("pass-new").value = "";
+            document.getElementById("pass-confirm").value = "";
+
+            // Reset icon lỗi
+            document.getElementById("pw-error").style.display = "none";
+
+            // Reset icon 🙈 về mặc định
+            document.querySelectorAll(".toggle-emoji").forEach(icon => {
+                icon.textContent = "🙈";
+            });
+
+            // Đặt tất cả input về type="password"
+            document.querySelectorAll("#passModal input").forEach(inp => {
+                inp.type = "password";
+            });
+
+            // Show modal
+            document.getElementById("passModal").style.display = "flex";
+        }
+
+        function closePasswordModal() {
+            document.getElementById("pass-old").value = "";
+            document.getElementById("pass-new").value = "";
+            document.getElementById("pass-confirm").value = "";
+            document.getElementById("pw-error").style.display = "none";
+            document.getElementById("passModal").style.display = "none";
+        }
+
+        async function savePassword() {
+            const adminId = localStorage.getItem("adminid");
+
+            const oldPass = document.getElementById("pass-old").value;
+            const newPass = document.getElementById("pass-new").value;
+            const confirm = document.getElementById("pass-confirm").value;
+
+            if (newPass !== confirm) {
+                return showModal("Lỗi", "Mật khẩu nhập lại không khớp!");
+            }
+
+            const { data } = await db
+                .from("admin")
+                .select("password")
+                .eq("adminid", adminId)
+                .single();
+
+            if (!data || data.password !== oldPass) {
+                return showModal("Lỗi", "Mật khẩu hiện tại không đúng!");
+            }
+
+            await db
+                .from("admin")
+                .update({ password: newPass })
+                .eq("adminid", adminId);
+
+            showModal("Thành công", "Đổi mật khẩu thành công!");
+            closePasswordModal();
+        }
+
+        function showModal(title, msg) {
+            document.getElementById("modal-title").innerText = title;
+            document.getElementById("modal-message").innerText = msg;
+            document.getElementById("modal").style.display = "flex";
+        }
+        function closeModal() { document.getElementById("modal").style.display = "none"; }
+
+        async function loadHeader() {
+            const adminId = localStorage.getItem("adminid");
+            const { data } = await db.from("admin").select("fullname").eq("adminid", adminId).single();
+
+            document.getElementById("header-user").innerText =
+                data ? `Xin chào, ${data.fullname}` : "Không tìm thấy admin";
+        }
+
+        async function loadAdminInfo() {
+            const adminId = localStorage.getItem("adminid");
+
+            const { data } = await db
+                .from("admin")
+                .select("*")
+                .eq("adminid", adminId)
+                .single();
+
+            if (!data) return;
+
+            document.getElementById("view-fullname").innerText = data.fullname;
+            document.getElementById("view-email").innerText = data.email;
+            document.getElementById("view-status").innerText = data.status;
+
+            document.getElementById("edit-fullname").value = data.fullname;
+            document.getElementById("edit-email").value = data.email;
+            document.getElementById("edit-status").value = data.status;
+        }
+
+        function enableEdit() {
+            document.getElementById("view-mode").style.display = "none";
+            document.getElementById("edit-mode").style.display = "block";
+        }
+
+        function cancelEdit() {
+            document.getElementById("edit-mode").style.display = "none";
+            document.getElementById("view-mode").style.display = "block";
+        }
+
+        async function saveAdmin() {
+            const adminId = localStorage.getItem("adminid");
+
+            const updated = {
+                fullname: document.getElementById("edit-fullname").value,
+                email: document.getElementById("edit-email").value,
+                status: document.getElementById("edit-status").value
+            };
+
+            const { error } = await db.from("admin").update(updated).eq("adminid", adminId);
+
+            if (error) return showModal("Lỗi", "Không thể lưu dữ liệu!");
+
+            showModal("Thành công", "Đã cập nhật thông tin!");
+            loadAdminInfo();
+            cancelEdit();
+        }
+
+        loadHeader();
+        loadAdminInfo();
+    </script>
+
+</body>
+
+</html>

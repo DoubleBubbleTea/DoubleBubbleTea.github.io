@@ -166,6 +166,7 @@
 
     <script>
         let allBookings = [];
+        
         async function autoUpdateBookingStatus(data) {
             const now = new Date();
 
@@ -173,32 +174,52 @@
                 if (!b.starttime || !b.endtime) continue;
                 if (b.booking_status === "Hủy") continue;
 
+                // 🔑 CHỐT RULE: CHỈ XỬ LÝ BOOKING KHÔNG TRỄ
+                if (b.booking_late === "Đúng") continue;
+
                 const start = new Date(b.starttime);
                 const end = new Date(b.endtime);
 
                 let newStatus = b.booking_status;
 
-                // CHECK VI PHẠM: KHÔNG CHECK-IN
+                // ===============================
+                // 1️⃣ VI PHẠM: KHÔNG CHECK-IN
+                // ===============================
                 const lateCheckinTime = new Date(start.getTime() + 15 * 60 * 1000);
 
                 if (
                     b.booking_status === "Đang giữ chỗ" &&
                     now > lateCheckinTime
                 ) {
-                    // 1️⃣ Cập nhật trạng thái booking → Hủy
-                    await db
+                    // 🔔 Gợi ý cho booking kế tiếp (nếu có)
+                    const { data: nextBooking } = await db
                         .from("booking")
-                        .update({ booking_status: "Hủy" })
-                        .eq("bookingid", b.bookingid);
+                        .select("studentid,starttime,seatid,roomid")
+                        .eq("seatid", b.seatid)
+                        .gt("starttime", now)
+                        .order("starttime")
+                        .limit(1)
+                        .single();
 
-                    // 2️⃣ Lấy fullname sinh viên
+                    if (nextBooking) {
+                        const diff = new Date(nextBooking.starttime) - now;
+
+                        if (diff <= 15 * 60 * 1000) {
+                            await insertNotification(
+                                nextBooking.studentid,
+                                `Bạn có thể checkin chỗ ngồi ${nextBooking.seatid} phòng ${nextBooking.roomid} sớm kể từ bây giờ`,
+                                "Thông tin"
+                            );
+                        }
+                    }
+
+                    // 📌 Ghi violation
                     const { data: studentData } = await db
                         .from("student")
                         .select("fullname")
                         .eq("studentid", b.studentid)
                         .single();
 
-                    // 3️⃣ Ghi violation
                     await db.from("violation").insert({
                         studentid: b.studentid,
                         fullname: studentData?.fullname || "—",
@@ -206,26 +227,31 @@
                         violationdate: new Date().toISOString().split("T")[0]
                     });
 
-                    // update local state
-                    b.booking_status = "Hủy";
+                    // ❌ KHÔNG tiếp tục xử lý trạng thái
                     continue;
                 }
 
-                // UPDATE STATUS BÌNH THƯỜNG
+                // ===============================
+                // 2️⃣ UPDATE TRẠNG THÁI BÌNH THƯỜNG
+                // ===============================
                 if (now < start) {
                     newStatus = "Đang giữ chỗ";
+                }
+                else if (now >= start && now <= end) {
+                    newStatus = "Đang sử dụng";
                 }
                 else if (now > end) {
                     newStatus = "Đã sử dụng";
                 }
 
+                // ⛔ Nếu muốn update DB thì mở lại
                 if (newStatus !== b.booking_status) {
-                    await db
-                        .from("booking")
-                        .update({ booking_status: newStatus })
-                        .eq("bookingid", b.bookingid);
-
-                    b.booking_status = newStatus;
+                  await db
+                    .from("booking")
+                    .update({ booking_status: newStatus })
+                    .eq("bookingid", b.bookingid);
+                
+                  b.booking_status = newStatus;
                 }
             }
         }

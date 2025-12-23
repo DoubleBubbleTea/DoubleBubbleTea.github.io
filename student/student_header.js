@@ -240,9 +240,9 @@ function formatTime(min) {
 =================================================================== */
 function getSlotStatus(slotStart, slotEnd) {
     const now = new Date();
-    console.log("getSlotStatus slotStart: ", slotStart);
-    console.log("getSlotStatus now: ", now);
-    console.log("getSlotStatus slotEnd: ", slotEnd);
+    // console.log("getSlotStatus slotStart: ", slotStart);
+    // console.log("getSlotStatus now: ", now);
+    // console.log("getSlotStatus slotEnd: ", slotEnd);
 
     if (slotEnd <= now) {
         return "past";
@@ -523,4 +523,38 @@ async function checkDuplicateBookingTime(studentid, intervals) {
     }
 
     return false;
+}
+
+function getRemainingMinutes(originalEnd, bookingStatus) {
+  if (bookingStatus === "Hủy") {
+    const now = new Date();
+    return Math.floor((originalEnd - now) / 60000);
+  }
+  return Math.floor((originalEnd - new Date()) / 60000);
+}
+
+async function checkSeatEarlyFree(seatId, start, end) {
+  const { data } = await db
+    .from("booking")
+    .select("starttime,endtime,booking_status")
+    .eq("seatid", seatId)
+    .neq("booking_status", "Hủy")
+    .lt("starttime", end)
+    .gt("endtime", start);
+
+  if (!data || data.length === 0) return { allow: true };
+
+  const b = data[0];
+  const originalEnd = new Date(b.endtime);
+
+  if (b.booking_status === "Hủy") {
+    const remaining = Math.floor((originalEnd - start) / 60000);
+    return {
+      allow: true,
+      needConfirm: true,
+      remaining
+    };
+  }
+
+  return { allow: false };
 }

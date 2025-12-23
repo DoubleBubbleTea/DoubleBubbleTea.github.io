@@ -214,8 +214,8 @@
 
             // format ngày đăng
             let postDate = "—";
-            if (item.day_post) {
-                const d = new Date(item.day_post);
+            if (item.date_post) {
+                const d = new Date(item.date_post);
                 postDate = d.toLocaleDateString("vi-VN");
             }
 
@@ -233,7 +233,7 @@
             const { data } = await db
                 .from("news")
                 .select("*")
-                .eq("is_active", "Có")
+                .eq("shownews", "Có")
                 .order("section_order");
 
             data.forEach(n => {

@@ -62,7 +62,8 @@
                 <img id="student-avatar" src="../img/logo.png" alt="avatar">
                 <div class="avatar-name" id="avatar-fullname">—</div>
             </div>
-            <a href="./dashboard.html">Thông tin cá nhân</a>
+            <a href="./dashboard.html">Báo cáo thống kê</a>
+            <a href="./information_admin.html">Thông tin quản trị viên</a>
             <a href="./load_student.html">Danh sách sinh viên</a>
             <a href="./load_history.html">Quản lý lịch sử đặt phòng</a>
             <a href="./load_notification.html">Quản lý nhắc nhở</a>
@@ -187,11 +188,11 @@
             reward_id,
             used_score,
             status_redemption,
-            redeemed_at,
+            redeemed_date,
             student ( fullname ),
             reward ( reward_name )
         `)
-                .order("redeemed_at", { ascending: false });
+                .order("redeemed_date", { ascending: false });
 
             const table = document.getElementById("reward-table");
             table.innerHTML = "";
@@ -205,7 +206,7 @@
             <td>${r.reward?.reward_name || "—"}</td>
             <td>${r.used_score}</td>
             <td>${r.status_redemption}</td>
-            <td>${new Date(r.redeemed_at).toLocaleString("vi-VN")}</td>
+            <td>${new Date(r.redeemed_date).toLocaleString("vi-VN")}</td>
             <td>
                 <button class="btn-edit" onclick='openEditModal(${JSON.stringify(r)})'>Sửa</button>
                 <button class="btn-delete" onclick="deleteReward(${r.redemption_id})">Xóa</button>
@@ -253,7 +254,7 @@
                 reward_id: Number(rewardid.value),
                 used_score: Number(usedscore.value),
                 status_redemption: statusEl.value,
-                redeemed_at: toLocalTimestampString(nowVN)
+                redeemed_date: toLocalTimestampString(nowVN)
             };
             console.log("statusEl.value: ", statusEl.value);
 

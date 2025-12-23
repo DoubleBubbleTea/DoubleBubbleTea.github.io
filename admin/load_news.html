@@ -139,7 +139,8 @@
                 <div class="avatar-name" id="avatar-fullname">—</div>
             </div>
 
-            <a href="./dashboard.html">Thông tin cá nhân</a>
+            <a href="./dashboard.html">Báo cáo thống kê</a>
+            <a href="./information_admin.html">Thông tin quản trị viên</a>
             <a href="./load_student.html">Danh sách sinh viên</a>
             <a href="./load_history.html">Quản lý lịch sử đặt phòng</a>
             <a href="./load_notification.html">Quản lý nhắc nhở</a>
@@ -241,7 +242,7 @@
             document.getElementById("news-summary").value = item.summary || "";
             document.getElementById("news-image").value = item.image_url || "";
             document.getElementById("news-section").value = item.section_order;
-            document.getElementById("news-active").value = item.is_active;
+            document.getElementById("news-active").value = item.shownews;
             document.getElementById("modal").style.display = "flex";
         }
 
@@ -255,7 +256,7 @@
                 summary: document.getElementById("news-summary").value,
                 image_url: document.getElementById("news-image").value,
                 section_order: Number(document.getElementById("news-section").value),
-                is_active: document.getElementById("news-active").value
+                shownews: document.getElementById("news-active").value
             };
 
             if (!data.title || !data.section_order) {
@@ -304,7 +305,7 @@
                     <td>${n.title}</td>
                     <td>${n.section_order}</td>
                     <td>${n.image_url || "—"}</td>
-                    <td>${n.is_active}</td>
+                    <td>${n.shownews}</td>
                     <td>
                         <button class="btn-edit" onclick='openEditModal(${JSON.stringify(n)})'>Sửa</button>
                         <button class="btn-delete" onclick="deleteNews('${n.newsid}')">Xóa</button>

@@ -3,46 +3,206 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard</title>
+    <title>Quản lý tiện ích phòng</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./admin_common.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="./admin_common.css">
+
+    <style>
+        /* ===== CONTENT ===== */
+        .content {
+            flex: 1;
+            padding: 30px 50px;
+            background: #f4f6fa;
+        }
+
+        .content h2 {
+            font-size: 26px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        /* ===== CONTENT ===== */
+        .content {
+            flex: 1;
+            padding: 30px 50px;
+            background: #f4f6fa;
+        }
+
+        .content h2 {
+            font-size: 26px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        /* ===== DASHBOARD STATS ===== */
+        .dash-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .overview {
+            background: #eaf2f7;
+            border-radius: 14px;
+            padding: 16px;
+            border: 1px solid #d9e7f0;
+        }
+
+        .overview-title {
+            font-weight: 700;
+            color: #1f2d3d;
+            margin-bottom: 12px;
+        }
+
+        .overview-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+
+        .o-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 14px 16px;
+            border: 1px solid #e6eef5;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            min-height: 72px;
+        }
+
+        .o-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #eaf7ef;
+            border: 1px solid #cfe9da;
+            flex: 0 0 auto;
+        }
+
+        .o-icon i {
+            color: #1f7a4a;
+            font-size: 18px;
+        }
+
+        .o-meta {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .o-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .o-label {
+            font-size: 13px;
+            color: #475569;
+            margin-top: 4px;
+        }
+
+        .dash-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 14px;
+        }
+
+        .dash-left,
+        .dash-right {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #e6eef5;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            padding: 14px 16px;
+        }
+
+        .card-title {
+            font-weight: bolder;
+            color: #1f2d3d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .card-subtitle {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            height: 260px;
+        }
+
+        .chart-box.tall {
+            height: 300px;
+        }
+
+        .small-note {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 8px;
+        }
+
+        /* responsive */
+        @media (max-width: 1200px) {
+            .overview-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dash-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./admin_common.js"></script>
+<body>
 
-<div id="logout-modal" class="modal-overlay">
-    <div class="modal-box">
-        <h3>Bạn muốn đăng xuất?</h3>
-        <div style="margin-top: 15px;">
-            <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
-            <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div style="margin-top: 15px; display:flex; justify-content:center; gap:12px;">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
         </div>
     </div>
-</div>
 
-<body>
     <!-- HEADER -->
     <div class="header">
-        <div class="header-title">Dashboard</div>
+        <div>Dashboard</div>
 
         <div class="header-right">
-
-            <!-- NOTIFICATION ICON -->
             <div class="icon notification-icon" onclick="toggleNotification()">
                 <img src="../img/notification_new.png" class="icon-img">
                 <div id="notif-count" class="notif-count" style="display:none;">0</div>
             </div>
 
-            <!-- LOGOUT ICON -->
             <div class="icon logout-icon" onclick="openLogoutModal()">
                 <img src="../img/logout_new.png" class="icon-img">
             </div>
 
             <div id="header-user">Đang tải...</div>
 
-            <!-- NOTIFICATION DROPDOWN -->
             <div id="notif-dropdown" class="notif-dropdown">
                 <div class="notif-title">Thông báo</div>
                 <div id="notif-list" class="notif-list">Không có thông báo!</div>
@@ -50,6 +210,7 @@
         </div>
     </div>
 
+    <!-- MAIN -->
     <div class="main">
 
         <!-- SIDEBAR -->
@@ -59,7 +220,8 @@
                 <img id="student-avatar" src="../img/logo.png" alt="avatar">
                 <div class="avatar-name" id="avatar-fullname">—</div>
             </div>
-            <a href="./dashboard.html" class="active">Thông tin cá nhân</a>
+            <a href="./dashboard.html" class="active">Báo cáo thống kê</a>
+            <a href="./information_admin.html">Thông tin quản trị viên</a>
             <a href="./load_student.html">Danh sách sinh viên</a>
             <a href="./load_history.html">Quản lý lịch sử đặt phòng</a>
             <a href="./load_notification.html">Quản lý nhắc nhở</a>
@@ -75,250 +237,501 @@
                     <a href="./load_seat.html">Danh sách chỗ ngồi</a>
                     <a href="./load_feedback.html">Danh sách phản hồi</a>
                     <a href="./load_violation.html">Danh sách vi phạm</a>
+                    <a href="./load_reward.html">Danh sách đổi thưởng</a>
                 </div>
             </div>
         </div>
 
         <!-- CONTENT -->
         <div class="content">
-            <h2>Thông tin quản trị viên</h2>
+            <!-- ===== OVERVIEW ===== -->
+            <div class="overview">
+                <div class="overview-title">Over View</div>
+                <div class="overview-cards">
 
-            <div class="info-box">
-
-                <!-- VIEW MODE -->
-                <div id="view-mode">
-                    <div class="info-item">
-                        <label>Họ tên:</label>
-                        <span id="view-fullname">...</span>
+                    <div class="o-card">
+                        <div class="o-icon"><i class="fa fa-check-square-o"></i></div>
+                        <div class="o-meta">
+                            <div class="o-value" id="ov-used-booking">0</div>
+                            <div class="o-label">Tổng số đặt phòng</div>
+                        </div>
                     </div>
 
-                    <div class="info-item">
-                        <label>Email:</label>
-                        <span id="view-email">...</span>
+                    <div class="o-card">
+                        <div class="o-icon"><i class="fa fa-users"></i></div>
+                        <div class="o-meta">
+                            <div class="o-value" id="ov-group-room">0</div>
+                            <div class="o-label">Phòng nhóm</div>
+                        </div>
                     </div>
 
-                    <div class="info-item">
-                        <label>Trạng thái:</label>
-                        <span id="view-status">...</span>
+                    <div class="o-card">
+                        <div class="o-icon"><i class="fa fa-user"></i></div>
+                        <div class="o-meta">
+                            <div class="o-value" id="ov-ind-room">0</div>
+                            <div class="o-label">Phòng cá nhân</div>
+                        </div>
                     </div>
 
-                    <div style="margin-top: 25px;">
-                        <button class="btn-change-pass" onclick="openPasswordModal()">Đổi mật khẩu</button>
-                        <button class="btn-edit" onclick="enableEdit()">Sửa</button>
+                    <div class="o-card">
+                        <div class="o-icon"><i class="fa fa-th"></i></div>
+                        <div class="o-meta">
+                            <div class="o-value" id="ov-seat-total">0</div>
+                            <div class="o-label">Tổng số chỗ ngồi</div>
+                        </div>
                     </div>
+
+                </div>
+            </div>
+
+            <!-- ===== DASHBOARD ===== -->
+            <div class="dash-grid">
+
+                <!-- LEFT -->
+                <div class="dash-left">
+
+                    <div class="card">
+                        <div class="card-title">Tỷ lệ sử dụng phòng nhóm / chỗ ngồi</div>
+                        <div class="chart-box">
+                            <canvas id="pieRoomSeat"></canvas>
+                        </div>
+                        <div class="small-note" id="pie-note"></div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Khung giờ cao điểm (07h – 20h)</div>
+                        <div class="chart-box tall">
+                            <canvas id="linePeakHours"></canvas>
+                        </div>
+                    </div>
+
                 </div>
 
-                <!-- EDIT MODE -->
-                <div id="edit-mode" style="display:none;">
-                    <div class="info-item">
-                        <label>Họ tên:</label>
-                        <input id="edit-fullname" class="info-edit">
+                <!-- RIGHT -->
+                <div class="dash-right">
+
+                    <div class="card">
+                        <div class="card-title">Số lượng tiện ích được sử dụng</div>
+                        <div class="chart-box">
+                            <canvas id="barFacilities"></canvas>
+                        </div>
                     </div>
 
-                    <div class="info-item">
-                        <label>Email:</label>
-                        <input id="edit-email" class="info-edit">
+                    <div class="card">
+                        <div class="card-title">Thời lượng đặt chỗ</div>
+                        <div class="chart-box">
+                            <canvas id="barDuration"></canvas>
+                        </div>
                     </div>
 
-                    <div class="info-item">
-                        <label>Trạng thái:</label>
-                        <input id="edit-status" class="info-edit">
-                    </div>
-
-                    <button class="btn-save" onclick="saveAdmin()">Lưu</button>
-                    <button class="btn-cancel" onclick="cancelEdit()">Hủy</button>
                 </div>
+
             </div>
         </div>
     </div>
 
     <!-- MODAL -->
-    <div class="modal-overlay" id="modal">
+    <div id="modal" class="modal-overlay">
         <div class="modal-box">
-            <h3 id="modal-title"></h3>
-            <p id="modal-message"></p>
-            <button onclick="closeModal()">OK</button>
+            <h3 id="modal-title">Thêm tiện ích</h3>
+
+            <input id="facility-type" class="modal-input" placeholder="Tên tiện ích (VD: Máy lạnh)">
+            <input id="facility-cost" class="modal-input" placeholder="Chi phí / giờ" type="number">
+
+            <div class="modal-buttons">
+                <button class="btn-save" onclick="saveFacility()">Lưu</button>
+                <button class="btn-cancel" onclick="closeModal()">Hủy</button>
+            </div>
         </div>
     </div>
 
-    <!-- MODAL ĐỔI MẬT KHẨU -->
-    <div id="passModal" class="modal-overlay">
+    <!-- MODAL DELETE CONFIRM -->
+    <div id="delete-modal" class="modal-overlay">
         <div class="modal-box">
-            <h3>Đổi mật khẩu</h3>
+            <h3 style="margin-bottom: 10px;">Xóa tiện ích?</h3>
+            <p style="margin-bottom: 18px;">Bạn có chắc muốn xóa tiện ích này?</p>
 
-            <div class="input-wrapper">
-                <input id="pass-old" type="password" class="info-edit" placeholder="Mật khẩu hiện tại">
-                <span class="toggle-emoji" onclick="togglePassword('pass-old', this)">🙈</span>
+            <div style="display:flex; justify-content:center; gap:12px;">
+                <button class="btn-confirm" onclick="confirmDeleteFacility()">Xóa</button>
+                <button class="btn-cancel" onclick="closeDeleteModal()">Hủy</button>
             </div>
-
-            <div class="input-wrapper">
-                <input id="pass-new" type="password" class="info-edit" placeholder="Mật khẩu mới">
-                <span class="toggle-emoji" onclick="togglePassword('pass-new', this)">🙈</span>
-            </div>
-
-            <div class="input-wrapper">
-                <input id="pass-confirm" type="password" class="info-edit" placeholder="Nhập lại mật khẩu"
-                    oninput="checkPasswordMatch()">
-                <span class="error-x" id="pw-error">✖</span>
-                <span class="toggle-emoji" onclick="togglePassword('pass-confirm', this)">🙈</span>
-            </div>
-
-            <button class="btn-save" onclick="savePassword()">Lưu mật khẩu</button>
-            <button class="btn-cancel" onclick="closePasswordModal()">Hủy</button>
         </div>
     </div>
 
-
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./admin_common.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-        function togglePassword(id, eyeIcon) {
-            const input = document.getElementById(id);
-            const isHidden = input.type === "password";
+        // ====== CHART INSTANCES ======
+        let pieChart, lineChart, barFacilitiesChart, barDurationChart;
 
-            input.type = isHidden ? "text" : "password";
-            eyeIcon.textContent = isHidden ? "👁️" : "🙈";
+        // ====== HELPERS ======
+        function formatNumber(n) {
+            return (n ?? 0).toLocaleString();
         }
 
-        function checkPasswordMatch() {
-            const newPass = document.getElementById("pass-new").value;
-            const confirm = document.getElementById("pass-confirm").value;
-            const errorIcon = document.getElementById("pw-error");
+        // booking.facilities có thể là: array, string "A,B,C", hoặc null
+        function normalizeFacilitiesCell(val) {
+            if (!val) return [];
+            if (Array.isArray(val)) return val.map(x => String(x).trim()).filter(Boolean);
 
-            if (confirm === "") {
-                errorIcon.style.display = "none";
-                return;
+            // nếu là object/JSON
+            if (typeof val === "object") {
+                try {
+                    return Object.values(val).map(x => String(x).trim()).filter(Boolean);
+                } catch {
+                    return [];
+                }
             }
 
-            errorIcon.style.display = (newPass !== confirm) ? "block" : "none";
+            // string
+            return String(val)
+                .split(",")
+                .map(x => x.trim())
+                .filter(Boolean);
         }
 
-        function openPasswordModal() {
-            // Reset input
-            document.getElementById("pass-old").value = "";
-            document.getElementById("pass-new").value = "";
-            document.getElementById("pass-confirm").value = "";
+        function hourSlotsCount(bookings) {
+            // slots 7->20 => 13 slots: 07-08 ... 19-20
+            const counts = {};
+            for (let h = 7; h <= 19; h++) counts[h] = 0;
 
-            // Reset icon lỗi
-            document.getElementById("pw-error").style.display = "none";
+            for (const b of bookings) {
+                if (!b.starttime || !b.endtime) continue;
 
-            // Reset icon 🙈 về mặc định
-            document.querySelectorAll(".toggle-emoji").forEach(icon => {
-                icon.textContent = "🙈";
+                const start = new Date(b.starttime);
+                const end = new Date(b.endtime);
+                if (!(start instanceof Date) || !(end instanceof Date)) continue;
+                if (end <= start) continue;
+
+                // làm tròn xuống giờ bắt đầu, sau đó duyệt từng slot 1 giờ
+                let cursor = new Date(start);
+                cursor.setMinutes(0, 0, 0);
+
+                // nếu booking bắt đầu giữa giờ (vd 09:30) vẫn tính slot 09-10
+                // cursor đã là 09:00, OK.
+                while (cursor < end) {
+                    const h = cursor.getHours();
+                    if (h >= 7 && h <= 19) counts[h] += 1;
+                    cursor = new Date(cursor.getTime() + 60 * 60 * 1000);
+                }
+            }
+
+            const labels = [];
+            const data = [];
+            for (let h = 7; h <= 19; h++) {
+                labels.push(`${String(h).padStart(2, "0")}:00-${String(h + 1).padStart(2, "0")}:00`);
+                data.push(counts[h]);
+            }
+            return { labels, data };
+        }
+
+        function durationBuckets(bookings) {
+            // bạn có thể đổi bucket theo ý muốn
+            const buckets = [
+                { label: "< 1 giờ", min: 0, max: 1 },
+                { label: "1–2 giờ", min: 1, max: 2 },
+                { label: "2–3 giờ", min: 2, max: 3 },
+                { label: "3–4 giờ", min: 3, max: 4 },
+                { label: "≥ 4 giờ", min: 4, max: Infinity },
+            ];
+            const counts = buckets.map(() => 0);
+
+            for (const b of bookings) {
+                if (!b.starttime || !b.endtime) continue;
+                const start = new Date(b.starttime);
+                const end = new Date(b.endtime);
+                const hours = (end - start) / (60 * 60 * 1000);
+                if (!isFinite(hours) || hours <= 0) continue;
+
+                const idx = buckets.findIndex(x => hours >= x.min && hours < x.max);
+                if (idx >= 0) counts[idx] += 1;
+            }
+            return { labels: buckets.map(b => b.label), data: counts };
+        }
+
+        function countHourlyUsage(bookings) {
+            const startHour = 7;
+            const endHour = 20; // 20h là kết thúc, không tạo slot 20–21
+
+            const labels = [];
+            const counts = [];
+
+            for (let h = startHour; h < endHour; h++) {
+                const slotStart = h;
+                const slotEnd = h + 1;
+
+                labels.push(
+                    `${String(slotStart).padStart(2, "0")}:00-${String(slotEnd).padStart(2, "0")}:00`
+                );
+
+                let count = 0;
+
+                for (const b of bookings) {
+                    if (!b.starttime || !b.endtime) continue;
+
+                    const start = new Date(b.starttime);
+                    const end = new Date(b.endtime);
+
+                    // điều kiện giao nhau chuẩn
+                    if (start.getHours() < slotEnd && end.getHours() > slotStart) {
+                        count++;
+                    }
+                }
+
+                counts.push(count);
+            }
+
+            return { labels, counts };
+        }
+
+        // ====== DASHBOARD LOAD ======
+        async function loadDashboard() {
+            // 1) OVERVIEW COUNTS
+            const usedBookingCountReq = db
+                .from("booking")
+                .select("*", { count: "exact", head: true })
+                .eq("booking_status", "Đã sử dụng");
+
+            const groupRoomCountReq = db
+                .from("room")
+                .select("*", { count: "exact", head: true })
+                .like("roomid", "G%");
+
+            const indRoomCountReq = db
+                .from("room")
+                .select("*", { count: "exact", head: true })
+                .like("roomid", "I%");
+
+            const seatCountReq = db
+                .from("seat")
+                .select("*", { count: "exact", head: true });
+
+            // 2) BOOKINGS DATA (for charts)
+            // lấy các field cần thiết thôi
+            const usedBookingsReq = db
+                .from("booking")
+                .select("bookingid, roomid, starttime, endtime, facilities")
+                .eq("booking_status", "Đã sử dụng");
+
+            // 3) FACILITIES LIST
+            const facilitiesListReq = db
+                .from("facilities")
+                .select("facility_type")
+                .order("facility_id");
+
+            const [
+                usedBookingCountRes,
+                groupRoomCountRes,
+                indRoomCountRes,
+                seatCountRes,
+                usedBookingsRes,
+                facilitiesListRes
+            ] = await Promise.all([
+                usedBookingCountReq,
+                groupRoomCountReq,
+                indRoomCountReq,
+                seatCountReq,
+                usedBookingsReq,
+                facilitiesListReq
+            ]);
+
+            const usedBookingCount = usedBookingCountRes.count ?? 0;
+            const groupRoomCount = groupRoomCountRes.count ?? 0;
+            const indRoomCount = indRoomCountRes.count ?? 0;
+            const seatTotal = seatCountRes.count ?? 0;
+
+            document.getElementById("ov-used-booking").innerText = formatNumber(usedBookingCount);
+            document.getElementById("ov-group-room").innerText = formatNumber(groupRoomCount);
+            document.getElementById("ov-ind-room").innerText = formatNumber(indRoomCount);
+            document.getElementById("ov-seat-total").innerText = formatNumber(seatTotal);
+
+            const usedBookings = usedBookingsRes.data ?? [];
+
+            // ===== PIE: group vs seat =====
+            const A = usedBookingCount;
+            const B = usedBookings.filter(b => String(b.roomid || "").startsWith("I")).length;
+            const C = usedBookings.filter(b => String(b.roomid || "").startsWith("G")).length;
+
+            const seatRate = A > 0 ? (B / A) : 0;
+            const groupRate = A > 0 ? (C / A) : 0;
+
+            document.getElementById("pie-note").innerText =
+                `A=${A} | Chỗ ngồi (I*)=${B} (${(seatRate * 100).toFixed(1)}%) | Phòng nhóm (G*)=${C} (${(groupRate * 100).toFixed(1)}%)`;
+
+            renderPieChart(B, C);
+
+            // ===== LINE: peak hours 07-20 =====
+            // const peak = hourSlotsCount(usedBookings);
+            // renderLineChart(peak.labels, peak.data);
+
+            const hourly = countHourlyUsage(usedBookings);
+
+            renderLineChart(hourly.labels, hourly.counts);
+
+            // ===== BAR: facilities usage =====
+            const facilityTypes = (facilitiesListRes.data ?? []).map(x => x.facility_type);
+            const usageMap = new Map();
+            facilityTypes.forEach(t => usageMap.set(t, 0));
+
+            for (const b of usedBookings) {
+                const items = normalizeFacilitiesCell(b.facilities);
+                for (const it of items) {
+                    // chỉ đếm những tiện ích có trong bảng facilities
+                    if (usageMap.has(it)) usageMap.set(it, usageMap.get(it) + 1);
+                }
+            }
+
+            const barFacLabels = facilityTypes;
+            const barFacData = barFacLabels.map(l => usageMap.get(l) || 0);
+            renderFacilitiesBar(barFacLabels, barFacData);
+
+            // ===== BAR: duration distribution =====
+            const dur = durationBuckets(usedBookings);
+            renderDurationBar(dur.labels, dur.data);
+        }
+
+        // ====== RENDER CHARTS ======
+        function renderPieChart(seatCount, groupCount) {
+            const ctx = document.getElementById("pieRoomSeat");
+            if (pieChart) pieChart.destroy();
+
+            pieChart = new Chart(ctx, {
+                type: "pie",
+                data: {
+                    labels: ["Chỗ ngồi", "Phòng nhóm"],
+                    datasets: [{
+                        data: [seatCount, groupCount],
+                        // 🔽 CHỈNH MÀU Ở ĐÂY
+                        backgroundColor: [
+                            "#265166", // Chỗ ngồi (đậm)
+                            "#BACFDA"  // Phòng nhóm (nhạt)
+                        ],
+                        borderColor: "#ffffff",
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: "right" }
+                    }
+                }
+            });
+        }
+
+        function renderLineChart(labels, data) {
+            const ctx = document.getElementById("linePeakHours").getContext("2d");
+
+            // 🎨 TẠO GRADIENT (từ trên xuống dưới)
+            const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+            gradient.addColorStop(0, "rgba(240, 155, 89, 0.6)");  // #F09B59 - đậm phía trên
+            gradient.addColorStop(1, "rgba(240, 155, 89, 0.05)"); // nhạt dần về phía dưới
+
+            lineChart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels,
+                    datasets: [{
+                        label: "Số lượt sử dụng theo khung giờ",
+                        data,
+
+                        // 🔴 MÀU ĐƯỜNG
+                        borderColor: "#CA4C44",
+
+                        // 🟠 GRADIENT NỀN
+                        backgroundColor: gradient,
+
+                        fill: true,
+                        tension: 0.35,
+
+                        pointBackgroundColor: "#CA4C44",
+                        pointBorderColor: "#ffffff",
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0 }
+                        }
+                    }
+                }
             });
 
-            // Đặt tất cả input về type="password"
-            document.querySelectorAll("#passModal input").forEach(inp => {
-                inp.type = "password";
+        }
+
+        function renderFacilitiesBar(labels, data) {
+            const ctx = document.getElementById("barFacilities");
+            if (barFacilitiesChart) barFacilitiesChart.destroy();
+
+            barFacilitiesChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels,
+                    datasets: [{
+                        label: "Số lần tiện ích xuất hiện",
+                        data,
+                        // 🔽 MÀU CỘT
+                        backgroundColor: "#265166",
+                        borderColor: "#265166",
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { precision: 0 } }
+                    },
+                    plugins: {
+                        legend: { display: true }
+                    }
+                }
             });
-
-            // Show modal
-            document.getElementById("passModal").style.display = "flex";
         }
 
-        function closePasswordModal() {
-            document.getElementById("pass-old").value = "";
-            document.getElementById("pass-new").value = "";
-            document.getElementById("pass-confirm").value = "";
-            document.getElementById("pw-error").style.display = "none";
-            document.getElementById("passModal").style.display = "none";
+        function renderDurationBar(labels, data) {
+            const ctx = document.getElementById("barDuration");
+            if (barDurationChart) barDurationChart.destroy();
+
+            barDurationChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels,
+                    datasets: [{
+                        label: "Số booking",
+                        data,
+                        // 🔽 MÀU CỘT
+                        backgroundColor: "#265166",
+                        borderColor: "#265166",
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { precision: 0 } }
+                    },
+                    plugins: {
+                        legend: { display: true }
+                    }
+                }
+            });
         }
 
-        async function savePassword() {
-            const adminId = localStorage.getItem("adminid");
-
-            const oldPass = document.getElementById("pass-old").value;
-            const newPass = document.getElementById("pass-new").value;
-            const confirm = document.getElementById("pass-confirm").value;
-
-            if (newPass !== confirm) {
-                return showModal("Lỗi", "Mật khẩu nhập lại không khớp!");
-            }
-
-            const { data } = await db
-                .from("admin")
-                .select("password")
-                .eq("adminid", adminId)
-                .single();
-
-            if (!data || data.password !== oldPass) {
-                return showModal("Lỗi", "Mật khẩu hiện tại không đúng!");
-            }
-
-            await db
-                .from("admin")
-                .update({ password: newPass })
-                .eq("adminid", adminId);
-
-            showModal("Thành công", "Đổi mật khẩu thành công!");
-            closePasswordModal();
-        }
-
-        function showModal(title, msg) {
-            document.getElementById("modal-title").innerText = title;
-            document.getElementById("modal-message").innerText = msg;
-            document.getElementById("modal").style.display = "flex";
-        }
-        function closeModal() { document.getElementById("modal").style.display = "none"; }
-
-        async function loadHeader() {
-            const adminId = localStorage.getItem("adminid");
-            const { data } = await db.from("admin").select("fullname").eq("adminid", adminId).single();
-
-            document.getElementById("header-user").innerText =
-                data ? `Xin chào, ${data.fullname}` : "Không tìm thấy admin";
-        }
-
-        async function loadAdminInfo() {
-            const adminId = localStorage.getItem("adminid");
-
-            const { data } = await db
-                .from("admin")
-                .select("*")
-                .eq("adminid", adminId)
-                .single();
-
-            if (!data) return;
-
-            document.getElementById("view-fullname").innerText = data.fullname;
-            document.getElementById("view-email").innerText = data.email;
-            document.getElementById("view-status").innerText = data.status;
-
-            document.getElementById("edit-fullname").value = data.fullname;
-            document.getElementById("edit-email").value = data.email;
-            document.getElementById("edit-status").value = data.status;
-        }
-
-        function enableEdit() {
-            document.getElementById("view-mode").style.display = "none";
-            document.getElementById("edit-mode").style.display = "block";
-        }
-
-        function cancelEdit() {
-            document.getElementById("edit-mode").style.display = "none";
-            document.getElementById("view-mode").style.display = "block";
-        }
-
-        async function saveAdmin() {
-            const adminId = localStorage.getItem("adminid");
-
-            const updated = {
-                fullname: document.getElementById("edit-fullname").value,
-                email: document.getElementById("edit-email").value,
-                status: document.getElementById("edit-status").value
-            };
-
-            const { error } = await db.from("admin").update(updated).eq("adminid", adminId);
-
-            if (error) return showModal("Lỗi", "Không thể lưu dữ liệu!");
-
-            showModal("Thành công", "Đã cập nhật thông tin!");
-            loadAdminInfo();
-            cancelEdit();
-        }
-
-        loadHeader();
-        loadAdminInfo();
+        // gọi dashboard sau cùng
+        loadDashboard();
     </script>
+
 
 </body>
 

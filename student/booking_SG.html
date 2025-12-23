@@ -284,31 +284,31 @@
         async function loadSeats(room) {
           if (!room) return;
 
-          const { data, error } = await db
-            .from("booking")
-            .select("seatid")
-            .eq("roomid", room)
-            .in("booking_status", ["Đang sử dụng"]);
+          // const { data, error } = await db
+          //   .from("booking")
+          //   .select("seatid")
+          //   .eq("roomid", room)
+          //   .in("booking_status", ["Đang sử dụng"]);
 
-          if (error) {
-            console.error("Load seats error:", error.message);
-            return;
-          }
+          // if (error) {
+          //   console.error("Load seats error:", error.message);
+          //   return;
+          // }
 
-          const busy = new Set((data || []).map(x => x.seatid));
+          // const busy = new Set((data || []).map(x => x.seatid));
 
           document.querySelectorAll(".seat").forEach(el => {
             const seatNumber = el.textContent.trim();      // "1".."60"
             const seatNo = String(seatNumber).padStart(2, "0");
             const seatId = `${room}${seatNo}`;             // ✅ I101
 
-            el.classList.remove("occupied");
-            el.onclick = () => onSeatClick(seatNumber);
+            // el.classList.remove("occupied");
+            // el.onclick = () => onSeatClick(seatNumber);
 
-            if (busy.has(seatId)) {
-              el.classList.add("occupied");
-              el.onclick = null;
-            }
+            // if (busy.has(seatId)) {
+            //   el.classList.add("occupied");
+            //   el.onclick = null;
+            // }
           });
         }
 
@@ -338,6 +338,49 @@
           }
           merged.push(cur);
 
+          for (const itv of merged) {
+            const check = await checkSeatEarlyFree(
+              selectedSeatId,
+              itv.start,
+              itv.end
+            );
+
+            if (!check.allow) {
+              showPopup("Lỗi", "Khung giờ đã có người đặt.");
+              return;
+            }
+
+            // ⚠️ Confirm do slot sắp hết thời gian (ví dụ còn < X phút)
+            if (check.needConfirm) {
+              const ok = confirm(
+                `Bạn còn khoảng ${check.remaining} phút sử dụng trong khung giờ này, bạn có chắc chắn muốn đặt không?`
+              );
+              if (!ok) return;
+            }
+          }
+
+          const now = new Date();
+
+          // hệ thống dùng mốc giờ cố định → check slot đầu tiên
+          const bookingStartTime = merged[0].start;
+          const isLateBooking = bookingStartTime < now;
+
+          if (isLateBooking) {
+            const lateMinutes = Math.floor(
+              (now.getTime() - bookingStartTime.getTime()) / 60000
+            );
+
+            const ok = confirm(
+              `Khung giờ này đã bắt đầu lúc ${bookingStartTime.toLocaleTimeString("vi-VN", {
+                hour: "2-digit",
+                minute: "2-digit"
+              })}.
+                Bạn đang đặt trễ ${lateMinutes} phút và thời gian sử dụng sẽ bị rút ngắn.
+                Bạn có muốn tiếp tục đặt chỗ không?`
+            );
+
+            if (!ok) return;
+          }
           // ❌ không cho đặt trong ngày
           // const today = new Date();
           // today.setHours(0, 0, 0, 0);
@@ -358,7 +401,19 @@
           // ❌ CHECK TRÙNG KHUNG GIỜ
           const isDuplicated = await checkDuplicateBookingTime(studentid, merged);
           if (isDuplicated) return;
-          
+          // const now = new Date();
+
+          // vì hệ thống dùng mốc giờ cố định
+          // nên chỉ cần check slot đầu tiên
+          // const bookingStartTime = merged[0].start;
+          console.log("bookingStartTime: ", bookingStartTime);
+
+          // const isLateBooking = bookingStartTime < now;
+          console.log("isLateBooking: ", isLateBooking);
+
+          const bookingLateText = isLateBooking ? "Đúng" : "Sai";
+          console.log("bookingLateText: ", bookingLateText);
+
           const rows = merged.map(itv => {
             const hold = new Date(itv.start.getTime() + 15 * 60 * 1000); // +15 phút
 
@@ -369,7 +424,8 @@
               starttime: toLocalTimestampString(itv.start),
               endtime: toLocalTimestampString(itv.end),
               holdtime: toLocalTimestampString(hold),
-              booking_status: "Đang giữ chỗ"
+              booking_status: "Đang giữ chỗ",
+              booking_late: bookingLateText
             };
           });
 

@@ -232,10 +232,12 @@
             const studentid = localStorage.getItem("studentid");
             if (!studentid) return;
 
-            await db.from("booking")
+            await db
+                .from("booking")
                 .update({ booking_status: "Hủy" })
                 .eq("studentid", studentid)
-                .eq("booking_status", "Đang giữ chỗ");
+                .eq("booking_status", "Đang giữ chỗ")
+                .eq("booking_late", "Sai");   // ✅ CHỈ AUTO-HỦY KHI KHÔNG PHẢI BOOKING TRỄ
         }
 
         /* ================= LOAD HOLD ================= */
@@ -259,13 +261,19 @@
             const studentid = localStorage.getItem("studentid");
             const roomid = roomSelect.value;
             const seatid = seatSelect.value;
+            console.log("handleCheckinSeat: studentid ", studentid);
+            console.log("handleCheckinSeat: roomid ", roomid);
+            console.log("handleCheckinSeat: seatid ", seatid);
 
-            const { data } = await db.from("booking")
+            const { data } = await db
+                .from("booking")
                 .select("*")
                 .eq("studentid", studentid)
                 .eq("roomid", roomid)
                 .eq("seatid", seatid)
                 .eq("booking_status", "Đang giữ chỗ")
+                .order("starttime", { ascending: false }) // booking gần nhất
+                .limit(1)
                 .single();
 
             if (!data) return showPopup("Lỗi", "Không tìm thấy booking.");
@@ -323,12 +331,36 @@
 
         async function loadSeats() {
             const roomid = roomSelect.value;
-            const { data } = await db.from("booking")
-                .select("seatid")
-                .eq("booking_status", "Đang giữ chỗ")
-                .eq("roomid", roomid);
 
-            seatSelect.innerHTML = (data || []).map(s => `<option>${s.seatid}</option>`).join("");
+            const { data, error } = await db
+                .from("booking")
+                .select("seatid, starttime, endtime")
+                .eq("roomid", roomid)
+                .eq("booking_status", "Đang giữ chỗ")
+                .order("starttime", { ascending: true }) // booking gần nhất
+                .limit(1);
+
+            if (error) {
+                console.error(error);
+                return;
+            }
+
+            seatSelect.innerHTML = (data || []).map(b => {
+                const start = new Date(b.starttime).toLocaleTimeString("vi-VN", {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                });
+                const end = new Date(b.endtime).toLocaleTimeString("vi-VN", {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                });
+
+                return `
+      <option value="${b.seatid}">
+        ${b.seatid} (${start} – ${end})
+      </option>
+    `;
+            }).join("");
         }
 
         async function loadCheckoutRooms() {
@@ -343,12 +375,43 @@
 
         async function loadCheckoutSeats() {
             const roomid = checkoutRoomSelect.value;
-            const { data } = await db.from("booking")
-                .select("seatid")
-                .eq("booking_status", "Đang sử dụng")
-                .eq("roomid", roomid);
+            const now = new Date().toISOString();
 
-            checkoutSeatSelect.innerHTML = (data || []).map(s => `<option>${s.seatid}</option>`).join("");
+            const { data, error } = await db
+                .from("booking")
+                .select("seatid, starttime, endtime")
+                .eq("roomid", roomid)
+                .eq("booking_status", "Đang sử dụng")
+                .lte("starttime", now)
+                .gte("endtime", now)
+                .order("starttime");
+
+            if (error) {
+                console.error("Load checkout seats error:", error);
+                checkoutSeatSelect.innerHTML = "";
+                return;
+            }
+
+            checkoutSeatSelect.innerHTML = (data || []).map(b => {
+                const start = new Date(b.starttime).toLocaleString("vi-VN", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric"
+                });
+
+                const end = new Date(b.endtime).toLocaleTimeString("vi-VN", {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                });
+
+                return `
+      <option value="${b.seatid}">
+        ${b.seatid} (${start} – ${end})
+      </option>
+    `;
+            }).join("");
         }
 
         /* INIT */
@@ -358,4 +421,5 @@
         loadCheckoutRooms();
     </script>
 </body>
+
 </html>

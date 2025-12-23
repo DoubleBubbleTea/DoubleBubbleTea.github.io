@@ -193,7 +193,7 @@
                 studentid,
                 used_score,
                 status_redemption,
-                redeemed_at,
+                redeemed_date,
                 reward (
                     reward_name
                 ),
@@ -202,7 +202,7 @@
                 )
             `)
                 .eq("studentid", studentId)
-                .order("redeemed_at", { ascending: false });
+                .order("redeemed_date", { ascending: false });
 
             if (error || !data || data.length === 0) {
                 body.innerHTML = `<tr><td colspan="8">Chưa có lịch sử đổi thưởng</td></tr>`;
@@ -212,7 +212,7 @@
             body.innerHTML = "";
 
             data.forEach(r => {
-                const date = new Date(r.redeemed_at).toLocaleString("vi-VN");
+                const date = new Date(r.redeemed_date).toLocaleString("vi-VN");
 
                 let useButton = "";
 
