@@ -579,6 +579,75 @@
             container.innerHTML = html;
         }
 
+        function getWeekRange(date) {
+            const d = new Date(date);
+
+            const day = d.getDay(); // 0 = CN, 1 = T2
+            const diffToMonday = day === 0 ? -6 : 1 - day;
+
+            const monday = new Date(d);
+            monday.setDate(d.getDate() + diffToMonday);
+            monday.setHours(0, 0, 0, 0);
+
+            const sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+            sunday.setHours(23, 59, 59, 999);
+            console.log("monday: ", monday);
+            console.log("sunday: ", sunday);
+
+            return { monday, sunday };
+        }
+
+        async function checkWeeklyBookingLimit(studentid, newIntervals) {
+            // Lấy mốc tuần theo slot đầu tiên
+            const { monday, sunday } = getWeekRange(newIntervals[0].start);
+
+            const mondayStr = toLocalTimestampString(monday);
+            const sundayStr = toLocalTimestampString(sunday);
+
+            // 1️⃣ Lấy booking trong tuần (chưa hủy)
+            const { data, error } = await db
+                .from("booking")
+                .select("starttime, endtime")
+                .eq("studentid", studentid)
+                .neq("booking_status", "Hủy")
+                .like("roomid", "G%")            // ✅ chỉ xét roomid bắt đầu bằng G
+                .gte("starttime", mondayStr)
+                .lte("starttime", sundayStr);
+
+            if (error) {
+                console.error("Check weekly limit error:", error.message);
+                return false; // fail-safe: không chặn
+            }
+
+            // 2️⃣ Tính tổng phút đã đặt trong tuần
+            let usedMinutes = 0;
+            data.forEach(b => {
+                usedMinutes += (new Date(b.endtime) - new Date(b.starttime)) / 60000;
+            });
+
+            // 3️⃣ Tính phút của booking đang chọn
+            let newMinutes = 0;
+            newIntervals.forEach(itv => {
+                newMinutes += (itv.end - itv.start) / 60000;
+            });
+
+            const totalMinutes = usedMinutes + newMinutes;
+            const totalHours = totalMinutes / 60;
+
+            // 4️⃣ Check giới hạn
+            if (totalHours > 8) {
+                showPopup(
+                    "Vượt giới hạn đặt phòng",
+                    `Tổng thời lượng đặt phòng trong tuần không được vượt quá <b>8 giờ</b>.<br>
+             Hiện tại (bao gồm khung giờ đang chọn): <b>${totalHours.toFixed(1)} giờ</b>.`
+                );
+                return false;
+            }
+
+            return true;
+        }
+
         /* ===================================================================
             CALCULATE PAYMENT
         =================================================================== */
@@ -618,6 +687,14 @@
             );
 
             if (isDuplicated) return;
+
+            // ❌ CHECK GIỚI HẠN 8 GIỜ / TUẦN
+            const weeklyOk = await checkWeeklyBookingLimit(
+                studentid,
+                mergedIntervals
+            );
+            if (!weeklyOk) return;
+
             // tổng thời lượng
             let minutes = 0;
             mergedIntervals.forEach(itv => {

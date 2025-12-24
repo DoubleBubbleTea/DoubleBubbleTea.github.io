@@ -133,7 +133,7 @@ loadNotifications();
 
 function showPopup(title, message) {
     document.getElementById("modal-title").innerText = title;
-    document.getElementById("modal-message").innerText = message;
+    document.getElementById("modal-message").innerHTML = message;
     document.getElementById("popupModal").style.display = "flex";
 }
 
@@ -238,29 +238,85 @@ function formatTime(min) {
     - booked: có booking nhưng ko match 2 case trên -> xám
     - free: chưa book, còn tương lai -> trắng, được chọn
 =================================================================== */
-function getSlotStatus(slotStart, slotEnd) {
-    const now = new Date();
-    // console.log("getSlotStatus slotStart: ", slotStart);
-    // console.log("getSlotStatus now: ", now);
-    // console.log("getSlotStatus slotEnd: ", slotEnd);
+// function getSlotStatus(slotStart, slotEnd) {
+//     const now = new Date();
+//     console.log("getSlotStatus slotStart: ", slotStart);
+//     console.log("getSlotStatus now: ", now);
+//     console.log("getSlotStatus slotEnd: ", slotEnd);
 
+//     if (slotEnd <= now) {
+//         return "past";
+//     }
+
+//     for (const b of currentBookings) {
+//         console.log("getSlotStatus b.start: ", b.start);
+//         console.log("getSlotStatus b.end: ", b.end);
+//         if (slotStart < b.end && slotEnd > b.start) {
+//             if (b.status === "Đang sử dụng" && now >= b.start && now < b.end) {
+//                 console.log("using");
+//                 return "using";
+//             }
+//             if (b.status === "Đang giữ chỗ" && now < b.start) {
+//                 console.log("hold");
+//                 return "hold";
+//             }
+//             console.log("booked");
+//             return "booked";
+//         }
+//     }
+//     return "free";
+// }
+
+function getSlotStatus(slotStart, slotEnd) {
+    const GRACE_MINUTES = 30;
+
+    // 1️⃣ ƯU TIÊN BOOKING
+    for (const b of currentBookings) {
+
+        // không giao booking
+        if (slotStart >= b.end || slotEnd <= b.start) continue;
+
+        // ===== ĐANG SỬ DỤNG =====
+        if (b.status === "Đang sử dụng") {
+            return "using";   // tất cả slot trong booking cùng màu
+        }
+
+        // ===== ĐÃ CHECKOUT =====
+        if (b.status === "Đã sử dụng" && b.checkout) {
+
+            const usedMinutes =
+                (b.checkout.getTime() - b.start.getTime()) / 60000;
+
+            // checkout sớm (≤ 30p) → trả toàn bộ
+            if (usedMinutes <= GRACE_MINUTES) {
+                return "free";
+            }
+
+            // checkout muộn → slot đã bị chiếm
+            if (slotStart < b.checkout) {
+                return "booked";
+            }
+
+            return "free";
+        }
+
+        // ===== GIỮ CHỖ =====
+        if (b.status === "Đang giữ chỗ") {
+            return "hold";
+        }
+    }
+
+    // 2️⃣ KHÔNG THUỘC BOOKING → MỚI XÉT PAST
+    const now = new Date();
     if (slotEnd <= now) {
         return "past";
     }
 
-    for (const b of currentBookings) {
-        if (slotStart < b.end && slotEnd > b.start) {
-            if (b.status === "Đang sử dụng" && now >= b.start && now < b.end) {
-                return "using";
-            }
-            if (b.status === "Đang giữ chỗ" && now < b.start) {
-                return "hold";
-            }
-            return "booked";
-        }
-    }
     return "free";
 }
+
+
+
 
 /* ===================================================================
     LOAD FACILITIES FROM DATABASE
@@ -364,6 +420,7 @@ function renderCalendar() {
             } else if (status === "booked") {
                 div.classList.add("booked");
             }
+            // console.log("status: ", status);
 
             td.appendChild(div);
             tr.appendChild(td);
@@ -391,6 +448,7 @@ async function checkUpcomingBooking() {
         .select("roomid, starttime")
         .eq("studentid", studentid)
         .in("booking_status", ["Đang giữ chỗ"])
+        .like("roomid", "G%")              // ✅ chỉ lấy roomid bắt đầu bằng G
         .gte("starttime", nowStr)
         .lte("starttime", in15MinStr)
         .order("starttime", { ascending: true })
@@ -526,35 +584,65 @@ async function checkDuplicateBookingTime(studentid, intervals) {
 }
 
 function getRemainingMinutes(originalEnd, bookingStatus) {
-  if (bookingStatus === "Hủy") {
+    if (bookingStatus === "Hủy") {
+        const now = new Date();
+        return Math.floor((originalEnd - now) / 60000);
+    }
+    return Math.floor((originalEnd - new Date()) / 60000);
+}
+
+async function checkUpcomingSeatBookingReminder() {
     const now = new Date();
-    return Math.floor((originalEnd - now) / 60000);
-  }
-  return Math.floor((originalEnd - new Date()) / 60000);
+    const in15Min = new Date(now.getTime() + 15 * 60 * 1000);
+
+    const nowStr = toLocalTimestampString(now);
+    const in15Str = toLocalTimestampString(in15Min);
+
+    // 1️⃣ Lấy booking sắp tới (≤ 15 phút)
+    const { data: upcomingBookings, error } = await db
+        .from("booking")
+        .select("bookingid, studentid, seatid, roomid, starttime, reminder_sent")
+        .eq("booking_status", "Đang giữ chỗ")
+        .eq("reminder_sent", false)
+        .gt("starttime", nowStr)
+        .lte("starttime", in15Str);
+
+    if (error || !upcomingBookings || upcomingBookings.length === 0) {
+        return;
+    }
+
+    for (const b of upcomingBookings) {
+        // 2️⃣ Kiểm tra ghế có đang bị sử dụng không
+        const { data: usingSeat } = await db
+            .from("booking")
+            .select("bookingid")
+            .eq("seatid", b.seatid)
+            .eq("booking_status", "Đang sử dụng")
+            .lt("starttime", nowStr)
+            .gt("endtime", nowStr)
+            .limit(1);
+
+        // Nếu ghế đang bận → bỏ qua
+        if (usingSeat && usingSeat.length > 0) continue;
+
+        // 3️⃣ Gửi notification
+        const startTimeText = new Date(b.starttime).toLocaleTimeString("vi-VN", {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+        await insertNotification(
+            b.studentid,
+            `Bạn có lịch sử dụng chỗ ngồi ${b.seatid} phòng ${b.roomid} lúc ${startTimeText}. 
+       Hiện tại chỗ đang trống, bạn có thể đến sớm để chuẩn bị.`,
+            "Thông tin"
+        );
+
+        // 4️⃣ Đánh dấu đã gửi để tránh spam
+        await db
+            .from("booking")
+            .update({ reminder_sent: true })
+            .eq("bookingid", b.bookingid);
+    }
 }
 
-async function checkSeatEarlyFree(seatId, start, end) {
-  const { data } = await db
-    .from("booking")
-    .select("starttime,endtime,booking_status")
-    .eq("seatid", seatId)
-    .neq("booking_status", "Hủy")
-    .lt("starttime", end)
-    .gt("endtime", start);
-
-  if (!data || data.length === 0) return { allow: true };
-
-  const b = data[0];
-  const originalEnd = new Date(b.endtime);
-
-  if (b.booking_status === "Hủy") {
-    const remaining = Math.floor((originalEnd - start) / 60000);
-    return {
-      allow: true,
-      needConfirm: true,
-      remaining
-    };
-  }
-
-  return { allow: false };
-}

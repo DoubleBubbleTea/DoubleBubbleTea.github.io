@@ -16,6 +16,19 @@
 </head>
 
 <body>
+  <!-- LATE BOOKING CONFIRM MODAL -->
+  <div id="late-booking-modal" class="modal-overlay">
+    <div class="modal-box">
+      <h3>Xác nhận đặt chỗ trễ</h3>
+      <p id="late-booking-message"></p>
+
+      <div class="modal-buttons">
+        <button class="btn-confirm" onclick="confirmLateBooking(true)">Xác nhận</button>
+        <button class="btn-cancel" onclick="confirmLateBooking(false)">Hủy</button>
+      </div>
+    </div>
+  </div>
+
   <div id="popupModal" class="modal-overlay">
     <div class="modal-box small-popup">
       <h3 id="modal-title"></h3>
@@ -195,6 +208,25 @@
 
         let selectedRoomId, selectedSeatId, startTime, endTime, holdUntil;
         let CURRENT_ROOM = null;
+        let lateBookingResolve = null;
+
+        function openLateBookingModal(message) {
+          document.getElementById("late-booking-message").innerHTML = message;
+          document.getElementById("late-booking-modal").style.display = "flex";
+
+          return new Promise(resolve => {
+            lateBookingResolve = resolve;
+          });
+        }
+
+        function confirmLateBooking(ok) {
+          document.getElementById("late-booking-modal").style.display = "none";
+
+          if (lateBookingResolve) {
+            lateBookingResolve(ok);
+            lateBookingResolve = null;
+          }
+        }
 
         function toggleSlot(el, select) {
           if (select) el.classList.add("selected");
@@ -284,31 +316,70 @@
         async function loadSeats(room) {
           if (!room) return;
 
-          // const { data, error } = await db
-          //   .from("booking")
-          //   .select("seatid")
-          //   .eq("roomid", room)
-          //   .in("booking_status", ["Đang sử dụng"]);
+          const now = new Date();
 
-          // if (error) {
-          //   console.error("Load seats error:", error.message);
-          //   return;
-          // }
+          const { data, error } = await db
+            .from("booking")
+            .select("seatid, starttime, endtime, booking_status")
+            .eq("roomid", room)
+            .neq("booking_status", "Hủy");
 
-          // const busy = new Set((data || []).map(x => x.seatid));
+          if (error) {
+            console.error("Load seats error:", error.message);
+            return;
+          }
+
+          // Gom booking theo seatid
+          const bookingBySeat = {};
+          (data || []).forEach(b => {
+            if (!bookingBySeat[b.seatid]) bookingBySeat[b.seatid] = [];
+            bookingBySeat[b.seatid].push({
+              start: new Date(b.starttime),
+              end: new Date(b.endtime),
+              status: b.booking_status
+            });
+          });
 
           document.querySelectorAll(".seat").forEach(el => {
             const seatNumber = el.textContent.trim();      // "1".."60"
             const seatNo = String(seatNumber).padStart(2, "0");
-            const seatId = `${room}${seatNo}`;             // ✅ I101
+            const seatId = `${room}${seatNo}`;
 
-            // el.classList.remove("occupied");
-            // el.onclick = () => onSeatClick(seatNumber);
+            // reset trạng thái
+            el.classList.remove("occupied", "upcoming");
+            el.onclick = () => onSeatClick(seatNumber);
 
-            // if (busy.has(seatId)) {
-            //   el.classList.add("occupied");
-            //   el.onclick = null;
-            // }
+            const bookings = bookingBySeat[seatId] || [];
+
+            let isUsing = false;
+            let hasUpcoming = false;
+
+            for (const b of bookings) {
+              // 🔴 Đang sử dụng
+              if (
+                b.status === "Đang sử dụng" &&
+                now >= b.start &&
+                now < b.end
+              ) {
+                isUsing = true;
+                break;
+              }
+
+              // 🟡 Có booking trong tương lai
+              if (
+                (b.status === "Đang giữ chỗ" || b.status === "Đang sử dụng") &&
+                b.start > now
+              ) {
+                hasUpcoming = true;
+              }
+            }
+
+            if (isUsing) {
+              el.classList.add("occupied");     // 🔴 đỏ
+              // el.onclick = null;                // không cho click
+            } else if (hasUpcoming) {
+              el.classList.add("upcoming");     // 🟡 vàng
+            }
           });
         }
 
@@ -338,49 +409,48 @@
           }
           merged.push(cur);
 
-          for (const itv of merged) {
-            const check = await checkSeatEarlyFree(
-              selectedSeatId,
-              itv.start,
-              itv.end
-            );
-
-            if (!check.allow) {
-              showPopup("Lỗi", "Khung giờ đã có người đặt.");
-              return;
-            }
-
-            // ⚠️ Confirm do slot sắp hết thời gian (ví dụ còn < X phút)
-            if (check.needConfirm) {
-              const ok = confirm(
-                `Bạn còn khoảng ${check.remaining} phút sử dụng trong khung giờ này, bạn có chắc chắn muốn đặt không?`
-              );
-              if (!ok) return;
-            }
-          }
-
           const now = new Date();
 
           // hệ thống dùng mốc giờ cố định → check slot đầu tiên
           const bookingStartTime = merged[0].start;
+          const slotEndTime = merged[0].end;
+
           const isLateBooking = bookingStartTime < now;
 
           if (isLateBooking) {
             const lateMinutes = Math.floor(
               (now.getTime() - bookingStartTime.getTime()) / 60000
             );
-
-            const ok = confirm(
-              `Khung giờ này đã bắt đầu lúc ${bookingStartTime.toLocaleTimeString("vi-VN", {
-                hour: "2-digit",
-                minute: "2-digit"
-              })}.
-                Bạn đang đặt trễ ${lateMinutes} phút và thời gian sử dụng sẽ bị rút ngắn.
-                Bạn có muốn tiếp tục đặt chỗ không?`
+            const remainingMinutes = Math.floor(
+              (slotEndTime.getTime() - now.getTime()) / 60000
             );
+            // ⛔ Đặt trễ nhưng còn < 30 phút → CHẶN
+            console.log("lateMinutes: ", lateMinutes);
+            if (remainingMinutes < 30) {
+              showPopup(
+                "Không thể đặt chỗ",
+                `Thời gian sử dụng còn lại chỉ <b>${remainingMinutes} phút</b>, không đủ để đặt.<br>
+                Vui lòng chọn khung giờ tiếp theo.`
+              );
+              return;
+            }
 
+            // ⚠️ Đặt trễ nhưng vẫn còn ≥ 30 phút → hỏi confirm
+            const message = `
+            Khung giờ này đã bắt đầu lúc 
+            <b>${bookingStartTime.toLocaleTimeString("vi-VN", {
+              hour: "2-digit",
+              minute: "2-digit"
+            })}</b>.<br><br>
+              Bạn đang đặt trễ <b>${lateMinutes} phút</b> và
+              thời gian sử dụng sẽ bị rút ngắn.<br><br>
+              Bạn có muốn tiếp tục đặt chỗ không?
+            `;
+
+            const ok = await openLateBookingModal(message);
             if (!ok) return;
           }
+
           // ❌ không cho đặt trong ngày
           // const today = new Date();
           // today.setHours(0, 0, 0, 0);
@@ -401,18 +471,8 @@
           // ❌ CHECK TRÙNG KHUNG GIỜ
           const isDuplicated = await checkDuplicateBookingTime(studentid, merged);
           if (isDuplicated) return;
-          // const now = new Date();
-
-          // vì hệ thống dùng mốc giờ cố định
-          // nên chỉ cần check slot đầu tiên
-          // const bookingStartTime = merged[0].start;
-          console.log("bookingStartTime: ", bookingStartTime);
-
-          // const isLateBooking = bookingStartTime < now;
-          console.log("isLateBooking: ", isLateBooking);
 
           const bookingLateText = isLateBooking ? "Đúng" : "Sai";
-          console.log("bookingLateText: ", bookingLateText);
 
           const rows = merged.map(itv => {
             const hold = new Date(itv.start.getTime() + 15 * 60 * 1000); // +15 phút
@@ -424,7 +484,7 @@
               starttime: toLocalTimestampString(itv.start),
               endtime: toLocalTimestampString(itv.end),
               holdtime: toLocalTimestampString(hold),
-              booking_status: "Đang giữ chỗ",
+              booking_status: bookingLateText === "Đúng" ? "Đang sử dụng" : "Đang giữ chỗ",
               booking_late: bookingLateText
             };
           });
@@ -465,7 +525,10 @@
 
           currentBookings = data.map(b => ({
             start: new Date(b.starttime),
-            end: new Date(b.endtime),
+            end: new Date(b.endtime),                 // end dự kiến
+            checkout: b.checkout_time
+              ? new Date(b.checkout_time)
+              : null,
             status: b.booking_status
           }));
         }
@@ -503,8 +566,11 @@
         });
 
         loadRoomDropdown();
+
+        window.addEventListener("load", () => {
+          checkUpcomingSeatBookingReminder();
+          setInterval(checkUpcomingSeatBookingReminder, 60 * 1000);
+        });
       </script>
-
 </body>
-
 </html>

@@ -7,8 +7,8 @@
 
 :root {
   --trong: #ffffff;
-  --dang-cho: #ffcc00;
-  --da-dat: #ff4444;
+  --dang-cho: #e53935;
+  --da-dat: #ffcc00;
   --seat-border: #1a5f7a;
   --wall-color: #1a5f7a;
 }
@@ -41,10 +41,15 @@
 }
 
 .seat.occupied {
-  background: var(--da-dat);
+  background: #e53935;
   color: white;
-  border-color: #990000;
   cursor: not-allowed;
+}
+
+/* 🟡 Ghế có booking sắp tới */
+.seat.upcoming {
+  background: #fbc02d;
+  color: #222;
 }
 
 .seat.rotate-side {
@@ -216,14 +221,14 @@ table.calendar thead th {
 
 /* ĐANG SỬ DỤNG */
 .slot.using {
-  background: #facc15 !important;
+  background: var(--dang-cho) !important;
   cursor: not-allowed !important;
   pointer-events: none;
 }
 
 /* GIỮ CHỖ */
 .slot.hold {
-  background: #f87171 !important;
+  background: var(--da-dat) !important;
   cursor: not-allowed !important;
   pointer-events: none;
 }
@@ -282,6 +287,7 @@ table.calendar thead th {
     width: 100vw;
   }
 }
+
 /* ================= FIX SLOT MODAL OVERFLOW ================= */
 
 /* Modal chiếm tối đa 90% màn hình */
@@ -307,6 +313,16 @@ table.calendar thead th {
 body.modal-open {
   overflow: hidden;
 }
+
 #popupModal {
-  z-index: 20000; /* cao hơn slotBookingModal */
+  z-index: 1200;
+  /* cao hơn slotBookingModal */
+}
+
+#slotBookingModal {
+  z-index: 1000;
+}
+
+#late-booking-modal {
+  z-index: 1100;
 }
