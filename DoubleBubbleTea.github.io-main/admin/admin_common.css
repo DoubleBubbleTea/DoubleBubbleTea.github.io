@@ -1,0 +1,721 @@
+/* =========================================================
+   RESET
+========================================================= */
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #e9edf3;
+}
+
+/* =========================================================
+   HEADER (STYLE GIỐNG STUDENT)
+========================================================= */
+.header {
+    height: 64px;
+    background: #e7f0f8;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    font-size: 18px;
+    font-weight: bold;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.header-title {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    position: relative;
+
+    /* có cũng được, không bắt buộc */
+}
+
+#header-user {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2933;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+/* ---------------- ICONS ---------------- */
+.icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    transition: 0.2s;
+    position: relative;
+    /* 👉 thêm dòng này */
+}
+
+.icon:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.icon-img {
+    width: 18px;
+    height: 18px;
+}
+
+/* ---------------- Notification Count ---------------- */
+.notif-count {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: red;
+    color: white;
+    font-size: 11px;
+    padding: 2px 5px;
+    border-radius: 50%;
+    font-weight: bold;
+}
+
+/* ---------------- Notification Dropdown ---------------- */
+.notif-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 42px;
+    width: 360px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+    z-index: 50;
+    overflow: hidden;
+}
+
+.notif-title {
+    background: #f3f4f6;
+    padding: 12px 16px;
+    font-weight: 700;
+    font-size: 15px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.notif-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* ===== ITEM ===== */
+.notif-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.notif-item:hover {
+    background: #f8fafc;
+}
+
+.notif-item:last-child {
+    border-bottom: none;
+}
+/* ===== MINI ICON ===== */
+.notif-mini-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+}
+
+/* icon theo trạng thái */
+.notif-mini-icon.success { background: #22c55e; }
+.notif-mini-icon.info { background: #3b82f6; }
+.notif-mini-icon.warning { background: #ef4444; }
+
+/* ===== CONTENT ===== */
+.notif-content {
+    flex: 1;
+}
+
+.notif-item-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.35;
+}
+
+.notif-item-time {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+.notif-item-link {
+    font-size: 13px;
+    color: #2563eb;
+    margin-top: 4px;
+}
+/* =========================================================
+   MAIN LAYOUT
+========================================================= */
+.main {
+    display: flex;
+    height: calc(100vh - 64px);
+}
+
+/* =========================================================
+   SIDEBAR (STYLE GIỐNG STUDENT)
+========================================================= */
+.sidebar {
+    width: 250px;
+    min-width: 250px;
+    background: #275167;
+    color: white;
+    border-radius: 20px;
+    margin: 16px;
+    padding: 22px 18px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: calc(100vh - 32px);
+    /* trừ margin top + bottom */
+    overflow-y: auto;
+}
+
+.sidebar h3 {
+    text-align: center;
+    margin-bottom: 18px;
+    font-size: 19px;
+    font-weight: bold;
+}
+
+/* Sidebar links */
+.sidebar a {
+    display: block;
+    padding: 12px 20px;
+    border-radius: 999px;
+    color: #eaf2f9;
+    font-size: 15px;
+    text-decoration: none;
+    transition: 0.25s;
+}
+
+/* Hover */
+.sidebar a:hover {
+    background: #f0f4f8;
+    color: #275167;
+    transform: translateX(4px);
+}
+
+/* Active */
+.sidebar a.active {
+    background: #f0f4f8;
+    color: #275167;
+    font-weight: 600;
+}
+
+/* =========================================================
+   CONTENT
+========================================================= */
+.content {
+    flex: 1;
+    padding: 40px 60px;
+    background: #f4f6fa;
+    margin: 16px 16px 16px 0;
+    border-radius: 20px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.content h2 {
+    font-size: 26px;
+    margin-bottom: 25px;
+    font-weight: bold;
+}
+
+/* =========================================================
+   INFO BOX
+========================================================= */
+.info-box {
+    max-width: 600px;
+    background: white;
+    padding: 20px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.info-item {
+    margin-bottom: 12px;
+}
+
+.info-item label {
+    width: 120px;
+    display: inline-block;
+    font-weight: bold;
+}
+
+.info-edit {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+.btn-edit,
+.btn-save,
+.btn-cancel {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-save {
+    background: #16a34a;
+    color: white;
+}
+
+.btn-cancel {
+    background: #dc2626;
+    color: white;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+/* .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9998;
+} */
+
+/* .modal-box {
+    background: white;
+    width: 350px;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+} */
+
+/* Logout modal */
+#logout-modal {
+    display: none;
+}
+
+#logout-modal .modal-box {
+    width: 320px;
+}
+
+.btn-confirm {
+    padding: 8px 16px;
+    background: #dc2626;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-cancel {
+    padding: 8px 16px;
+    background: #4b5563;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+th {
+    background: #D3D7DD;
+    color: #3e3d3d;
+}
+
+/* AVATAR BOX */
+.avatar-box {
+    width: 100%;
+    text-align: center;
+    padding: 25px 0 20px 0;
+    border-bottom: 1px solid #ffffff33;
+    margin-bottom: 20px;
+
+    /* fade-in nhẹ cho avatar */
+    animation: fadeAvatar 0.4s ease-out;
+}
+
+@keyframes fadeAvatar {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.avatar-box img {
+    width: 50%;
+    height: 80%;
+
+    /* làm avatar tròn */
+    border-radius: 50%;
+    object-fit: cover;
+
+    border: 3px solid rgba(255, 255, 255, 0.9);
+
+    /* đổ bóng mềm cho avatar nổi bật */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+
+    /* hiệu ứng trơn tru */
+    transition: 0.3s ease;
+}
+
+/* Hiệu ứng hover */
+.avatar-box img:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+    border-color: #dbeafe;
+    /* màu xanh nhạt theo theme */
+}
+
+.avatar-name {
+    margin-top: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    letter-spacing: 0.3px;
+
+    /* hiệu ứng mờ nhẹ */
+    opacity: 0.9;
+    transition: 0.3s ease;
+}
+
+.avatar-name:hover {
+    opacity: 1;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+}
+
+
+.btn-change-pass {
+    background: #6b7280;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    margin-right: 10px;
+    cursor: pointer;
+    border: none;
+}
+
+
+.input-wrapper {
+    position: relative;
+    margin-bottom: 12px;
+}
+
+.input-wrapper input {
+    width: 80%;
+    padding: 10px 40px 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    background: #f9fafb;
+}
+
+.toggle-emoji {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    user-select: none;
+    font-size: 20px;
+    opacity: 0.7;
+}
+
+.toggle-emoji:hover {
+    opacity: 1;
+}
+
+/* Modal đẹp chuẩn */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.modal-box {
+    background: white;
+    padding: 25px;
+    width: 380px;
+    border-radius: 10px;
+    text-align: center;
+    animation: fadeIn .25s ease-out;
+}
+
+.error-x {
+    position: absolute;
+    right: 40px;
+    /* nằm trước icon 🙈 */
+    top: 50%;
+    transform: translateY(-50%);
+    color: red;
+    font-size: 18px;
+    font-weight: bold;
+    display: none;
+}
+
+#modal {
+    z-index: 10000 !important;
+}
+
+#passModal {
+    z-index: 9999 !important;
+}
+
+/* ACTION BAR */
+.action-bar {
+    display: flex;
+    justify-content: flex-start;
+    /* tất cả dồn về trái */
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+/* Cụm nút bên trái */
+.left-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Dropdown ngành */
+#major-select {
+    height: 42px;
+    padding: 0 12px;
+    min-width: 200px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+}
+
+/* Fix btn-add trong toolbar */
+.left-actions .btn-add {
+    margin-bottom: 0;
+    /* fix lệch cũ */
+    display: flex;
+    align-items: center;
+}
+
+/* SCROLL RIÊNG CHO BẢNG */
+.table-scroll {
+    max-height: 400px;
+    /* chỉnh theo layout */
+    overflow-y: auto;
+    border-radius: 10px;
+}
+
+/* Thanh scroll đẹp hơn (Chrome / Edge) */
+.table-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-scroll::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.table-scroll::-webkit-scrollbar-thumb {
+    background: #275167;
+    border-radius: 10px;
+}
+
+.table-scroll::-webkit-scrollbar-thumb:hover {
+    background: #1f4255;
+}
+
+#room-filter {
+    background: #275167;
+    color: #faf9f9;
+    height: 38px;
+    padding: 0 14px;
+    min-width: 100px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#room-filter:hover {
+    background: #152a36;
+}
+
+#room-filter option {
+    background: white;
+    /* nền option */
+    color: #111;
+    /* chữ đen */
+}
+
+/* ===== SIDEBAR DROPDOWN ===== */
+.sidebar-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-dropdown-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.sidebar-dropdown {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+    margin-left: 12px;
+    margin-top: 6px;
+}
+
+.sidebar-dropdown.open {
+    max-height: 300px;
+    /* đủ cho list */
+}
+
+.sidebar-dropdown a {
+    font-size: 14px;
+    padding-left: 18px;
+}
+
+/* Arrow animation */
+.dropdown-arrow {
+    transition: transform 0.25s ease;
+}
+
+.sidebar-dropdown-toggle.open .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.fa-caret-down {
+    float: right;
+    padding-right: 8px;
+}
+
+.btn-delete {
+    background: #dc2626;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* ===== TABLE ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-add {
+    padding: 10px 18px;
+    background: #275167;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 15px;
+}
+
+.btn-edit {
+    background: #003b73;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+th,
+td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+tr:hover {
+    background: #eef3ff;
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-box {
+    background: white;
+    padding: 25px;
+    width: 380px;
+    border-radius: 6px;
+}
+
+.modal-input {
+    width: 100%;
+    padding: 8px;
+    margin: 6px 0;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.modal-buttons button {
+    padding: 8px 16px;
+    border: none;
+    margin-top: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Popup thông báo (showPopup) */
+#popupModal {
+    z-index: 10001 !important;
+}

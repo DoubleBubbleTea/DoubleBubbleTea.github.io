@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>USSH - Đặt Phòng Lớn (Group Room)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="./layout.css">
+    <link rel="stylesheet" href="./booking_GR.css">
+
+    <style>
+        /* CSS THÊM CHO DANH SÁCH THÀNH VIÊN */
+        .member-list-container {
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            background: #f9f9f9;
+        }
+
+        .member-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .member-row input {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 13px;
+            width: 100%;
+        }
+
+        .member-index {
+            font-weight: bold;
+            font-size: 12px;
+            width: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-title">Đặt phòng nhóm</div>
+        <div class="header-right">
+            <div class="icon notification-icon" onclick="toggleNotification()">
+                <img src="../img/notification_new.png" class="icon-img">
+                <div id="notif-count" class="notif-count" style="display:none;">0</div>
+            </div>
+
+            <div class="icon logout-icon" onclick="openLogoutModal()">
+                <img src="../img/logout_new.png" class="icon-img">
+            </div>
+
+            <div id="header-user">Đang tải...</div>
+
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-title">Thông báo</div>
+                <div id="notif-list" class="notif-list">Không có thông báo!</div>
+            </div>
+        </div>
+    </div>
+    <div id="bookingReminder" class="booking-reminder" style="display:none;">
+        <div class="reminder-icon">⏰</div>
+        <div class="reminder-content">
+            <div class="reminder-title">
+                Sắp đến giờ sử dụng phòng
+            </div>
+            <div class="reminder-text" id="reminderText">
+                —
+            </div>
+        </div>
+    </div>
+    <div class="main">
+
+        <div class="sidebar">
+            <div class="avatar-box">
+                <img id="student-avatar" src="../img/logo.png" alt="avatar">
+                <div class="avatar-name" id="avatar-fullname">—</div>
+            </div>
+
+            <h3>Danh sách</h3>
+            <a href="../news.html">Bản tin</a>
+            <a href="./information.html">Thông tin cá nhân</a>
+            <a href="#" onclick="checkTrustBeforeBooking()" class="active">Đặt phòng</a>
+            <a href="./booking_history.html">Lịch sử đặt phòng</a>
+            <a href="./checkin_room.html">Check-in phòng</a>
+            <a href="./checkin_seat.html">Check-in chỗ ngồi</a>
+            <a href="./student_feedback.html">Phản hồi sinh viên</a>
+            <a href="./reward.html">Đổi phần thưởng</a>
+            <a href="./student_reward.html">Danh sách phần thưởng</a>
+        </div>
+
+        <div class="content">
+            <div class="page-container">
+                <div class="page-title">Danh sách phòng nhóm</div>
+                <div id="roomList"></div>
+            </div>
+        </div>
+    </div>
+    <div id="bookingModal" class="modal-overlay">
+        <div class="modal-box booking-box">
+
+            <div class="booking-title">Đặt phòng</div>
+
+            <div class="booking-top-row">
+                <label>Ngày:</label>
+                <select id="daySelect"></select>
+            </div>
+
+            <div class="calendar-wrapper">
+                <table id="calendarTable" class="calendar"></table>
+            </div>
+
+            <div class="extra-options">
+                <h3>Thông tin thêm</h3>
+
+                <div class="extra-grid">
+                    <div class="extra-column">
+                        <label>Tiện ích:</label>
+                        <div id="facilityContainer" class="facility-list">
+                        </div>
+                    </div>
+
+                    <div class="extra-column">
+                        <label>Mục đích sử dụng:</label>
+                        <input type="text" id="purpose" placeholder="VD: Họp nhóm, thảo luận..." />
+
+                        <label for="memberCount">Số người tham gia:</label>
+                        <input type="number" id="memberCount" placeholder="Nhập số người"
+                            oninput="renderMemberInputs()" />
+                        <div id="limit-warning"
+                            style="display:none; color:red; font-size:13px; margin-top:5px; font-weight:bold;">
+                        </div>
+
+                        <div id="min-warning"
+                            style="display:none; color:red; font-size:13px; margin-top:5px; font-weight:bold;">
+                        </div>
+
+                        <div id="required-note"
+                            style="display: none; color: #555; font-size: 13px; margin-top: 5px; font-style: italic;">
+                            Bắt buộc phải nhập đầy đủ MSSV và Họ tên
+                        </div>
+                        <div id="memberListContainer" class="member-list-container" style="display:none;"></div>
+                    </div>
+                </div>
+
+                <p class="note-fee" id="feeNote">Đang tải...</p>
+
+            </div>
+
+            <div class="booking-actions">
+                <button class="btn-outline" onclick="closeBookingModal()">Hủy</button>
+                <button class="btn-primary" onclick="calculatePayment()">Xác nhận</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="paymentModal" class="modal-overlay">
+        <div class="modal-box payment-box">
+            <div class="payment-header">
+                <h3>Chi tiết thanh toán</h3>
+            </div>
+
+            <div id="paymentDetails" class="payment-details"></div>
+            <div class="payment-method">
+                <h4>Phương thức thanh toán</h4>
+                <div class="payment-method-list">
+                    <label class="payment-item">
+                        <input type="radio" name="paymentMethod" value="Tiền mặt" checked>
+                        <img src="../img/cash.png" class="payment-icon">
+                        <span>Tiền mặt</span>
+                    </label>
+                    <label class="payment-item">
+                        <input type="radio" name="paymentMethod" value="Momo">
+                        <img src="../img/momo.png" class="payment-icon">
+                        <span>Momo</span>
+                    </label>
+                    <label class="payment-item">
+                        <input type="radio" name="paymentMethod" value="Ngân hàng">
+                        <img src="../img/bank.png" class="payment-icon">
+                        <span>Ngân hàng</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="booking-actions payment-actions">
+                <button class="btn-outline" onclick="closePaymentModal()">Hủy</button>
+                <button class="btn-primary" onclick="handlePaymentConfirm()">Xác nhận thanh toán</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="checkinQRModal" class="modal-overlay">
+        <div class="modal-box small-popup">
+            <h3>Check-in phòng</h3>
+
+            <p style="margin:10px 0; font-size:14px;">
+                Mã QR dùng để check-in phòng, hãy lưu lại
+            </p>
+
+            <div class="checkin-qr-wrapper">
+                <img id="checkinQRImage" src="../img/checkin_QR1.png">
+
+                <div class="checkin-actions">
+                    <button class="btn-outline" onclick="downloadCheckinQR()">
+                        Lưu check-in QR code
+                    </button>
+                    <button class="btn-primary" onclick="confirmCheckinAndFinalize()">
+                        Xác nhận
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="popupModal" class="modal-overlay">
+        <div class="modal-box small-popup">
+            <h3 id="modal-title"></h3>
+            <p id="modal-message"></p>
+            <button class="btn-primary" onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="qrModal" class="modal-overlay">
+        <div class="modal-box small-popup">
+            <h3>Quét mã QR để thanh toán</h3>
+
+            <img id="qrImage" src="../img/qr-demo.png" style="width:200px; margin:15px auto; display:block;">
+
+            <div class="booking-actions">
+                <button class="btn-outline" onclick="closeQRModal()">Hủy</button>
+                <button class="btn-primary" onclick="confirmQRPayment()">Xác nhận thanh toán</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentRooms = [];
+        let roomDataMap = {};       // roomid -> room object
+        let facilityData = [];      // danh sách tiện ích từ DB
+        let selectedRoomId = null;
+
+        let weekDates = [];
+        let slotDefs = [];
+        let currentBookings = [];   // {start, end, status}
+        let mergedIntervals = [];
+        let selectedFacilities = [];
+        let pendingPayment = null;
+
+        // Biến lưu trữ thông tin user hiện tại để điền tự động
+        let currentUserInfo = {
+            id: '',
+            name: ''
+        };
+
+        function handlePaymentConfirm() {
+            const method = document.querySelector(
+                'input[name="paymentMethod"]:checked'
+            ).value;
+
+            pendingPayment.paymentmethod = method;
+
+            if (method === "Tiền mặt") {
+                finalizeBookingWithPayment();
+            } else {
+                // Momo / Ngân hàng → mở QR
+                document.getElementById("paymentModal").style.display = "none";
+                document.getElementById("qrModal").style.display = "flex";
+            }
+        }
+        function closeQRModal() {
+            document.getElementById("qrModal").style.display = "none";
+        }
+
+        function confirmQRPayment() {
+            // Ẩn modal QR thanh toán
+            document.getElementById("qrModal").style.display = "none";
+
+            // Hiện modal QR check-in
+            document.getElementById("checkinQRModal").style.display = "flex";
+        }
+        function downloadCheckinQR() {
+            const link = document.createElement("a");
+            link.href = "../img/checkin_QR1.png";
+            link.download = "checkin_QR1.png";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        function confirmCheckinAndFinalize() {
+            document.getElementById("checkinQRModal").style.display = "none";
+            finalizeBookingWithPayment();
+        }
+
+        /* ===================================================================
+            LOAD ROOMS FROM DATABASE
+        =================================================================== */
+        async function loadRooms() {
+            const container = document.getElementById("roomList");
+            container.innerHTML = "<p>Đang tải danh sách phòng...</p>";
+
+            const { data, error } = await db
+                .from("room")
+                .select("*")
+                .like("roomid", "G%")
+                .order("roomid");
+
+            if (error || !data || data.length === 0) {
+                container.innerHTML = "<p>Không có phòng nhóm nào.</p>";
+                return;
+            }
+
+            currentRooms = [];
+            roomDataMap = {};
+            container.innerHTML = "";
+
+            data.forEach(room => {
+                currentRooms.push(room.roomid);
+                roomDataMap[room.roomid] = room;
+
+                const isAvailable = room.status === "Có thể đặt";
+
+                const roomRow = document.createElement("div");
+                roomRow.className = "room-row";
+
+                roomRow.innerHTML = `
+            <div class="room-image">
+                <img src="../img/imgGR.png" alt="${room.roomid}">
+            </div>
+
+            <div class="room-info">
+                <h2>${room.roomid}</h2>
+                <p><strong>Mã phòng:</strong> ${room.roomid}</p>
+                <p><strong>Loại phòng:</strong> ${room.roomtype || "Phòng nhóm"}</p>
+                <p><strong>Vị trí:</strong> ${room.location || "—"}</p>
+                <p><strong>Sức chứa:</strong> ${room.capacity ?? "—"}</p>
+
+                ${isAvailable
+                        ? `<p><strong>Mô tả:</strong> ${room.description || "—"}</p>
+                            <p><strong>Giá phòng:</strong> ${(room.cost || 0).toLocaleString()} đ/giờ</p>`
+                        : `<p style="color:#ef4444; font-weight:600">
+                             Phòng học hiện không mở cho việc đăng ký.<br> 
+                             Vui lòng thử lại sau.
+                           </p>`
+                    }
+
+                <div class="room-info-bottom">
+                    ${isAvailable
+                        ? `<button class="room-btn"
+                                  onclick="openBookingModal('${room.roomid}')">
+                                  Chọn phòng
+                               </button>`
+                        : `<button class="room-btn disabled" disabled>
+                                  Không thể đặt
+                               </button>`
+                    }
+                </div>
+            </div>
+        `;
+
+                container.appendChild(roomRow);
+            });
+        }
+
+
+        /* ===================================================================
+            LOAD BOOKINGS FOR SELECTED ROOM
+        =================================================================== */
+        async function loadBookingsForRoom() {
+            currentBookings = [];
+            if (!selectedRoomId) return;
+
+            const { data, error } = await db
+                .from("booking")
+                .select("starttime,endtime,booking_status")
+                .eq("roomid", selectedRoomId);
+
+            if (error || !data) return;
+
+            currentBookings = data
+                .filter(b => b.booking_status !== "Hủy")    // ← BỎ QUA BOOKING HỦY
+                .map(b => ({
+                    start: new Date(b.starttime),
+                    end: new Date(b.endtime),
+                    status: b.booking_status
+                }));
+        }
+
+
+        /* ===================================================================
+            SLOT SELECT
+        =================================================================== */
+        function enableSlotSelection() {
+            const table = document.getElementById("calendarTable");
+            let mouseDown = false;
+            let mode = true;
+
+            table.onmousedown = e => {
+                if (
+                    e.target.classList.contains("slot") &&
+                    !e.target.classList.contains("booked") &&
+                    !e.target.classList.contains("past")
+                ) {
+                    mouseDown = true;
+                    mode = !e.target.classList.contains("selected");
+                    toggleSlot(e.target, mode);
+                }
+            };
+
+            table.onmouseover = e => {
+                if (
+                    mouseDown &&
+                    e.target.classList.contains("slot") &&
+                    !e.target.classList.contains("booked") &&
+                    !e.target.classList.contains("past")
+                ) {
+                    toggleSlot(e.target, mode);
+                }
+            };
+
+            document.onmouseup = () => {
+                mouseDown = false;
+            };
+        }
+
+        function toggleSlot(el, select) {
+            if (select) el.classList.add("selected");
+            else el.classList.remove("selected");
+        }
+
+        /* ===================================================================
+            OPEN/CLOSE MODALS
+        =================================================================== */
+        async function openBookingModal(roomId) {
+            selectedRoomId = roomId;
+
+            const room = roomDataMap[roomId];
+            if (!room) {
+                showPopup("Lỗi", "Không tìm thấy thông tin phòng.");
+                return;
+            }
+            const memberInput = document.getElementById("memberCount");
+            // cập nhật min / max động
+            memberInput.min = 2;
+            memberInput.max = room.capacity;
+
+            // cập nhật placeholder
+            memberInput.placeholder = `Từ 2 đến ${room.capacity} người`;
+
+            const label = document.querySelector('label[for="memberCount"]');
+            if (label) {
+                label.innerText = `Số người tham gia (2-${room.capacity} người):`;
+            }
+
+            document.getElementById("feeNote").innerHTML =
+                `Giá phòng: <strong>${(room.cost || 0).toLocaleString()}đ/giờ</strong><br>` +
+                `Phí tiện ích: tính theo từng loại tiện ích (VND/giờ).`;
+
+            // reset form
+            document.getElementById("purpose").value = "";
+            document.getElementById("memberCount").value = "";
+            // Reset list thành viên
+            document.getElementById("memberListContainer").innerHTML = "";
+            document.getElementById("memberListContainer").style.display = "none";
+            // Ẩn các cảnh báo
+            document.getElementById("limit-warning").style.display = "none";
+            document.getElementById("min-warning").style.display = "none";
+            document.getElementById("required-note").style.display = "none";
+
+            document.querySelectorAll(".facility").forEach(f => f.checked = false);
+            document.querySelectorAll(".slot.selected").forEach(s => s.classList.remove("selected"));
+
+            // Lấy thông tin user hiện tại để chuẩn bị điền vào form
+            const studentid = localStorage.getItem("studentid");
+            if (studentid) {
+                const { data } = await db.from("student").select("fullname").eq("studentid", studentid).single();
+                currentUserInfo.id = studentid;
+                currentUserInfo.name = data ? data.fullname : "";
+            }
+
+            initWeekDates();
+            initSlots();
+            await loadBookingsForRoom();
+            renderCalendar();
+
+            document.getElementById("bookingModal").style.display = "flex";
+        }
+
+        function closeBookingModal() {
+            document.getElementById("bookingModal").style.display = "none";
+        }
+
+        function closePaymentModal() {
+            document.getElementById("paymentModal").style.display = "none";
+        }
+
+        /* ===================================================================
+            RENDER MEMBER INPUTS (MODIFIED LOGIC)
+        =================================================================== */
+        function renderMemberInputs() {
+            const countInput = document.getElementById("memberCount");
+            const container = document.getElementById("memberListContainer");
+            const count = parseInt(countInput.value);
+
+            const limitWarning = document.getElementById("limit-warning");
+            const minWarning = document.getElementById("min-warning");
+            const noteText = document.getElementById("required-note");
+
+            container.style.display = "none";
+            container.innerHTML = "";
+            limitWarning.style.display = "none";
+            minWarning.style.display = "none";
+            noteText.style.display = "none";
+
+            if (isNaN(count)) return;
+
+            const room = roomDataMap[selectedRoomId];
+            const maxCap = room?.capacity || 7;
+
+            // > capacity
+            if (count > maxCap) {
+                limitWarning.innerText = `Số người tham gia không vượt quá ${maxCap}`;
+                limitWarning.style.display = "block";
+                return;
+            }
+
+            // < 2
+            if (count < 2) {
+                minWarning.innerText = `Số người tham gia phải từ 2-${maxCap} người`;
+                minWarning.style.display = "block";
+                return;
+            }
+
+            noteText.style.display = "block";
+            container.style.display = "block";
+
+            let html = '';
+            for (let i = 1; i <= count; i++) {
+                if (i === 1) {
+                    html += `
+            <div class="member-row">
+                <span class="member-index">#1</span>
+                <input type="text" class="mem-id"
+                       value="${currentUserInfo.id}" disabled>
+                <input type="text" class="mem-name"
+                       value="${currentUserInfo.name}" disabled>
+            </div>`;
+                } else {
+                    html += `
+            <div class="member-row">
+                <span class="member-index">#${i}</span>
+                <input type="text" class="mem-id"
+                       placeholder="MSSV thành viên ${i}">
+                <input type="text" class="mem-name"
+                       placeholder="Họ tên thành viên ${i}">
+            </div>`;
+                }
+            }
+
+            container.innerHTML = html;
+        }
+
+        function getWeekRange(date) {
+            const d = new Date(date);
+
+            const day = d.getDay(); // 0 = CN, 1 = T2
+            const diffToMonday = day === 0 ? -6 : 1 - day;
+
+            const monday = new Date(d);
+            monday.setDate(d.getDate() + diffToMonday);
+            monday.setHours(0, 0, 0, 0);
+
+            const sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+            sunday.setHours(23, 59, 59, 999);
+            console.log("monday: ", monday);
+            console.log("sunday: ", sunday);
+
+            return { monday, sunday };
+        }
+
+        async function checkWeeklyBookingLimit(studentid, newIntervals) {
+            // Lấy mốc tuần theo slot đầu tiên
+            const { monday, sunday } = getWeekRange(newIntervals[0].start);
+
+            const mondayStr = toLocalTimestampString(monday);
+            const sundayStr = toLocalTimestampString(sunday);
+
+            // 1️⃣ Lấy booking trong tuần (chưa hủy)
+            const { data, error } = await db
+                .from("booking")
+                .select("starttime, endtime")
+                .eq("studentid", studentid)
+                .neq("booking_status", "Hủy")
+                .like("roomid", "G%")            // ✅ chỉ xét roomid bắt đầu bằng G
+                .gte("starttime", mondayStr)
+                .lte("starttime", sundayStr);
+
+            if (error) {
+                console.error("Check weekly limit error:", error.message);
+                return false; // fail-safe: không chặn
+            }
+
+            // 2️⃣ Tính tổng phút đã đặt trong tuần
+            let usedMinutes = 0;
+            data.forEach(b => {
+                usedMinutes += (new Date(b.endtime) - new Date(b.starttime)) / 60000;
+            });
+
+            // 3️⃣ Tính phút của booking đang chọn
+            let newMinutes = 0;
+            newIntervals.forEach(itv => {
+                newMinutes += (itv.end - itv.start) / 60000;
+            });
+
+            const totalMinutes = usedMinutes + newMinutes;
+            const totalHours = totalMinutes / 60;
+
+            // 4️⃣ Check giới hạn
+            if (totalHours > 8) {
+                showPopup(
+                    "Vượt giới hạn đặt phòng",
+                    `Tổng thời lượng đặt phòng trong tuần không được vượt quá <b>8 giờ</b>.<br>
+             Hiện tại (bao gồm khung giờ đang chọn): <b>${totalHours.toFixed(1)} giờ</b>.`
+                );
+                return false;
+            }
+
+            return true;
+        }
+
+        /* ===================================================================
+            CALCULATE PAYMENT
+        =================================================================== */
+        async function calculatePayment() {
+            const studentid = localStorage.getItem("studentid");
+            if (!studentid) {
+                return showPopup("Lỗi", "Không tìm thấy mã số sinh viên! Có thể bạn chưa đăng nhập.");
+            }
+
+            const selected = [...document.querySelectorAll(".slot.selected")];
+            if (selected.length === 0) {
+                return showPopup("Lỗi", "Bạn chưa chọn giờ!");
+            }
+
+            // gom slot liên tiếp
+            const intervals = selected.map(s => ({
+                start: new Date(s.dataset.start),
+                end: new Date(s.dataset.end)
+            })).sort((a, b) => a.start - b.start);
+
+            mergedIntervals = [];
+            let cur = intervals[0];
+
+            for (let i = 1; i < intervals.length; i++) {
+                if (intervals[i].start.getTime() === cur.end.getTime()) {
+                    cur.end = intervals[i].end;
+                } else {
+                    mergedIntervals.push(cur);
+                    cur = intervals[i];
+                }
+            }
+            mergedIntervals.push(cur);
+            // ❌ CHECK KHÔNG CHO ĐẶT 2 PHÒNG CÙNG GIỜ
+            const isDuplicated = await checkDuplicateBookingTime(
+                studentid,
+                mergedIntervals
+            );
+
+            if (isDuplicated) return;
+
+            // ❌ CHECK GIỚI HẠN 8 GIỜ / TUẦN
+            const weeklyOk = await checkWeeklyBookingLimit(
+                studentid,
+                mergedIntervals
+            );
+            if (!weeklyOk) return;
+
+            // tổng thời lượng
+            let minutes = 0;
+            mergedIntervals.forEach(itv => {
+                minutes += (itv.end - itv.start) / 60000;
+            });
+            const hours = minutes / 60;
+
+            // --- CHECK THỜI GIAN: TỐI ĐA 4 GIỜ ---
+            if (hours > 4) {
+                return showPopup(
+                    "Lỗi",
+                    "Thời gian đặt phòng tối đa là 4 giờ. Vui lòng chọn lại khung giờ."
+                );
+            }
+            // KHÔNG CHO ĐẶT TRONG NGÀY HÔM NAY
+            // const today = new Date();
+            // today.setHours(0, 0, 0, 0);
+
+            // for (const itv of mergedIntervals) {
+            //     const bookingDate = new Date(itv.start);
+            //     bookingDate.setHours(0, 0, 0, 0);
+
+            //     if (bookingDate.getTime() === today.getTime()) {
+            //         return showPopup(
+            //             "Lỗi",
+            //             "Bạn không thể đặt phòng trong ngày hôm nay. Vui lòng đặt trước ít nhất 1 ngày."
+            //         );
+            //     }
+            // }
+            const room = roomDataMap[selectedRoomId];
+            const roomCost = (room.cost || 0) * hours;
+
+            selectedFacilities = [...document.querySelectorAll(".facility:checked")].map(f => ({
+                name: f.value,
+                cost: Number(f.dataset.cost)
+            }));
+
+            let facilityCost = 0;
+            selectedFacilities.forEach(f => {
+                facilityCost += f.cost * hours;
+            });
+
+            const total = roomCost + facilityCost;
+
+            const purpose = document.getElementById("purpose").value.trim() || "Không ghi";
+            const memberCountInput = document.getElementById("memberCount").value;
+            const memberCount = Number(memberCountInput);
+
+            // --- CHECK SỐ NGƯỜI (VALIDATION CUỐI CÙNG) ---
+            if (!memberCountInput || isNaN(memberCount)) {
+                return showPopup("Lỗi", "Vui lòng nhập số người tham gia hợp lệ.");
+            }
+
+            // Check > 7
+            if (memberCount > room.capacity) {
+                return showPopup(
+                    "Lỗi",
+                    `Số người tham gia không vượt quá ${room.capacity} người.`
+                );
+            }
+
+            if (memberCount < 2) {
+                return showPopup(
+                    "Lỗi",
+                    `Số người tham gia phải từ 2-${room.capacity} người`
+                );
+            }
+
+            if (room.capacity && memberCount > room.capacity) {
+                return showPopup(
+                    "Lỗi",
+                    `Số người đăng ký vượt quá giới hạn.
+                     Số lượng tối đa của phòng là ${room.capacity}.`
+                );
+            }
+
+            // CHECK THÔNG TIN THÀNH VIÊN (VALIDATION)
+            const memberRows = document.querySelectorAll(".member-row");
+            let memberList = [];
+            let missingInfo = false;
+
+            // Nếu logic đúng, số lượng memberRow phải bằng memberCount
+            if (memberRows.length !== memberCount) {
+                return showPopup("Lỗi", "Số lượng thành viên không khớp với danh sách nhập hoặc bạn chưa nhập đúng điều kiện.");
+            }
+
+            memberRows.forEach(row => {
+                const idVal = row.querySelector(".mem-id").value.trim();
+                const nameVal = row.querySelector(".mem-name").value.trim();
+
+                if (!idVal || !nameVal) {
+                    missingInfo = true;
+                }
+                memberList.push({
+                    studentid: idVal,
+                    fullname: nameVal
+                });
+            });
+
+            if (missingInfo) {
+                return showPopup("Lỗi", "Vui lòng nhập đủ MSSV và Họ tên tất cả người tham gia");
+            }
+            // ============================================
+
+            const facText = selectedFacilities.length
+                ? selectedFacilities.map(f => `${f.name}`).join(", ")
+                : "Không sử dụng";
+
+            document.getElementById("paymentDetails").innerHTML = `
+                <div class="payment-row"><span>Phòng:</span> <strong>${room.roomid}</strong></div>
+                <div class="payment-row"><span>Thời lượng:</span> <strong>${hours.toFixed(1)} giờ</strong></div>
+                <div class="payment-row"><span>Mục đích:</span> <strong>${purpose}</strong></div>
+                <div class="payment-row"><span>Số người:</span> <strong>${memberCount}</strong></div>
+                <div class="payment-row"><span>Tiện ích:</span> <strong>${facText}</strong></div>
+                
+                <div style="margin-top:10px; font-size:13px; font-style:italic; color:#555;">
+                    Danh sách thành viên (${memberCount} người): <br>
+                    ${memberList.map(m => `- ${m.studentid} - ${m.fullname}`).join("<br>")}
+                </div>
+
+                <hr>
+                <div class="payment-row"><span>Phí phòng:</span> <strong>${roomCost.toLocaleString()} đ</strong></div>
+                <div class="payment-row"><span>Phí tiện ích:</span> <strong>${facilityCost.toLocaleString()} đ</strong></div>
+                <div class="payment-total">Tổng cộng: <strong>${total.toLocaleString()} đ</strong></div>
+            `;
+
+            pendingPayment = {
+                studentid,
+                studentname: "",
+                totalCost: total,
+                paymentmethod: "Tiền mặt", // default
+                purpose: purpose,
+                numbermember: memberCount,
+                memberList: memberList // Lưu danh sách thành viên để insert sau
+            };
+
+            document.getElementById("paymentModal").style.display = "flex";
+        }
+
+        /* ===================================================================
+            FINAL BOOKING (LƯU GIỜ THEO GIỜ VIỆT NAM)
+        =================================================================== */
+        async function finalizeBookingWithPayment() {
+
+            const studentid = pendingPayment.studentid;
+            // 🔍 LẤY TÊN SINH VIÊN (Người đặt)
+            const { data: studentData, error: studentError } = await db
+                .from("student")
+                .select("fullname")
+                .eq("studentid", studentid)
+                .single();
+
+            if (studentError || !studentData) {
+                return showPopup("Lỗi", "Không lấy được thông tin sinh viên.");
+            }
+
+            const studentname = studentData.fullname;
+
+            const now = new Date();
+
+            // 1️⃣ INSERT BOOKING
+            const rows = mergedIntervals.map(itv => ({
+                studentid,
+                roomid: selectedRoomId,
+                facilities: selectedFacilities.map(f => f.name).join(","),
+                numbermember: pendingPayment.numbermember,
+                purpose: pendingPayment.purpose,
+                starttime: toLocalTimestampString(itv.start),
+                endtime: toLocalTimestampString(itv.end),
+                booking_status: now < itv.start ? "Đang giữ chỗ" : "Đang sử dụng"
+            }));
+
+            const { data: bookingData, error: bookingError } =
+                await db.from("booking").insert(rows).select();
+
+            if (bookingError) {
+                console.error(bookingError);
+                return showPopup("Lỗi", "Đặt phòng thất bại! " + bookingError.message);
+            }
+
+            const bookingid = bookingData[0].bookingid;
+
+            // 2️⃣ INSERT PAYMENT
+            const paymentRow = {
+                bookingid,
+                studentid,
+                studentname: studentname,
+                cost: pendingPayment.totalCost,
+                paymentmethod: pendingPayment.paymentmethod
+            };
+
+            const { error: payError } =
+                await db.from("payment").insert(paymentRow);
+
+            if (payError) {
+                return showPopup("Lỗi", "Lưu thanh toán thất bại!");
+            }
+
+            // Chuẩn bị dữ liệu insert
+            const memberRows = pendingPayment.memberList.map(mem => ({
+                bookingid: bookingid,
+                studentid: mem.studentid,
+                fullname: mem.fullname
+            }));
+
+            // Insert vào bảng 'booking_members'
+            const { error: memError } = await db.from("booking_members").insert(memberRows);
+
+            if (memError) {
+                // Nếu lỗi lưu thành viên, có thể cảnh báo nhưng booking chính đã thành công
+                console.error("Lỗi lưu thành viên:", memError);
+                alert("Lưu danh sách thành viên thất bại, nhưng phòng đã được đặt.");
+            }
+
+            // 4️⃣ CLEANUP
+            mergedIntervals = [];
+            selectedFacilities = [];
+            pendingPayment = null;
+
+            document.getElementById("paymentModal").style.display = "none";
+            document.getElementById("bookingModal").style.display = "none";
+
+            showPopup("Thành công", "Đặt phòng và thanh toán thành công!");
+
+            const booking = bookingData[0];
+
+            const start = new Date(booking.starttime);
+            const end = new Date(booking.endtime);
+
+            const startTime = start.toLocaleTimeString("vi-VN", { hour12: false });
+            const endTime = end.toLocaleTimeString("vi-VN", { hour12: false });
+            const dateText = start.toLocaleDateString("vi-VN");
+
+            await insertNotification(
+                booking.studentid,
+                `Bạn đã đặt phòng ${booking.roomid} thành công từ ${startTime} - ${endTime} ngày ${dateText}`,
+                "Thông tin"
+            );
+
+            await loadBookingsForRoom();
+            renderCalendar();
+        }
+
+        /* ===================================================================
+            INIT PAGE
+        =================================================================== */
+        window.onload = async () => {
+            await loadStudentName();
+            await loadRooms();
+            await loadFacilities();
+        };
+    </script>
+    <script src="./student_header.js"></script>
+</body>
+
+</html>

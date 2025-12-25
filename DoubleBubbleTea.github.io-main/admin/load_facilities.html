@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý tiện ích phòng</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="./admin_common.css">
+
+    <style>
+        /* ===== CONTENT ===== */
+        .content {
+            flex: 1;
+            padding: 30px 50px;
+            background: #f4f6fa;
+        }
+
+        .content h2 {
+            font-size: 26px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div style="margin-top: 15px; display:flex; justify-content:center; gap:12px;">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div>Dashboard</div>
+
+        <div class="header-right">
+            <div class="icon notification-icon" onclick="toggleNotification()">
+                <img src="../img/notification_new.png" class="icon-img">
+                <div id="notif-count" class="notif-count" style="display:none;">0</div>
+            </div>
+
+            <div class="icon logout-icon" onclick="openLogoutModal()">
+                <img src="../img/logout_new.png" class="icon-img">
+            </div>
+
+            <div id="header-user">Đang tải...</div>
+
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-title">Thông báo</div>
+                <div id="notif-list" class="notif-list">Không có thông báo!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <!-- AVATAR BOX -->
+            <div class="avatar-box">
+                <img id="student-avatar" src="../img/logo.png" alt="avatar">
+                <div class="avatar-name" id="avatar-fullname">—</div>
+            </div>
+            <a href="./dashboard.html">Báo cáo thống kê</a>
+            <a href="./information_admin.html">Thông tin quản trị viên</a>
+            <a href="./load_student.html">Danh sách sinh viên</a>
+            <a href="./load_history.html">Quản lý lịch sử đặt phòng</a>
+            <a href="./load_notification.html">Quản lý nhắc nhở</a>
+            <a href="./load_news.html">Quản lý bản tin</a>
+            <div class="sidebar-group">
+                <a href="javascript:void(0)" class="active" class="sidebar-dropdown-toggle"
+                    onclick="toggleSidebarDropdown(this)">
+                    Danh sách
+                    <i class="fa fa-caret-down"></i>
+                </a>
+                <div class="sidebar-dropdown">
+                    <a href="./load_facilities.html" class="active">Danh sách cơ sở vật chất</a>
+                    <a href="./load_room.html">Danh sách phòng</a>
+                    <a href="./load_seat.html">Danh sách chỗ ngồi</a>
+                    <a href="./load_feedback.html">Danh sách phản hồi</a>
+                    <a href="./load_violation.html">Danh sách vi phạm</a>
+                    <a href="./load_reward.html">Danh sách đổi thưởng</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <h2>Danh sách tiện ích</h2>
+
+            <button class="btn-add" onclick="openAddModal()">+ Thêm tiện ích</button>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Loại tiện ích</th>
+                            <th>Chi phí (VND/giờ)</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="facility-table"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- MODAL -->
+    <div id="modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modal-title">Thêm tiện ích</h3>
+
+            <input id="facility-type" class="modal-input" placeholder="Tên tiện ích (VD: Máy lạnh)">
+            <input id="facility-cost" class="modal-input" placeholder="Chi phí / giờ" type="number">
+
+            <div class="modal-buttons">
+                <button class="btn-save" onclick="saveFacility()">Lưu</button>
+                <button class="btn-cancel" onclick="closeModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DELETE CONFIRM -->
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-bottom: 10px;">Xóa tiện ích?</h3>
+            <p style="margin-bottom: 18px;">Bạn có chắc muốn xóa tiện ích này?</p>
+
+            <div style="display:flex; justify-content:center; gap:12px;">
+                <button class="btn-confirm" onclick="confirmDeleteFacility()">Xóa</button>
+                <button class="btn-cancel" onclick="closeDeleteModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./admin_common.js"></script>
+
+    <script>
+        let editingId = null;
+        let deleteId = null;
+
+        function deleteFacility(id) {
+            deleteId = id;
+            document.getElementById("delete-modal").style.display = "flex";
+        }
+        function closeDeleteModal() {
+            document.getElementById("delete-modal").style.display = "none";
+        }
+        async function confirmDeleteFacility() {
+            if (!deleteId) return;
+
+            await db.from("facilities")
+                .delete()
+                .eq("facility_id", deleteId);
+
+            deleteId = null;
+            closeDeleteModal();
+            loadFacilities();
+        }
+
+        function openAddModal() {
+            editingId = null;
+            document.getElementById("modal-title").innerText = "Thêm tiện ích";
+            document.getElementById("facility-type").value = "";
+            document.getElementById("facility-cost").value = "";
+            document.getElementById("modal").style.display = "flex";
+        }
+
+        function openEditModal(item) {
+            editingId = item.facility_id;
+            document.getElementById("modal-title").innerText = "Sửa tiện ích";
+            document.getElementById("facility-type").value = item.facility_type;
+            document.getElementById("facility-cost").value = item.cost;
+            document.getElementById("modal").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("modal").style.display = "none";
+        }
+
+        async function saveFacility() {
+            const type = document.getElementById("facility-type").value.trim();
+            const costValue = document.getElementById("facility-cost").value;
+
+            // costValue là string → kiểm tra rỗng
+            if (!type || costValue === "") {
+                alert("Vui lòng nhập đầy đủ thông tin!");
+                return;
+            }
+
+            const cost = Number(costValue);
+
+            const newData = { facility_type: type, cost };
+
+            if (editingId) {
+                await db.from("facilities")
+                    .update(newData)
+                    .eq("facility_id", editingId);
+            } else {
+                await db.from("facilities").insert(newData);
+            }
+
+            closeModal();
+            loadFacilities();
+        }
+
+        async function loadFacilities() {
+            const { data } = await db.from("facilities").select("*").order("facility_id");
+
+            const table = document.getElementById("facility-table");
+            table.innerHTML = "";
+
+            data.forEach(item => {
+                table.innerHTML += `
+                    <tr>
+                        <td>${item.facility_id}</td>
+                        <td>${item.facility_type}</td>
+                        <td>${item.cost.toLocaleString()}</td>
+                        <td>
+                            <button class="btn-edit" onclick='openEditModal(${JSON.stringify(item)})'>Sửa</button>
+                            <button class="btn-delete" onclick="deleteFacility(${item.facility_id})">Xóa</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function loadHeader() {
+            const adminId = localStorage.getItem("adminid");
+
+            const { data } = await db
+                .from("admin")
+                .select("fullname")
+                .eq("adminid", adminId)
+                .single();
+
+            document.getElementById("header-user").innerText =
+                data ? `Xin chào, ${data.fullname}` : "";
+        }
+
+        loadHeader();
+        loadFacilities();
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách vi phạm</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./admin_common.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <style>
+        .content {
+            flex: 1;
+            padding: 30px 50px;
+            background: #f4f6fa;
+        }
+
+        .content h2 {
+            font-size: 26px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        tr:hover {
+            background: #eef3ff;
+        }
+
+        .btn-add {
+            padding: 10px 18px;
+            background: #275167;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 22px;
+            width: 380px;
+            border-radius: 8px;
+        }
+
+        .modal-box h3 {
+            margin-top: 0;
+        }
+
+        .modal-input,
+        select {
+            width: 100%;
+            padding: 8px;
+            margin: 6px 0;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .modal-buttons {
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .btn-confirm {
+            background: #dc2626;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            background: #6b7280;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+
+        .severity-1 {
+            color: green;
+            font-weight: bold;
+        }
+
+        .severity-2 {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .severity-3 {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="popupModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modal-title">Completed</h3>
+            <p id="modal-message">Message here</p>
+            <button onclick="closeModalInfo()">OK</button>
+        </div>
+    </div>
+    <!-- DELETE CONFIRM MODAL -->
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Xóa vi phạm?</h3>
+            <p style="margin-bottom: 15px;">Hành động này không thể hoàn tác.</p>
+
+            <button class="btn-confirm" onclick="confirmDeleteViolation()">Xóa</button>
+            <button class="btn-cancel" onclick="closeDeleteModal()">Hủy</button>
+        </div>
+    </div>
+
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div style="margin-top: 15px;">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD VIOLATION MODAL -->
+    <div id="violation-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Thêm vi phạm</h3>
+
+            <label>Sinh viên</label>
+            <select id="v-studentid" onchange="fillStudentName()"></select>
+
+            <label>Họ tên</label>
+            <input id="v-fullname" class="modal-input" disabled>
+
+            <label>Mô tả vi phạm</label>
+            <input id="v-desc" class="modal-input" placeholder="Nhập lỗi vi phạm">
+
+            <label>Ngày vi phạm</label>
+            <input type="date" id="v-date" class="modal-input">
+
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="saveViolation()">Lưu</button>
+                <button class="btn-cancel" onclick="closeViolationModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-title">ĐẶT PHÒNG</div>
+        <div class="header-right">
+            <div class="icon notification-icon" onclick="toggleNotification()">
+                <img src="../img/notification_new.png" class="icon-img">
+                <div id="notif-count" class="notif-count" style="display:none;">0</div>
+            </div>
+
+            <div class="icon logout-icon" onclick="openLogoutModal()">
+                <img src="../img/logout_new.png" class="icon-img">
+            </div>
+
+            <div id="header-user">Đang tải...</div>
+
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-title">Thông báo</div>
+                <div id="notif-list" class="notif-list">Không có thông báo!</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="avatar-box">
+                <img id="student-avatar" src="../img/logo.png">
+                <div class="avatar-name" id="avatar-fullname">—</div>
+            </div>
+            <a href="./dashboard.html">Báo cáo thống kê</a>
+            <a href="./information_admin.html">Thông tin quản trị viên</a>
+            <a href="./load_student.html">Danh sách sinh viên</a>
+            <a href="./load_history.html">Quản lý lịch sử đặt phòng</a>
+            <a href="./load_notification.html">Quản lý nhắc nhở</a>
+            <a href="./load_news.html">Quản lý bản tin</a>
+            <div class="sidebar-group">
+                <a href="javascript:void(0)" class="active" class="sidebar-dropdown-toggle"
+                    onclick="toggleSidebarDropdown(this)">
+                    Danh sách
+                    <i class="fa fa-caret-down"></i>
+                </a>
+                <div class="sidebar-dropdown">
+                    <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
+                    <a href="./load_room.html">Danh sách phòng</a>
+                    <a href="./load_seat.html">Danh sách chỗ ngồi</a>
+                    <a href="./load_feedback.html">Danh sách phản hồi</a>
+                    <a href="./load_violation.html" class="active">Danh sách vi phạm</a>
+                    <a href="./load_reward.html">Danh sách đổi thưởng</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <h2>Danh sách vi phạm</h2>
+
+            <button class="btn-add" onclick="openViolationModal()">+ Thêm vi phạm</button>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>MSSV</th>
+                            <th>Họ tên</th>
+                            <th>Mô tả</th>
+                            <th>Ngày vi phạm</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="violation-table"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./admin_common.js"></script>
+
+    <script>
+        let studentMap = {};
+        let editingViolationId = null;
+        let deleteViolationId = null;
+        function openDeleteModal(id) {
+            deleteViolationId = id;
+            document.getElementById("delete-modal").style.display = "flex";
+        }
+
+        function closeDeleteModal() {
+            deleteViolationId = null;
+            document.getElementById("delete-modal").style.display = "none";
+        }
+        async function confirmDeleteViolation() {
+            if (!deleteViolationId) return;
+
+            const { error } = await db
+                .from("violation")
+                .delete()
+                .eq("violationid", deleteViolationId);
+
+            if (error) {
+                alert(error.message);
+                return;
+            }
+
+            closeDeleteModal();
+            loadViolations();
+        }
+
+        function openEditViolation(v) {
+            editingViolationId = v.violationid;
+
+            document.getElementById("v-studentid").value = v.studentid;
+            document.getElementById("v-fullname").value = v.fullname;
+            document.getElementById("v-desc").value = v.description;
+            document.getElementById("v-date").value = v.violationdate;
+
+            document.getElementById("violation-modal").style.display = "flex";
+        }
+
+        function openViolationModal() {
+            editingViolationId = null;
+            document.getElementById("v-desc").value = "";
+            document.getElementById("v-date").value = "";
+            document.getElementById("violation-modal").style.display = "flex";
+        }
+
+        function closeViolationModal() {
+            document.getElementById("violation-modal").style.display = "none";
+        }
+
+        async function loadStudentsForDropdown() {
+            const { data } = await db.from("student").select("studentid, fullname");
+            const select = document.getElementById("v-studentid");
+            select.innerHTML = "";
+
+            data.forEach(s => {
+                studentMap[s.studentid] = s.fullname;
+                const opt = document.createElement("option");
+                opt.value = s.studentid;
+                opt.textContent = s.studentid;
+                select.appendChild(opt);
+            });
+
+            fillStudentName();
+        }
+
+        function fillStudentName() {
+            const sid = document.getElementById("v-studentid").value;
+            document.getElementById("v-fullname").value = studentMap[sid] || "";
+        }
+
+        async function saveViolation() {
+            const row = {
+                studentid: document.getElementById("v-studentid").value,
+                fullname: document.getElementById("v-fullname").value,
+                description: document.getElementById("v-desc").value,
+                violationdate: document.getElementById("v-date").value,
+            };
+
+            let result;
+            if (editingViolationId) {
+                // UPDATE
+                result = await db
+                    .from("violation")
+                    .update(row)
+                    .eq("violationid", editingViolationId);
+            } else {
+                // INSERT
+                result = await db
+                    .from("violation")
+                    .insert(row);
+            }
+
+            if (result.error) {
+                showPopup("Lỗi", result.error.message);
+                return;
+            }
+
+            editingViolationId = null;
+            closeViolationModal();
+            loadViolations();
+        }
+
+        async function loadViolations() {
+            const { data } = await db
+                .from("violation")
+                .select("*")
+                .order("violationid", { ascending: false });
+
+            const table = document.getElementById("violation-table");
+            table.innerHTML = "";
+
+            (data || []).forEach(v => {
+                table.innerHTML += `
+            <tr>
+                <td>${v.violationid}</td>
+                <td>${v.studentid}</td>
+                <td>${v.fullname}</td>
+                <td>${v.description}</td>
+                <td>${v.violationdate || "—"}</td>
+                <td>
+                    <button class="btn-edit" onclick='openEditViolation(${JSON.stringify(v)})'>Sửa</button>
+                    <button class="btn-delete" onclick="openDeleteModal(${v.violationid})">Xóa</button>
+                </td>
+            </tr>
+        `;
+            });
+        }
+
+        async function loadHeader() {
+            const adminId = localStorage.getItem("adminid");
+            const { data } = await db.from("admin").select("fullname").eq("adminid", adminId).single();
+            document.getElementById("header-user").innerText =
+                data ? `Xin chào, ${data.fullname}` : "";
+        }
+
+        async function checkAndDisableStudents() {
+            // 1️⃣ Lấy các student có >= 3 lỗi "Không checkin"
+            const { data, error } = await db
+                .from("violation")
+                .select("studentid, description");
+
+            if (error || !data) {
+                console.error("Load violation error:", error?.message);
+                return;
+            }
+
+            // 2️⃣ Đếm số lỗi "Không checkin" theo studentid
+            const counter = {};
+
+            data.forEach(v => {
+                if (v.description === "Không checkin") {
+                    counter[v.studentid] = (counter[v.studentid] || 0) + 1;
+                }
+            });
+
+            // 3️⃣ Duyệt các student vi phạm ≥ 3 lần
+            for (const studentid in counter) {
+                if (counter[studentid] >= 3) {
+
+                    // 4️⃣ Kiểm tra status hiện tại
+                    const { data: student } = await db
+                        .from("student")
+                        .select("status")
+                        .eq("studentid", studentid)
+                        .single();
+
+                    if (!student || student.status === "Vô hiệu hóa") continue;
+
+                    // 5️⃣ Update status
+                    // await db
+                    //     .from("student")
+                    //     .update({ status: "Vô hiệu hóa" })
+                    //     .eq("studentid", studentid);
+                    
+                    await insertNotification(
+                        studentid,
+                        `Tài khoản của bạn đã bị vô hiệu hóa do không checkin hơn 2 lần `,
+                        "Cảnh báo"
+                    );
+                }
+            }
+        }
+
+        loadHeader();
+        loadStudentsForDropdown();
+        loadViolations();
+        // Chạy lại mỗi 2 giây
+        // fallback mỗi 15 giây
+        setInterval(() => {
+            checkAndDisableStudents();
+        }, 1000);
+
+    </script>
+</body>
+
+</html>

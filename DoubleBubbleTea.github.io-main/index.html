@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng nhập đặt phòng</title>
+
+  <!-- CSS ngoài -->
+  <link rel="stylesheet" href="./test.css">
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<!-- MODAL POPUP -->
+<div id="popupModal" class="modal-overlay">
+  <div class="modal-box">
+    <div id="modal-icon" class="modal-icon"></div>
+    <h3 id="modal-title">Completed</h3>
+    <p id="modal-message">This is a message</p>
+
+    <div class="modal-buttons">
+      <button onclick="closeModal()" class="btn-close">OK</button>
+    </div>
+  </div>
+</div>
+
+<body>
+
+  <!-- Ambient background -->
+  <div class="area">
+    <ul class="circles">
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+  </div>
+
+  <!-- HEADER -->
+  <header class="ussh-header">
+    <div class="header-content">
+      <div class="header-left">
+        <img src="./img/VNUHCM_logo.svg.png" class="logo-vnu" alt="VNUHCM">
+        <img src="./img/logo.png" class="logo-ussh" alt="USSH">
+      </div>
+
+      <div class="header-text">
+        <h1>ĐẠI HỌC QUỐC GIA THÀNH PHỐ HỒ CHÍ MINH</h1>
+        <h2>TRƯỜNG ĐẠI HỌC KHOA HỌC XÃ HỘI VÀ NHÂN VĂN</h2>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <div class="content fade-in-up">
+
+    <div class="content-wrapper">
+      <h1>CHÀO MỪNG BẠN ĐẾN VỚI HỆ THỐNG ĐẶT PHÒNG HỌC</h1>
+
+      <div class="login-card">
+        <h2>Đăng nhập</h2>
+        <div class="form-group">
+          <input id="email" type="email" class="input-box" placeholder="Email">
+        </div>
+
+        <div class="form-group">
+          <input id="password" type="password" class="input-box" placeholder="Mật khẩu">
+        </div>
+
+        <button onclick="login()">Đăng nhập</button>
+        <div class="forgot-password" onclick="openForgotModal()">
+          Quên mật khẩu?
+        </div>
+        <div class="after-login-space"></div>
+
+      </div>
+    </div>
+  </div>
+  <!-- FORGOT PASSWORD MODAL -->
+  <div id="forgotModal" class="modal-overlay">
+    <div class="modal-box" style="width:420px">
+      <h3>Quên mật khẩu</h3>
+
+      <!-- EMAIL -->
+      <div class="form-group">
+        <input id="fp-email" type="email" class="input-box" placeholder="Nhập email">
+      </div>
+
+      <button onclick="sendOTP()" style="margin-bottom:15px;">
+        Gửi mã OTP về email
+      </button>
+
+      <!-- OTP -->
+      <div class="form-group">
+        <input id="fp-otp" type="text" class="input-box" placeholder="Nhập mã OTP (6 số)">
+      </div>
+
+      <!-- NEW PASSWORD -->
+      <div class="form-group input-wrapper">
+        <input id="fp-password" type="password" class="input-box" placeholder="Mật khẩu mới">
+      </div>
+
+      <!-- CONFIRM PASSWORD -->
+      <div class="form-group input-wrapper">
+        <input id="fp-confirm" type="password" class="input-box" placeholder="Xác nhận mật khẩu mới"
+          oninput="checkForgotPasswordMatch()">
+        <span id="fp-error" class="error-x">✖</span>
+      </div>
+
+      <div class="modal-buttons">
+        <button onclick="confirmForgotPassword()">Xác nhận</button>
+        <button class="btn-cancel" onclick="closeForgotModal()">Hủy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer fade-in">
+    © 2025 - USSH VNUHCM
+  </div>
+
+  <!-- JAVASCRIPT Supabase + Function -->
+  <script>
+    const db = supabase.createClient(
+      "https://oxaimnemcnqudtdguoyk.supabase.co",
+      "sb_publishable_6p-lVAZg_ATPz1a1cDjlOg_9vIcR42c"
+    );
+
+    function checkPasswordMatch() {
+      const pwd = document.getElementById("r_password").value;
+      const conf = document.getElementById("r_confirm").value;
+      document.getElementById("pwd_error").style.display = (pwd !== conf && conf !== "") ? "inline" : "none";
+    }
+
+    function togglePassword(id, eyeIcon) {
+      const input = document.getElementById(id);
+      input.type = input.type === "password" ? "text" : "password";
+      eyeIcon.textContent = input.type === "password" ? "👁️" : "🙈";
+    }
+
+    function saveStudentId(id) {
+      localStorage.setItem("studentid", id);
+    }
+    function saveAdminId(id) {
+      localStorage.setItem("adminid", id);
+    }
+
+    // 🔵 LOGIN (STUDENT + ADMIN)
+    async function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      // -------- ADMIN LOGIN --------
+      // -------- CHECK IF EMAIL IS ADMIN --------
+      const { data: adminEmail } = await db
+        .from("admin")
+        .select("*")
+        .eq("email", email)
+        .limit(1);
+
+      // Nếu email tồn tại trong bảng admin → xử lý login admin
+      if (adminEmail && adminEmail.length > 0) {
+
+        // Kiểm tra password admin
+        const { data: adminData } = await db
+          .from("admin")
+          .select("*")
+          .eq("email", email)
+          .eq("password", password)
+          .limit(1);
+
+        if (!adminData || adminData.length === 0) {
+          showPopup("error", "Đăng nhập thất bại", "Sai email hoặc mật khẩu!");
+          return;
+        }
+        // ⭐ LƯU ADMIN ID VÀO LOCALSTORAGE
+        saveAdminId(adminData[0].adminid);
+        console.log("Save adminid:", adminData[0].adminid);
+
+        // Đăng nhập admin thành công
+        showPopup("success", "Chào mừng quản trị viên!", "Đang tải...");
+
+        setTimeout(() => window.location.href = "./admin/information_admin.html", 1500);
+        return;
+      }
+
+      // -------- STUDENT LOGIN --------
+      const { data } = await db
+        .from("student")
+        .select("*")
+        .eq("email", email)
+        .eq("password", password)
+        .limit(1);
+
+
+      if (!data || data.length === 0) {
+        showPopup("error", "Đăng nhập thất bại", "Sai email hoặc mật khẩu!");
+        return;
+      }
+      // 🔍 Kiểm tra status
+      if (data[0].status === "Tốt nghiệp") {
+        showPopup(
+          "error",
+          "Không thể truy cập",
+          "Người dùng tài khoản đã tốt nghiệp, bạn không còn quyền sử dụng hệ thống."
+        );
+        return;
+      }
+      showPopup(
+        "success",
+        "Chào mừng bạn trở lại!",
+        "Đang tải..."
+      );
+      saveStudentId(data[0].studentid);
+
+      setTimeout(() => {
+        window.location.href = "./student/information.html";
+      }, 1500);
+    }
+
+    // 🔵 REGISTER (MATCH DB MỚI)
+    async function register() {
+      const studentid = parseInt(document.getElementById("r_student_id").value);
+      const fullname = document.getElementById("r_name").value;
+      const email = document.getElementById("r_email").value;
+      const phonenumber = document.getElementById("r_phone").value;
+      const major = document.getElementById("r_major").value;
+      const password = document.getElementById("r_password").value;
+      const confirm = document.getElementById("r_confirm").value;
+
+      if (password !== confirm)
+        return showPopup("Error", "Passwords do not match!");
+
+      const { data: exists } = await db
+        .from("student")
+        .select("*")
+        .or(`email.eq.${email},studentid.eq.${studentid}`);
+
+      if (exists.length)
+        return showPopup("Error", "Student already exists!");
+
+      await db.from("student").insert([
+        {
+          studentid,
+          fullname,
+          email,
+          phonenumber,
+          major,
+          password
+        }
+      ]);
+
+      showPopup("Completed", "Your account has been created!");
+    }
+
+
+    function showPopup(type, title, message) {
+      const modal = document.getElementById("popupModal");
+      const icon = document.getElementById("modal-icon");
+
+      // reset
+      icon.className = "modal-icon";
+
+      if (type === "success") {
+        icon.textContent = "✓";
+        icon.classList.add("success");
+      } else {
+        icon.textContent = "✕";
+        icon.classList.add("error");
+      }
+
+      document.getElementById("modal-title").innerText = title;
+      document.getElementById("modal-message").innerText = message;
+
+      modal.style.display = "flex";
+    }
+
+
+    function closeModal() {
+      document.getElementById("popupModal").style.display = "none";
+    }
+
+    /* =========================
+   FORGOT PASSWORD LOGIC
+========================= */
+
+    function openForgotModal() {
+      document.getElementById("forgotModal").style.display = "flex";
+    }
+
+    function closeForgotModal() {
+      document.getElementById("forgotModal").style.display = "none";
+    }
+
+    /* Giả lập gửi OTP */
+    function sendOTP() {
+      const email = document.getElementById("fp-email").value;
+      if (!email) {
+        showPopup("error", "Lỗi", "Vui lòng nhập email!");
+        return;
+      }
+
+      showPopup(
+        "success",
+        "OTP đã gửi",
+        "Mã OTP đã được gửi về email."
+      );
+    }
+
+    /* Check mật khẩu khớp */
+    function checkForgotPasswordMatch() {
+      const pwd = document.getElementById("fp-password").value;
+      const conf = document.getElementById("fp-confirm").value;
+      const err = document.getElementById("fp-error");
+
+      if (!conf) {
+        err.style.display = "none";
+        return;
+      }
+
+      err.style.display = pwd !== conf ? "block" : "none";
+    }
+
+    /* XÁC NHẬN ĐỔI MẬT KHẨU */
+    async function confirmForgotPassword() {
+      const email = document.getElementById("fp-email").value;
+      const pwd = document.getElementById("fp-password").value;
+      const conf = document.getElementById("fp-confirm").value;
+
+      if (!email || !pwd || !conf) {
+        showPopup("error", "Lỗi", "Vui lòng nhập đầy đủ thông tin!");
+        return;
+      }
+
+      if (pwd !== conf) {
+        showPopup("error", "Lỗi", "Mật khẩu xác nhận không khớp!");
+        return;
+      }
+
+      /* =========================
+         1️⃣ CHECK ADMIN TRƯỚC
+      ========================= */
+      const { data: adminData } = await db
+        .from("admin")
+        .select("adminid")
+        .eq("email", email)
+        .single();
+
+      if (adminData) {
+        const { error } = await db
+          .from("admin")
+          .update({ password: pwd })
+          .eq("email", email);
+
+        if (error) {
+          showPopup("error", "Lỗi", "Không thể đổi mật khẩu admin!");
+          return;
+        }
+
+        closeForgotModal();
+        showPopup("success", "Thành công", "Đổi mật khẩu ADMIN thành công!");
+        return;
+      }
+
+      /* =========================
+         2️⃣ CHECK STUDENT
+      ========================= */
+      const { data: studentData } = await db
+        .from("student")
+        .select("studentid")
+        .eq("email", email)
+        .single();
+
+      if (studentData) {
+        const { error } = await db
+          .from("student")
+          .update({ password: pwd })
+          .eq("email", email);
+
+        if (error) {
+          showPopup("error", "Lỗi", "Không thể đổi mật khẩu sinh viên!");
+          return;
+        }
+
+        closeForgotModal();
+        showPopup("success", "Thành công", "Đổi mật khẩu SINH VIÊN thành công!");
+        return;
+      }
+
+      /* =========================
+         3️⃣ EMAIL KHÔNG TỒN TẠI
+      ========================= */
+      showPopup("error", "Lỗi", "Email không tồn tại trong hệ thống!");
+    }
+  </script>
+
+</body>
+
+</html>

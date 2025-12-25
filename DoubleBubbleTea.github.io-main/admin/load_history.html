@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Booking History</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./admin_common.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <style>
+        .content {
+            flex: 1;
+            padding: 30px 50px;
+            background: #f4f6fa;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        tr:hover {
+            background: #eef3ff;
+        }
+
+        /* --- CSS CHO CON MẮT & MODAL (YÊU CẦU 13) --- */
+        .btn-view {
+            border: none;
+            background: #3498db;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-view:hover {
+            background: #2980b9;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 70%;
+            max-width: 800px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        .close {
+            font-size: 24px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div style="margin-top: 15px;">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="header">
+        <div>Dashboard</div>
+        <div class="header-right">
+            <div class="icon notification-icon" onclick="toggleNotification()">
+                <img src="../img/notification_new.png" class="icon-img">
+                <div id="notif-count" class="notif-count" style="display:none;">0</div>
+            </div>
+            <div class="icon logout-icon" onclick="openLogoutModal()">
+                <img src="../img/logout_new.png" class="icon-img">
+            </div>
+            <div id="header-user">Đang tải...</div>
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-title">Thông báo</div>
+                <div id="notif-list" class="notif-list">Không có thông báo!</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="sidebar">
+            <div class="avatar-box">
+                <img id="student-avatar" src="../img/logo.png" alt="avatar">
+                <div class="avatar-name" id="avatar-fullname">—</div>
+            </div>
+            <a href="./dashboard.html">Báo cáo thống kê</a>
+            <a href="./information_admin.html">Thông tin quản trị viên</a>
+            <a href="./load_student.html">Danh sách sinh viên</a>
+            <a href="./load_history.html" class="active">Quản lý lịch sử đặt phòng</a>
+            <a href="./load_notification.html">Quản lý nhắc nhở</a>
+            <a href="./load_news.html">Quản lý bản tin</a>
+            <div class="sidebar-group">
+                <a href="javascript:void(0)" class="sidebar-dropdown-toggle" onclick="toggleSidebarDropdown(this)">
+                    Danh sách <i class="fa fa-caret-down"></i>
+                </a>
+                <div class="sidebar-dropdown">
+                    <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
+                    <a href="./load_room.html">Danh sách phòng</a>
+                    <a href="./load_seat.html">Danh sách chỗ ngồi</a>
+                    <a href="./load_feedback.html">Danh sách phản hồi</a>
+                    <a href="./load_violation.html">Danh sách vi phạm</a>
+                    <a href="./load_reward.html">Danh sách đổi thưởng</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2>Quản lý lịch sử đặt phòng</h2>
+            <div class="action-bar" style="margin-bottom:15px;">
+                <select id="room-filter" onchange="filterHistory()">
+                    <option value="all">Hiển thị tất cả</option>
+                    <option value="I">Phòng đơn</option>
+                    <option value="G">Phòng nhóm</option>
+                </select>
+            </div>
+
+            <div class="table-scroll">
+                <table>
+                    <thead id="history-head"></thead>
+                    <tbody id="history-table"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="memberModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Thông tin sinh viên đi cùng</h3>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="table-scroll">
+
+                <table style="margin-top: 15px;">
+                    <thead>
+                        <tr>
+                            <th>MSSV</th>
+                            <th>Họ tên</th>
+                            <th>Check-in</th>
+                            <th>Check-out</th>
+                        </tr>
+                    </thead>
+                    <tbody id="memberListBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./admin_common.js"></script>
+
+    <script>
+        let allHistory = [];
+
+        function formatDate(dt) {
+            if (!dt) return "—";
+            return new Date(dt).toLocaleString("vi-VN");
+        }
+
+        async function loadHeader() {
+            const adminId = localStorage.getItem("adminid");
+            const { data } = await db.from("admin").select("fullname").eq("adminid", adminId).single();
+            document.getElementById("header-user").innerText =
+                data ? `Xin chào, ${data.fullname}` : "Không tìm thấy admin";
+        }
+
+        function renderRows(data, type) {
+            const table = document.getElementById("history-table");
+            table.innerHTML = "";
+
+            data.forEach(row => {
+                const startStr = formatDate(row.starttime);
+                const endStr = formatDate(row.endtime);
+                const bookingDate = startStr !== "—" ? startStr.split(" ")[1] : "—";
+                const startTime = startStr !== "—" ? startStr.split(" ")[0] : "—";
+                const endTime = endStr !== "—" ? endStr.split(" ")[0] : "—";
+
+                const holdStr = formatDate(row.holdtime);
+                const holdTime = holdStr.split(" ")[0];
+                // Nút con mắt để xem chi tiết
+                const viewBtn = `<td><button class="btn-view" onclick="showMemberDetails('${row.bookingid}')"><i class="fa fa-eye"></i></button></td>`;
+
+                let html = "";
+                if (type === "I") {
+                    html = `<tr>
+                <td>${row.bookingid}</td>
+                <td>${row.studentid}</td>
+                <td>${row.seatid || "—"}</td>
+                <td><strong>${row.booking_status}</strong></td>
+                <td>${bookingDate}</td>
+                <td>${startTime}</td>
+                <td>${endTime}</td>
+                ${viewBtn}
+              </tr>`;
+                } else if (type === "G") {
+                    html = `<tr>
+                <td>${row.bookingid}</td>
+                <td>${row.studentid}</td>
+                <td>${row.roomid}</td>
+                <td>${row.facilities || "—"}</td>
+                <td>${row.numbermember ?? "—"}</td>
+                <td>${row.purpose || "—"}</td>
+                <td><strong>${row.booking_status}</strong></td>
+                <td>${bookingDate}</td>
+                <td>${startTime}</td>
+                <td>${endTime}</td>
+                ${viewBtn}
+              </tr>`;
+                } else {
+                    html = `<tr>
+                <td>${row.bookingid}</td>
+                <td>${row.studentid}</td>
+                <td>${row.roomid}</td>
+                <td>${row.seatid || "—"}</td>
+                <td>${row.facilities || "—"}</td>
+                <td>${row.numbermember ?? "—"}</td>
+                <td>${row.purpose || "—"}</td>
+                <td>${holdTime}</td>
+                <td><strong>${row.booking_status}</strong></td>
+                <td>${bookingDate}</td>
+                <td>${startTime}</td>
+                <td>${endTime}</td>
+                ${viewBtn}
+              </tr>`;
+                }
+                table.insertAdjacentHTML("beforeend", html);
+            });
+        }
+
+        function renderHeader(type) {
+            const head = document.getElementById("history-head");
+            let detailCol = "<th>Chi tiết</th>";
+
+            if (type === "I") {
+                head.innerHTML = `<tr><th>Mã đặt</th><th>MSSV</th><th>Mã ghế</th><th>Trạng thái</th><th>Ngày đặt</th><th>Bắt đầu</th><th>Kết thúc</th>${detailCol}</tr>`;
+            } else if (type === "G") {
+                head.innerHTML = `<tr><th>Mã đặt</th><th>MSSV</th><th>Mã phòng</th><th>CSVC</th><th>SL</th><th>Mục đích</th><th>Trạng thái</th><th>Ngày đặt</th><th>Bắt đầu</th><th>Kết thúc</th>${detailCol}</tr>`;
+            } else {
+                head.innerHTML = `<tr><th>Mã đặt</th><th>MSSV</th><th>Phòng</th><th>Ghế</th><th>CSVC</th><th>SL</th><th>Mục đích</th><th>Giữ chỗ</th><th>Trạng thái</th><th>Ngày đặt</th><th>Bắt đầu</th><th>Kết thúc</th>${detailCol}</tr>`;
+            }
+        }
+
+        // HÀM XỬ LÝ CLICK CON MẮT (YÊU CẦU 13)
+        async function showMemberDetails(bookingId) {
+            const modal = document.getElementById("memberModal");
+            const listBody = document.getElementById("memberListBody");
+
+            modal.style.display = "block";
+            listBody.innerHTML = "<tr><td colspan='4'>Đang lấy dữ liệu...</td></tr>";
+
+            // Ở ĐÂY: Bạn cần query bảng chứa thông tin người đi cùng.
+            // Giả sử bạn có bảng 'booking_details' hoặc cột JSON trong 'booking'
+            const { data, error } = await db
+                .from("booking_members") // Tên bảng bạn lưu danh sách SV đi cùng
+                .select("*")
+                .eq("bookingid", bookingId);
+
+            if (error || !data || data.length === 0) {
+                listBody.innerHTML = "<tr><td colspan='4' style='text-align:center'>Không có sinh viên đi cùng hoặc chưa cập nhật dữ liệu.</td></tr>";
+                return;
+            }
+
+            listBody.innerHTML = "";
+            data.forEach(sv => {
+                listBody.innerHTML += `
+              <tr>
+                <td>${sv.studentid}</td>
+                <td>${sv.fullname || "Đang cập nhật"}</td>
+                <td>${formatDate(sv.checkin_time)}</td>
+                <td>${formatDate(sv.checkout_time)}</td>
+              </tr>
+            `;
+            });
+        }
+
+        function closeModal() {
+            document.getElementById("memberModal").style.display = "none";
+        }
+
+        // Đóng modal khi click ra ngoài vùng trắng
+        window.onclick = function (event) {
+            if (event.target == document.getElementById("memberModal")) closeModal();
+        }
+
+        function filterHistory() {
+            const type = document.getElementById("room-filter").value;
+            let filtered = allHistory;
+            if (type === "I") filtered = allHistory.filter(b => b.roomid?.startsWith("I"));
+            else if (type === "G") filtered = allHistory.filter(b => b.roomid?.startsWith("G"));
+            renderHeader(type);
+            renderRows(filtered, type);
+        }
+
+        async function loadHistory() {
+            const { data, error } = await db.from("booking").select("*").order("bookingid", { ascending: false });
+            if (error) { console.error(error); return; }
+            allHistory = data || [];
+            filterHistory();
+        }
+
+        loadHeader();
+        loadHistory();
+    </script>
+</body>
+
+</html>

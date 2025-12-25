@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý nhắc nhở</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="./admin_common.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <style>
+        /* ===== CONTENT ===== */
+        .content {
+            flex: 1;
+            padding: 30px 50px;
+            background: #f4f6fa;
+        }
+
+        .content h2 {
+            font-size: 26px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        /* ===== TABLE ===== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+
+        tr:hover {
+            background: #eef3ff;
+        }
+
+        .btn-add {
+            padding: 10px 18px;
+            background: #275167;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .btn-edit {
+            background: #003b73;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-delete {
+            background: #dc2626;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 25px;
+            width: 380px;
+            border-radius: 6px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 8px;
+            margin: 6px 0;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .modal-buttons button {
+            padding: 8px 16px;
+            border: none;
+            margin-top: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div style="margin-top: 15px; display:flex; justify-content:center; gap:12px;">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div>Dashboard</div>
+        <div class="header-right">
+
+            <!-- NOTIFICATION ICON -->
+            <div class="icon notification-icon" onclick="toggleNotification()">
+                <img src="../img/notification_new.png" class="icon-img">
+                <div id="notif-count" class="notif-count" style="display:none;">0</div>
+            </div>
+
+            <!-- LOGOUT ICON -->
+            <div class="icon logout-icon" onclick="openLogoutModal()">
+                <img src="../img/logout_new.png" class="icon-img">
+            </div>
+
+            <div id="header-user">Đang tải...</div>
+
+            <!-- DROPDOWN -->
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-title">Thông báo</div>
+                <div id="notif-list" class="notif-list">Không có thông báo!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <!-- AVATAR BOX -->
+            <div class="avatar-box">
+                <img id="student-avatar" src="../img/logo.png" alt="avatar">
+                <div class="avatar-name" id="avatar-fullname">—</div>
+            </div>
+
+            <a href="./dashboard.html">Báo cáo thống kê</a>
+            <a href="./information_admin.html">Thông tin quản trị viên</a>
+            <a href="./load_student.html">Danh sách sinh viên</a>
+            <a href="./load_history.html">Quản lý lịch sử đặt phòng</a>
+            <a href="./load_notification.html" class="active">Quản lý nhắc nhở</a>
+            <a href="./load_news.html">Quản lý bản tin</a>
+            <div class="sidebar-group">
+                <a href="javascript:void(0)" class="sidebar-dropdown-toggle" onclick="toggleSidebarDropdown(this)">
+                    Danh sách
+                    <i class="fa fa-caret-down"></i>
+                </a>
+                <div class="sidebar-dropdown">
+                    <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
+                    <a href="./load_room.html">Danh sách phòng</a>
+                    <a href="./load_seat.html">Danh sách chỗ ngồi</a>
+                    <a href="./load_feedback.html">Danh sách phản hồi</a>
+                    <a href="./load_violation.html">Danh sách vi phạm</a>
+                    <a href="./load_reward.html">Danh sách đổi thưởng</a>
+                </div>
+            </div>
+        </div>
+        <!-- CONTENT -->
+        <div class="content">
+            <h2>Danh sách thông báo</h2>
+            <button class="btn-add" onclick="openAddModal()">+ Thêm thông báo</button>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>MSSV</th>
+                            <th>Họ tên</th>
+                            <th>Loại</th>
+                            <th>Nội dung</th>
+                            <th>Ngày</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="notif-table"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ADD / EDIT -->
+    <div id="modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modal-title">Thêm thông báo</h3>
+            <input id="notif-studentid" class="modal-input" placeholder="MSSV sinh viên">
+            <input id="notif-fullname" class="modal-input" placeholder="Họ tên sinh viên">
+            <select id="notif-type" class="modal-input">
+                <option value="Thông tin">Thông tin</option>
+                <option value="Cảnh báo">Cảnh báo</option>
+            </select>
+            <textarea id="notif-message" class="modal-input" placeholder="Nhập nội dung thông báo" rows="4"></textarea>
+
+            <div class="modal-buttons">
+                <button class="btn-save" onclick="saveNotification()">Lưu</button>
+                <button class="btn-cancel" onclick="closeModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE CONFIRM MODAL -->
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Xóa thông báo?</h3>
+            <p style="margin-bottom: 15px;">Bạn có chắc muốn xóa thông báo này?</p>
+
+            <button class="btn-confirm" onclick="confirmDelete()">Xóa</button>
+            <button class="btn-cancel" onclick="closeDeleteModal()">Hủy</button>
+        </div>
+    </div>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./admin_common.js"></script>
+
+    <script>
+        let editingId = null;
+        let deleteId = null;
+
+        function openAddModal() {
+            editingId = null;
+            document.getElementById("modal-title").innerText = "Thêm thông báo";
+
+            document.getElementById("notif-studentid").value = "";
+            document.getElementById("notif-fullname").value = "";
+            document.getElementById("notif-message").value = "";
+            document.getElementById("notif-type").value = "Thông tin";
+
+            document.getElementById("modal").style.display = "flex";
+        }
+
+        function openEditModal(item) {
+            editingId = item.notification_id;
+            document.getElementById("modal-title").innerText = "Sửa thông báo";
+
+            document.getElementById("notif-studentid").value = item.studentid;
+            document.getElementById("notif-fullname").value = item.fullname;
+            document.getElementById("notif-message").value = item.message;
+            document.getElementById("notif-type").value = item.type;
+
+            document.getElementById("modal").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("modal").style.display = "none";
+        }
+
+        async function saveNotification() {
+            const studentid = Number(document.getElementById("notif-studentid").value);
+            const fullname = document.getElementById("notif-fullname").value.trim();
+            const msg = document.getElementById("notif-message").value.trim();
+            const type = document.getElementById("notif-type").value;
+
+            if (!studentid || !fullname || !msg) {
+                alert("Vui lòng nhập đầy đủ MSSV, Họ tên và nội dung!");
+                return;
+            }
+
+            const newData = {
+                studentid,
+                fullname,
+                message: msg,
+                type
+            };
+
+            if (editingId) {
+                await db
+                    .from("notification")
+                    .update(newData)
+                    .eq("notification_id", editingId);
+            } else {
+                await db
+                    .from("notification")
+                    .insert(newData);
+            }
+
+            closeModal();
+            loadNotifications();
+        }
+
+        /* OPEN DELETE MODAL */
+        function openDeleteModal(id) {
+            deleteId = id;
+            document.getElementById("delete-modal").style.display = "flex";
+        }
+
+        /* CLOSE DELETE MODAL */
+        function closeDeleteModal() {
+            deleteId = null;
+            document.getElementById("delete-modal").style.display = "none";
+        }
+
+        /* CONFIRM DELETE */
+        async function confirmDelete() {
+            await db.from("notification").delete().eq("notification_id", deleteId);
+            closeDeleteModal();
+            loadNotifications();
+        }
+
+        /* REPLACE OLD deleteNotification() */
+        function deleteNotification(id) {
+            openDeleteModal(id);
+        }
+
+        async function loadNotifications() {
+            const { data } = await db
+                .from("notification")
+                .select("notification_id, studentid, fullname, message, type, notidate")
+                .order("notification_id", { ascending: false });
+
+            const table = document.getElementById("notif-table");
+            table.innerHTML = "";
+
+            data.forEach(n => {
+                table.innerHTML += `
+        <tr>
+            <td>${n.notification_id}</td>
+            <td>${n.studentid}</td>
+            <td>${n.fullname}</td>
+            <td>
+                <span style="
+                    padding:2px 8px;
+                    border-radius:999px;
+                    font-size:12px;
+                    color:white;
+                    background:${n.type === 'Cảnh báo' ? '#f59e0b' : '#3b82f6'};
+                ">
+                    ${n.type}
+                </span>
+            </td>
+            <td>${n.message}</td>
+            <td>${n.notidate}</td>
+            <td>
+                <button class="btn-edit"
+                    onclick='openEditModal(${JSON.stringify(n)})'>Sửa</button>
+                <button class="btn-delete"
+                    onclick="deleteNotification(${n.notification_id})">Xóa</button>
+            </td>
+        </tr>
+        `;
+            });
+        }
+
+        async function loadHeader() {
+            const adminId = localStorage.getItem("adminid");
+
+            const { data } = await db
+                .from("admin")
+                .select("fullname")
+                .eq("adminid", adminId)
+                .single();
+
+            document.getElementById("header-user").innerText =
+                data ? `Xin chào, ${data.fullname}` : "";
+        }
+
+        loadHeader();
+        loadNotifications();
+    </script>
+
+</body>
+
+</html>

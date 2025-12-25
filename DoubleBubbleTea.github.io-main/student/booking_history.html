@@ -6,6 +6,7 @@
     <title>Lịch sử đặt phòng</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="./layout.css">
     <script src="./student_header.js"></script>
@@ -38,9 +39,6 @@
 
         .action-bar {
             margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
         select {
@@ -48,40 +46,12 @@
             border-radius: 6px;
             border: 1px solid #d1d5db;
         }
-
-        /* --- STYLE CHO ĐIỂM UY TÍN --- */
-        .score-card {
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            border: 1px solid #bfdbfe;
-            padding: 15px 25px;
-            border-radius: 12px;
-            display: inline-flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .score-title {
-            font-size: 16px;
-            color: #1e40af;
-            font-weight: 600;
-        }
-
-        .score-number {
-            font-size: 24px;
-            font-weight: 800;
-            color: #2563eb;
-            background: #fff;
-            padding: 5px 15px;
-            border-radius: 8px;
-            border: 1px solid #93c5fd;
-        }
     </style>
 </head>
 
 <body>
 
+    <!-- HEADER -->
     <div class="header">
         <div class="header-title">LỊCH SỬ ĐẶT PHÒNG</div>
         <div class="header-right">
@@ -103,6 +73,7 @@
             </div>
         </div>
     </div>
+    <!-- ================= REMINDER BOX ================= -->
     <div id="bookingReminder" class="booking-reminder" style="display:none;">
         <div class="reminder-icon">⏰</div>
         <div class="reminder-content">
@@ -114,8 +85,10 @@
             </div>
         </div>
     </div>
+    <!-- MAIN -->
     <div class="main">
 
+        <!-- SIDEBAR -->
         <div class="sidebar">
             <div class="avatar-box">
                 <img id="student-avatar" src="../img/logo.png" alt="avatar">
@@ -133,14 +106,11 @@
             <a href="./student_reward.html">Danh sách phần thưởng</a>
         </div>
 
+        <!-- CONTENT -->
         <div class="content">
             <h2>Lịch sử đặt phòng của bạn</h2>
 
-            <div class="score-card">
-                <div class="score-title">💎 Điểm uy tín hiện tại:</div>
-                <div id="trust-score-display" class="score-number">...</div>
-            </div>
-
+            <!-- FILTER -->
             <div class="action-bar">
                 <select id="room-filter" onchange="filterByRoomType()">
                     <option value="all">Hiển thị tất cả</option>
@@ -161,6 +131,7 @@
         </div>
     </div>
 
+    <!-- MODAL XÁC NHẬN HỦY -->
     <div id="cancel-modal" class="modal-overlay">
         <div class="modal-box">
             <h3>Bạn muốn hủy đăng ký?</h3>
@@ -173,6 +144,7 @@
         </div>
     </div>
 
+    <!-- LOGOUT MODAL -->
     <div id="logout-modal" class="modal-overlay">
         <div class="modal-box">
             <h3>Bạn muốn đăng xuất?</h3>
@@ -182,6 +154,7 @@
             </div>
         </div>
     </div>
+    <!-- ==================== POPUP ==================== -->
     <div id="popupModal" class="modal-overlay">
         <div class="modal-box small-popup">
             <div class="modal-icon" style="font-size:40px; margin-bottom:10px; color: red;">X</div>
@@ -193,28 +166,7 @@
 
     <script>
         let allBookings = [];
-
-        /* ================= LOAD TRUST SCORE (MỚI) ================= */
-        async function loadTrustScore() {
-            const studentId = localStorage.getItem("studentid");
-            if (!studentId) return;
-
-            const { data, error } = await db
-                .from("student")
-                .select("trust_score")
-                .eq("studentid", studentId)
-                .single();
-
-            const display = document.getElementById("trust-score-display");
-
-            if (!error && data) {
-                // Nếu null thì mặc định là 0
-                display.textContent = data.trust_score !== null ? data.trust_score : 0;
-            } else {
-                display.textContent = "Error";
-            }
-        }
-
+        
         async function autoUpdateBookingStatus(data) {
             const now = new Date();
 
@@ -294,12 +246,12 @@
 
                 // ⛔ Nếu muốn update DB thì mở lại
                 if (newStatus !== b.booking_status) {
-                    await db
-                        .from("booking")
-                        .update({ booking_status: newStatus })
-                        .eq("bookingid", b.bookingid);
-
-                    b.booking_status = newStatus;
+                  await db
+                    .from("booking")
+                    .update({ booking_status: newStatus })
+                    .eq("bookingid", b.bookingid);
+                
+                  b.booking_status = newStatus;
                 }
             }
         }
@@ -517,7 +469,6 @@
 
         /* INIT */
         loadStudentName();
-        loadTrustScore(); // Gọi hàm load điểm
         loadBookingHistory();
     </script>
 

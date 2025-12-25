@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách phòng</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./admin_common.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <style>
+        .content {
+            flex: 1;
+            padding: 30px 50px;
+            background: #f4f6fa;
+        }
+
+        .content h2 {
+            font-size: 26px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        tr:hover {
+            background: #eef3ff;
+        }
+
+        .btn-add {
+            padding: 10px 18px;
+            background: #275167;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .btn-edit {
+            background: #003b73;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-delete {
+            background: #dc2626;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 22px;
+            width: 380px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 8px;
+            margin: 6px 0;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .modal-buttons button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-confirm {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #6b7280;
+            color: white;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div style="margin-top:15px;">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE MODAL -->
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Xóa phòng?</h3>
+            <p style="margin-bottom:15px;">Hành động này không thể hoàn tác.</p>
+            <button class="btn-confirm" onclick="confirmDelete()">Xóa</button>
+            <button class="btn-cancel" onclick="closeDeleteModal()">Hủy</button>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div>Dashboard</div>
+        <div class="header-right">
+
+            <div class="icon notification-icon" onclick="toggleNotification()">
+                <img src="../img/notification_new.png" class="icon-img">
+                <div id="notif-count" class="notif-count" style="display:none;">0</div>
+            </div>
+
+            <div class="icon logout-icon" onclick="openLogoutModal()">
+                <img src="../img/logout_new.png" class="icon-img">
+            </div>
+
+            <div id="header-user">Đang tải...</div>
+
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-title">Thông báo</div>
+                <div id="notif-list" class="notif-list">Không có thông báo!</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="avatar-box">
+                <img src="../img/logo.png">
+                <div class="avatar-name" id="avatar-fullname">—</div>
+            </div>
+
+            <a href="./dashboard.html">Báo cáo thống kê</a>
+            <a href="./information_admin.html">Thông tin quản trị viên</a>
+            <a href="./load_student.html">Danh sách sinh viên</a>
+            <a href="./load_history.html">Quản lý lịch sử đặt phòng</a>
+            <a href="./load_notification.html">Quản lý nhắc nhở</a>
+            <a href="./load_news.html">Quản lý bản tin</a>
+            <div class="sidebar-group">
+                <a href="javascript:void(0)" class="active" class="sidebar-dropdown-toggle"
+                    onclick="toggleSidebarDropdown(this)">
+                    Danh sách
+                    <i class="fa fa-caret-down"></i>
+                </a>
+                <div class="sidebar-dropdown">
+                    <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
+                    <a href="./load_room.html" class="active">Danh sách phòng</a>
+                    <a href="./load_seat.html">Danh sách chỗ ngồi</a>
+                    <a href="./load_feedback.html">Danh sách phản hồi</a>
+                    <a href="./load_violation.html">Danh sách vi phạm</a>
+                    <a href="./load_reward.html">Danh sách đổi thưởng</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <h2>Danh sách phòng</h2>
+
+            <button class="btn-add" onclick="openAddModal()">+ Thêm phòng</button>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã phòng</th>
+                            <th>Loại phòng</th>
+                            <th>Vị trí</th>
+                            <th>Sức chứa</th>
+                            <th>Giá (đ/giờ)</th>
+                            <th>Trạng thái</th>
+                            <th>Mô tả</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="room-table"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD / EDIT MODAL -->
+    <div id="modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modal-title">Thêm phòng</h3>
+
+            <input id="room-id" class="modal-input" placeholder="Mã phòng (VD: G1)">
+            <input id="room-type" class="modal-input" placeholder="Loại phòng">
+            <input id="room-location" class="modal-input" placeholder="Vị trí">
+            <input id="room-capacity" type="number" class="modal-input" placeholder="Sức chứa">
+            <input id="room-cost" type="number" class="modal-input" placeholder="Giá (đ/giờ)">
+
+            <select id="room-status" class="modal-input">
+                <option value="" disabled selected>— Trạng thái —</option>
+                <option value="Có thể đặt">Có thể đặt</option>
+                <option value="Không thể đặt">Không thể đặt</option>
+            </select>
+
+            <input id="room-desc" class="modal-input" placeholder="Mô tả">
+
+            <div class="modal-buttons">
+                <button class="btn-save" onclick="saveRoom()">Lưu</button>
+                <button class="btn-cancel" onclick="closeModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./admin_common.js"></script>
+
+    <script>
+        let editingRoomId = null;
+        let deleteRoomId = null;
+
+        function openAddModal() {
+            editingRoomId = null;
+            document.getElementById("modal-title").innerText = "Thêm phòng";
+            clearForm();
+            document.getElementById("modal").style.display = "flex";
+        }
+
+        function openEditModal(room) {
+            editingRoomId = room.roomid;
+            document.getElementById("modal-title").innerText = "Sửa phòng";
+
+            document.getElementById("room-id").value = room.roomid;
+            document.getElementById("room-type").value = room.roomtype;
+            document.getElementById("room-location").value = room.location;
+            document.getElementById("room-capacity").value = room.capacity;
+            document.getElementById("room-cost").value = room.cost;
+            document.getElementById("room-status").value = room.status;
+            document.getElementById("room-desc").value = room.description;
+
+            document.getElementById("modal").style.display = "flex";
+        }
+
+        function clearForm() {
+            ["room-id", "room-type", "room-location", "room-capacity", "room-cost", "room-status", "room-desc"]
+                .forEach(id => document.getElementById(id).value = "");
+        }
+
+        function closeModal() {
+            document.getElementById("modal").style.display = "none";
+        }
+
+        function openDeleteModal(id) {
+            deleteRoomId = id;
+            document.getElementById("delete-modal").style.display = "flex";
+        }
+
+        function closeDeleteModal() {
+            deleteRoomId = null;
+            document.getElementById("delete-modal").style.display = "none";
+        }
+
+        async function confirmDelete() {
+            await db.from("room").delete().eq("roomid", deleteRoomId);
+            closeDeleteModal();
+            loadRooms();
+        }
+
+        async function saveRoom() {
+            const data = {
+                roomid: document.getElementById("room-id").value,
+                roomtype: document.getElementById("room-type").value,
+                location: document.getElementById("room-location").value,
+                capacity: document.getElementById("room-capacity").value,
+                cost: document.getElementById("room-cost").value,
+                status: document.getElementById("room-status").value,
+                description: document.getElementById("room-desc").value
+            };
+
+            let result;
+            if (editingRoomId) {
+                result = await db.from("room").update(data).eq("roomid", editingRoomId);
+            } else {
+                result = await db.from("room").insert(data);
+            }
+
+            if (result.error) {
+                alert(result.error.message);
+                return;
+            }
+
+            closeModal();
+            loadRooms();
+        }
+
+        async function loadRooms() {
+            const { data } = await db.from("room").select("*").order("roomid");
+            const table = document.getElementById("room-table");
+            table.innerHTML = "";
+
+            data.forEach(r => {
+                table.innerHTML += `
+                    <tr>
+                        <td>${r.roomid}</td>
+                        <td>${r.roomtype || "—"}</td>
+                        <td>${r.location || "—"}</td>
+                        <td>${r.capacity ?? "—"}</td>
+                        <td>${r.cost?.toLocaleString() || "—"}</td>
+                        <td>${r.status || "—"}</td>
+                        <td>${r.description || "—"}</td>
+                        <td>
+                            <button class="btn-edit" onclick='openEditModal(${JSON.stringify(r)})'>Sửa</button>
+                            <button class="btn-delete" onclick="openDeleteModal('${r.roomid}')">Xóa</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function loadHeader() {
+            const adminId = localStorage.getItem("adminid");
+            const { data } = await db.from("admin").select("fullname").eq("adminid", adminId).single();
+            document.getElementById("header-user").innerText =
+                data ? `Xin chào, ${data.fullname}` : "";
+        }
+
+        loadHeader();
+        loadRooms();
+    </script>
+
+</body>
+
+</html>

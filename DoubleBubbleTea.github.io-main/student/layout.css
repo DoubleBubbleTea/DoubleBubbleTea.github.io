@@ -1,0 +1,584 @@
+/* =========================
+   CSS CHUNG: HEADER + SIDEBAR
+   ========================= */
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: #dfeaf5;
+    /* xanh nhạt giống nền ngoài */
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* ========================= HEADER ========================= */
+.header {
+    width: 100%;
+    height: 64px;
+    min-height: 62px;
+    /* ⬅ tăng nhẹ */
+    padding: 12px 28px;
+    /* ⬅ QUAN TRỌNG */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    background: #e7f0f8;
+    /* nền header xanh nhạt */
+    box-sizing: border-box;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+}
+
+.header-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #1f2933;
+}
+
+#header-user {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2933;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+/* HEADER RIGHT (chuông, logout, user) */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    position: relative;
+}
+
+/* ICON CHUNG */
+.icon {
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.icon:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(15, 23, 42, 0.18);
+    background: #f3f6fb;
+}
+
+.icon-img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+}
+
+/* NOTIF COUNT */
+.notif-count {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #ef4444;
+    color: white;
+    border-radius: 999px;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+/* ===== DROPDOWN NOTIFICATION ===== */
+.notif-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 42px;
+    width: 360px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+    z-index: 50;
+    overflow: hidden;
+}
+
+/* ===== TITLE ===== */
+.notif-title {
+    background: #f3f4f6;
+    padding: 12px 16px;
+    font-weight: 700;
+    font-size: 15px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* ===== LIST ===== */
+.notif-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* ===== ITEM ===== */
+.notif-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.notif-item:hover {
+    background: #f8fafc;
+}
+
+.notif-item:last-child {
+    border-bottom: none;
+}
+
+/* ===== MINI ICON ===== */
+.notif-mini-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+}
+
+/* icon theo trạng thái */
+.notif-mini-icon.success { background: #22c55e; }
+.notif-mini-icon.info { background: #3b82f6; }
+.notif-mini-icon.warning { background: #ef4444; }
+
+/* ===== CONTENT ===== */
+.notif-content {
+    flex: 1;
+}
+
+.notif-item-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.35;
+}
+
+.notif-item-time {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+.notif-item-link {
+    font-size: 13px;
+    color: #2563eb;
+    margin-top: 4px;
+}
+
+/* ========================= MAIN LAYOUT: SIDEBAR + CONTENT ========================= */
+.main {
+    display: flex;
+    flex: 1;
+    padding: 12px 12px 16px;
+    box-sizing: border-box;
+    gap: 16px;
+}
+
+/* ========================= SIDEBAR ========================= */
+/* ===== SIDEBAR ===== */
+.sidebar {
+    min-width: 240px;
+    max-width: 260px;
+    background: #275167;
+    color: #f9fafb;
+    padding: 20px 16px 18px;
+    box-sizing: border-box;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.35);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    /* gom item lên trên */
+    gap: 4px;
+    /* khoảng cách nhỏ giữa các dòng */
+}
+
+/* Tiêu đề “Danh sách” */
+.sidebar h3 {
+    margin: 0 0 10px 0;
+    /* bỏ margin trên, giảm margin dưới */
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* Các dòng menu */
+.sidebar a {
+    display: flex;
+    align-items: center;
+    padding: 8px 14px;
+    /* giảm padding cho item mỏng lại */
+    margin: 0;
+    /* không thêm margin dọc */
+    border-radius: 999px;
+    font-size: 15px;
+    color: #e5edf5;
+    text-decoration: none;
+    cursor: pointer;
+    background: transparent;
+    /* không card to */
+    box-shadow: none;
+
+    opacity: 0.95;
+    transition:
+        background 0.18s ease,
+        color 0.18s ease,
+        opacity 0.18s ease,
+        transform 0.12s ease;
+}
+
+/* Hover + menu đang chọn */
+.sidebar a:hover,
+.sidebar a.active {
+    background: #f0f4f8;
+    color: #275167;
+    opacity: 1;
+    transform: translateX(2px);
+}
+
+/* Footer logout giống hình (nếu dùng <a class="logout-link">) */
+.sidebar .logout-link {
+    margin-top: 24px;
+    color: #f97373;
+}
+
+/* ========================= CONTENT ========================= */
+.content {
+    flex: 1;
+    padding: 24px 32px;
+    box-sizing: border-box;
+    background: #f4f6fb;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+}
+
+.content h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: 700;
+    color: #1f2933;
+}
+
+/* ========================= LOGOUT MODAL ========================= */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.modal-box {
+    background: white;
+    padding: 25px;
+    width: 340px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.25);
+}
+
+.modal-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.btn-confirm {
+    padding: 8px 16px;
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.btn-cancel {
+    padding: 8px 16px;
+    background: #6b7280;
+    color: white;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+/* ======================== FIX RESPONSIVE ========================= */
+
+/* Sidebar + layout responsive */
+@media (max-width: 900px) {
+    .main {
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .sidebar {
+        width: 100%;
+        max-width: none;
+        border-radius: 16px;
+        flex-direction: row;
+        overflow-x: auto;
+    }
+
+    .content {
+        padding: 18px 16px;
+        margin-top: 8px;
+        border-radius: 14px;
+    }
+}
+
+.payment-box {
+    width: 420px;
+    max-width: 90vw;
+}
+
+table.calendar {
+    min-width: 750px;
+}
+
+@media (max-width: 768px) {
+    .extra-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* AVATAR BOX */
+.avatar-box {
+    width: 100%;
+    text-align: center;
+    padding: 25px 0 20px 0;
+    border-bottom: 1px solid #ffffff33;
+    margin-bottom: 20px;
+
+    /* fade-in nhẹ cho avatar */
+    animation: fadeAvatar 0.4s ease-out;
+}
+
+@keyframes fadeAvatar {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.avatar-box img {
+    width: 50%;
+    height: 80%;
+
+    /* làm avatar tròn */
+    border-radius: 50%;
+    object-fit: cover;
+
+    border: 3px solid rgba(255, 255, 255, 0.9);
+
+    /* đổ bóng mềm cho avatar nổi bật */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+
+    /* hiệu ứng trơn tru */
+    transition: 0.3s ease;
+}
+
+/* Hiệu ứng hover */
+.avatar-box img:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+    border-color: #dbeafe;
+    /* màu xanh nhạt theo theme */
+}
+
+.avatar-name {
+    margin-top: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    letter-spacing: 0.3px;
+
+    /* hiệu ứng mờ nhẹ */
+    opacity: 0.9;
+    transition: 0.3s ease;
+}
+
+.avatar-name:hover {
+    opacity: 1;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+}
+
+
+/* ================= REMINDER BOX ================= */
+.booking-reminder {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    margin: 12px 24px;
+    padding: 14px 18px;
+
+    background: #eff6ff;
+    border-left: 5px solid #2563eb;
+    border-radius: 10px;
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.reminder-icon {
+    font-size: 34px;
+    /* to hơn */
+    display: inline-block;
+    cursor: pointer;
+
+    animation: shake-bell 2.2s infinite;
+    transform-origin: top center;
+}
+
+/* Khi hover thì rung mạnh hơn một chút */
+.reminder-icon:hover {
+    animation: shake-bell-strong 0.9s infinite;
+}
+
+/* Rung nhẹ – dùng mặc định */
+@keyframes shake-bell {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    15% {
+        transform: rotate(20deg);
+    }
+
+    30% {
+        transform: rotate(-20deg);
+    }
+
+    45% {
+        transform: rotate(16deg);
+    }
+
+    60% {
+        transform: rotate(-16deg);
+    }
+
+    75% {
+        transform: rotate(12deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+.reminder-title {
+    font-weight: 700;
+    color: #1e3a8a;
+    margin-bottom: 4px;
+}
+
+.reminder-text {
+    font-size: 14px;
+    color: #1f2937;
+}
+
+/* Thu nhỏ chatbot Fastbots */
+iframe[src*="fastbots.ai"] {
+    width: 350px !important;
+    height: 420px !important;
+    max-width: 90vw !important;
+    max-height: 85vh !important;
+    transform: scale(0.9);
+    transform-origin: bottom right;
+}
+
+#room-filter {
+    background: #275167;
+    color: #faf9f9;
+    height: 38px;
+    padding: 0 14px;
+    min-width: 100px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#room-filter:hover {
+    background: #152a36;
+}
+
+#room-filter option {
+    background: white;
+    /* nền option */
+    color: #111;
+    /* chữ đen */
+}
+
+.btn-cancel-booking {
+    padding: 6px 12px;
+    min-width: 110px;
+    border-radius: 10px;
+    font-weight: bold;
+    border: none;
+    color: white;
+}
+
+.btn-cancel-booking.canceled:hover {
+    background: #FEBF07 !important;
+    /* không đổi */
+    transform: none !important;
+}
+
+/* BUTTON KHÔNG THỂ HỦY */
+.btn-cancel-booking.disabled {
+    background: #DC3546;
+    cursor: not-allowed;
+    opacity: 0.9;
+}
+
+.btn-cancel-booking.disabled:hover {
+    background: #DC3546 !important;
+    transform: none !important;
+}
+
+.cancel {
+    background: #1E8B38;
+    cursor: pointer;
+}
+
+.disabled {
+    background: #DC3546;
+    cursor: not-allowed;
+}
+
+.canceled {
+    background: #FEBF07;
+    color: black;
+    cursor: not-allowed;
+    opacity: 0.95;
+}

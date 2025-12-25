@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Khảo sát mức độ hài lòng</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="./layout.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="https://app.fastbots.ai/embed.js" data-bot-id="cmj49xvd200slpa1pjdwephas"></script>
+
+    <style>
+        .content {
+            flex: 1;
+            padding: 40px 80px;
+            box-sizing: border-box;
+            background: #f9fafb;
+        }
+
+        .survey-box {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        th,
+        td {
+            border: 1px solid #e5e7eb;
+            padding: 10px;
+        }
+
+        th {
+            background: #f3f4f6;
+        }
+
+        td:first-child {
+            text-align: left;
+            font-weight: 600;
+        }
+
+        input[type="radio"] {
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 90px;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            resize: vertical;
+        }
+
+        .submit-box {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn-submit {
+            padding: 12px 26px;
+            border-radius: 12px;
+            border: none;
+            background: #2563eb;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-submit:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ==================== POPUP ==================== -->
+    <div id="popupModal" class="modal-overlay">
+        <div class="modal-box small-popup">
+            <h3 id="modal-title"></h3>
+            <p id="modal-message"></p>
+            <button class="btn-primary" onclick="closeModal()">OK</button>
+        </div>
+    </div>
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-title">ĐẶT PHÒNG</div>
+        <div class="header-right">
+            <div class="icon notification-icon" onclick="toggleNotification()">
+                <img src="../img/notification_new.png" class="icon-img">
+                <div id="notif-count" class="notif-count" style="display:none;">0</div>
+            </div>
+
+            <div class="icon logout-icon" onclick="openLogoutModal()">
+                <img src="../img/logout_new.png" class="icon-img">
+            </div>
+
+            <div id="header-user">Đang tải...</div>
+
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-title">Thông báo</div>
+                <div id="notif-list" class="notif-list">Không có thông báo!</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="avatar-box">
+                <img id="student-avatar" src="../img/logo.png">
+                <div class="avatar-name" id="avatar-fullname">—</div>
+            </div>
+            <h3>Danh sách</h3>
+            <a href="../news.html">Bản tin</a>
+            <a href="./information.html">Thông tin cá nhân</a>
+            <a href="#" onclick="checkTrustBeforeBooking()">Đặt phòng</a>
+            <a href="./booking_history.html">Lịch sử đặt phòng</a>
+            <a href="./checkin_room.html">Check-in phòng</a>
+            <a href="./checkin_seat.html">Check-in chỗ ngồi</a>
+            <a href="./student_feedback.html" class="active">Phản hồi sinh viên</a>
+            <a href="./reward.html">Đổi phần thưởng</a>
+            <a href="./student_reward.html">Danh sách phần thưởng</a>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <div class="survey-box">
+                <h2>Khảo sát mức độ hài lòng</h2>
+                <h3>Mức độ hài lòng từ 1 (thấp nhất) - 5 (cao nhất)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mức độ</th>
+                            <th>1<br>Rất không hài lòng</th>
+                            <th>2<br>Không hài lòng</th>
+                            <th>3<br>Bình thường</th>
+                            <th>4<br>Hài lòng</th>
+                            <th>5<br>Rất hài lòng</th>
+                        </tr>
+                    </thead>
+                    <tbody id="survey-body"></tbody>
+                </table>
+
+                <label><strong>Nhận xét, góp ý:</strong></label>
+                <textarea id="feedback-text" placeholder="Nhập ý kiến của bạn..."></textarea>
+
+                <div class="submit-box">
+                    <button class="btn-submit" onclick="submitFeedback()">Xác nhận</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="./student_header.js"></script>
+
+    <script>
+        const aspects = [
+            "Phòng", "Chỗ ngồi", "Máy lạnh", "Wifi",
+            "Máy chiếu", "Màn hình", "Bàn", "Ghế"
+        ];
+
+        const surveyBody = document.getElementById("survey-body");
+
+        aspects.forEach((a, i) => {
+            let row = `<tr><td>${a}</td>`;
+            for (let s = 1; s <= 5; s++) {
+                row += `
+                    <td>
+                        <input type="radio" name="aspect_${i}" value="${s}">
+                    </td>`;
+            }
+            row += `</tr>`;
+            surveyBody.insertAdjacentHTML("beforeend", row);
+        });
+
+        async function submitFeedback() {
+            const studentid = localStorage.getItem("studentid");
+            if (!studentid) {
+                showPopup("Lỗi", "Không tìm thấy sinh viên");
+                return;
+            }
+
+            let total = 0;
+            let count = 0;
+
+            aspects.forEach((_, i) => {
+                const checked = document.querySelector(`input[name="aspect_${i}"]:checked`);
+                if (checked) {
+                    total += Number(checked.value);
+                    count++;
+                }
+            });
+
+            if (count !== aspects.length) {
+                ("Vui lòng đánh giá tất cả các mục");
+                showPopup("Lỗi", "Vui lòng đánh giá tất cả các mục!");
+                return;
+            }
+
+            const satisfaction = total*100 / (aspects.length * 5);
+
+            const { data: student } = await db
+                .from("student")
+                .select("fullname")
+                .eq("studentid", studentid)
+                .single();
+
+            const feedbackText = document.getElementById("feedback-text").value;
+
+            const { error } = await db.from("feedback").insert({
+                studentid: studentid,
+                fullname: student.fullname,
+                feedback: feedbackText,
+                satisfaction: satisfaction,
+                feedbackdate: new Date()
+            });
+
+            if (error) {
+                showPopup("Lỗi", error.message);
+                return;
+            }
+            showPopup("Thành công", "Cảm ơn bạn đã gửi khảo sát!");
+        }
+    </script>
+
+</body>
+
+</html>

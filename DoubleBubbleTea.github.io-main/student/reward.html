@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Đổi phần thưởng</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- CSS chung -->
+    <script defer src="https://app.fastbots.ai/embed.js" data-bot-id="cmj49xvd200slpa1pjdwephas"></script>
+    <link rel="stylesheet" href="./layout.css">
+
+    <style>
+        /* ================= CONTENT ================= */
+        .content {
+            flex: 1;
+            padding: 40px 80px;
+            background: #f9fafb;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .content-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        /* ================= REWARD GRID ================= */
+        .reward-grid {
+            width: 100%;
+            max-width: 800px;
+
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+        }
+
+        /* ================= REWARD CARD ================= */
+        .reward-card {
+            background: #ffffff;
+            border-radius: 18px;
+            border: 1px solid #e5e7eb;
+            padding: 22px 20px;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+
+            box-shadow: 0 10px 18px rgba(15, 23, 42, 0.05);
+            transition: 0.2s ease;
+        }
+
+        .reward-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 32px rgba(37, 99, 235, 0.12);
+            border-color: #3b82f6;
+        }
+
+        .reward-icon {
+            width: 90px;
+            height: 90px;
+            margin-bottom: 14px;
+        }
+
+        .reward-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 6px;
+        }
+
+        .reward-desc {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 14px;
+            line-height: 1.4;
+        }
+
+        .reward-score {
+            font-size: 15px;
+            font-weight: 600;
+            color: #2563eb;
+            margin-bottom: 8px;
+        }
+
+        .reward-quantity {
+            font-size: 13px;
+            color: #374151;
+            margin-bottom: 16px;
+        }
+
+        .reward-btn {
+            margin-top: auto;
+            padding: 9px 18px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            background: #f9fafb;
+            color: #111827;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .reward-btn:hover {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: #ffffff;
+        }
+
+        .reward-btn.disabled {
+            background: #e5e7eb;
+            color: #9ca3af;
+            border-color: #e5e7eb;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 900px) {
+            .content {
+                padding: 24px 20px;
+            }
+        }
+
+        .trust-box {
+            margin-bottom: 28px;
+            padding: 14px 26px;
+            background: #ecfeff;
+            border: 1px solid #67e8f9;
+            border-radius: 999px;
+
+            font-size: 16px;
+            font-weight: 600;
+            color: #0369a1;
+
+            box-shadow: 0 6px 16px rgba(2, 132, 199, 0.12);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- MODAL XÁC NHẬN  -->
+    <div id="cancel-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Xác nhận đổi thưởng?</h3>
+            <p id="cancel-text"></p>
+
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="confirmRedeem()">Xác nhận</button>
+                <button class="btn-cancel" onclick="closeCancelModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== POPUP ==================== -->
+    <div id="popupModal" class="modal-overlay">
+        <div class="modal-box small-popup">
+            <h3 id="modal-title"></h3>
+            <p id="modal-message"></p>
+            <button class="btn-primary" onclick="closeModal()">OK</button>
+        </div>
+    </div>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-title">ĐỔI PHẦN THƯỞNG</div>
+        <div class="header-right">
+            <div class="icon notification-icon" onclick="toggleNotification()">
+                <img src="../img/notification_new.png" class="icon-img">
+                <div id="notif-count" class="notif-count" style="display:none;">0</div>
+            </div>
+
+            <div class="icon logout-icon" onclick="openLogoutModal()">
+                <img src="../img/logout_new.png" class="icon-img">
+            </div>
+
+            <div id="header-user">Đang tải...</div>
+
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-title">Thông báo</div>
+                <div id="notif-list" class="notif-list">Không có thông báo!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="avatar-box">
+                <img src="../img/logo.png">
+                <div class="avatar-name" id="avatar-fullname">—</div>
+            </div>
+
+            <h3>Danh sách</h3>
+            <a href="../news.html">Bản tin</a>
+            <a href="./information.html">Thông tin cá nhân</a>
+            <a href="#" onclick="checkTrustBeforeBooking()">Đặt phòng</a>
+            <a href="./booking_history.html">Lịch sử đặt phòng</a>
+            <a href="./checkin_room.html">Check-in phòng</a>
+            <a href="./checkin_seat.html">Check-in chỗ ngồi</a>
+            <a href="./student_feedback.html">Phản hồi sinh viên</a>
+            <a href="./reward.html" class="active">Đổi phần thưởng</a>
+            <a href="./student_reward.html">Danh sách phần thưởng</a>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <div class="content-title">Danh sách phần thưởng</div>
+            <div class="trust-box" id="trustBox">
+                🎯 Điểm uy tín hiện tại: <strong id="trustScore">—</strong>
+            </div>
+            <div class="reward-grid" id="rewardGrid">
+                <!-- Reward cards render tại đây -->
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        let selectedReward = null;
+        let rewardToUse = null;
+
+        function openUseRewardModal(redemptionId) {
+            rewardToUse = redemptionId;
+            document.getElementById("use-reward-modal").style.display = "flex";
+        }
+
+        function closeUseRewardModal() {
+            rewardToUse = null;
+            document.getElementById("use-reward-modal").style.display = "none";
+        }
+
+        async function confirmUseReward() {
+            if (!rewardToUse) return;
+
+            const { error } = await db
+                .from("reward_redemption")
+                .update({ status_redemption: "Đã sử dụng" })
+                .eq("redemption_id", rewardToUse);
+
+            if (error) {
+                showPopup("Lỗi", "Không thể cập nhật trạng thái phần thưởng!");
+                return;
+            }
+
+            closeUseRewardModal();
+            showPopup("Thành công", "Phần thưởng đã được đánh dấu là đã sử dụng!");
+            loadRewardHistory();
+        }
+
+        async function loadTrustScore() {
+            const studentId = localStorage.getItem("studentid");
+            if (!studentId) return;
+
+            const { data, error } = await db
+                .from("student")
+                .select("trust_score")
+                .eq("studentid", studentId)
+                .single();
+
+            if (error || !data) return;
+            console.log("data.trust_score: ", data.trust_score);
+            document.getElementById("trustScore").innerText = data.trust_score;
+        }
+
+        async function loadRewards() {
+            const grid = document.getElementById("rewardGrid");
+            grid.innerHTML = "<p>Đang tải phần thưởng...</p>";
+
+            const { data, error } = await db
+                .from("reward")
+                .select("*")
+                .order("cost_score");
+
+            if (error || !data || data.length === 0) {
+                grid.innerHTML = "<p>Không có phần thưởng.</p>";
+                return;
+            }
+
+            grid.innerHTML = "";
+
+            data.forEach(r => {
+                const disabled = r.quantity <= 0;
+
+                grid.innerHTML += `
+                    <div class="reward-card">
+                        <img src="../img/gift.png" class="reward-icon">
+                        <div class="reward-name">${r.reward_name}</div>
+                        <div class="reward-desc">${r.description || "—"}</div>
+                        <div class="reward-score">🎯 ${r.cost_score} điểm</div>
+                        <div class="reward-quantity">Còn lại: ${r.quantity}</div>
+
+                        <button class="reward-btn ${disabled ? "disabled" : ""}"
+                            ${disabled ? "disabled" : ""}
+                            onclick="redeemReward(${r.reward_id})">
+                            Đổi thưởng
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        async function redeemReward(rewardId) {
+            const studentId = localStorage.getItem("studentid");
+            if (!studentId) {
+                return showPopup("Lỗi", "Bạn chưa đăng nhập!");
+            }
+
+            // lấy reward
+            const { data: reward, error } = await db
+                .from("reward")
+                .select("*")
+                .eq("reward_id", rewardId)
+                .single();
+
+            if (error || !reward) {
+                return showPopup("Lỗi", "Không tìm thấy phần thưởng!");
+            }
+
+            // lấy điểm hiện tại
+            const { data: student } = await db
+                .from("student")
+                .select("trust_score")
+                .eq("studentid", studentId)
+                .single();
+
+            if (student.trust_score < reward.cost_score) {
+                return showPopup(
+                    "Không đủ điểm",
+                    "Điểm uy tín của bạn không đủ để đổi phần thưởng này."
+                );
+            }
+
+            if (reward.quantity <= 0) {
+                return showPopup(
+                    "Hết phần thưởng",
+                    "Phần thưởng này đã hết."
+                );
+            }
+
+            // lưu lại để confirm
+            selectedReward = reward;
+
+            document.getElementById("cancel-text").innerHTML = `
+        Bạn có chắc muốn đổi <strong>${reward.reward_name}</strong><br>
+        Tốn <strong>${reward.cost_score}</strong> điểm uy tín?
+    `;
+
+            document.getElementById("cancel-modal").style.display = "flex";
+        }
+        function closeCancelModal() {
+            selectedReward = null;
+            document.getElementById("cancel-modal").style.display = "none";
+        }
+        async function confirmRedeem() {
+            if (!selectedReward) return;
+
+            const studentId = localStorage.getItem("studentid");
+            const reward = selectedReward;
+
+            try {
+                // 1️⃣ Trừ điểm sinh viên
+                const { error: studentErr } = await db.rpc("update_student_score", {
+                    p_studentid: studentId,
+                    p_score: reward.cost_score
+                });
+
+                // fallback nếu chưa có RPC
+                if (studentErr) {
+                    const { data: student } = await db
+                        .from("student")
+                        .select("trust_score")
+                        .eq("studentid", studentId)
+                        .single();
+
+                    await db
+                        .from("student")
+                        .update({
+                            trust_score: student.trust_score - reward.cost_score
+                        })
+                        .eq("studentid", studentId);
+                }
+
+                // 2️⃣ Giảm số lượng reward
+                await db
+                    .from("reward")
+                    .update({ quantity: reward.quantity - 1 })
+                    .eq("reward_id", reward.reward_id);
+
+                // 3️⃣ Insert lịch sử đổi thưởng
+                const nowVN = new Date();
+                
+                await db
+                    .from("reward_redemption")
+                    .insert({
+                        studentid: studentId,
+                        reward_id: reward.reward_id,
+                        used_score: reward.cost_score,
+                        redeemed_date: toLocalTimestampString(nowVN)
+                    });
+
+                showPopup("Thành công", "Đổi thưởng thành công!");
+
+                closeCancelModal();
+                loadRewards();
+                loadTrustScore();
+
+            } catch (err) {
+                console.error(err);
+                showPopup("Lỗi", "Không thể đổi phần thưởng.");
+            }
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            loadStudentName();
+            loadNotifications();
+            loadRewards();
+            loadTrustScore();
+        });
+    </script>
+    <script src="./student_header.js"></script>
+
+</body>
+
+</html>

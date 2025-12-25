@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý đổi thưởng</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="./admin_common.css">
+</head>
+<style>
+
+</style>
+
+<body>
+    <div id="popupModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modal-title">Completed</h3>
+            <p id="modal-message">Message here</p>
+            <button onclick="closeModalInfo()">OK</button>
+        </div>
+    </div>
+    
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div style="margin-top: 15px; display:flex; justify-content:center; gap:12px;">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+    <!-- HEADER -->
+    <div class="header">
+        <div>Dashboard</div>
+
+        <div class="header-right">
+            <div class="icon notification-icon" onclick="toggleNotification()">
+                <img src="../img/notification_new.png" class="icon-img">
+                <div id="notif-count" class="notif-count" style="display:none;">0</div>
+            </div>
+
+            <div class="icon logout-icon" onclick="openLogoutModal()">
+                <img src="../img/logout_new.png" class="icon-img">
+            </div>
+
+            <div id="header-user">Đang tải...</div>
+
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-title">Thông báo</div>
+                <div id="notif-list" class="notif-list">Không có thông báo!</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+
+        <div class="sidebar">
+            <!-- AVATAR BOX -->
+            <div class="avatar-box">
+                <img id="student-avatar" src="../img/logo.png" alt="avatar">
+                <div class="avatar-name" id="avatar-fullname">—</div>
+            </div>
+            <a href="./dashboard.html">Báo cáo thống kê</a>
+            <a href="./information_admin.html">Thông tin quản trị viên</a>
+            <a href="./load_student.html">Danh sách sinh viên</a>
+            <a href="./load_history.html">Quản lý lịch sử đặt phòng</a>
+            <a href="./load_notification.html">Quản lý nhắc nhở</a>
+            <a href="./load_news.html">Quản lý bản tin</a>
+            <div class="sidebar-group">
+                <a href="javascript:void(0)" class="active" class="sidebar-dropdown-toggle"
+                    onclick="toggleSidebarDropdown(this)">
+                    Danh sách
+                    <i class="fa fa-caret-down"></i>
+                </a>
+                <div class="sidebar-dropdown">
+                    <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
+                    <a href="./load_room.html">Danh sách phòng</a>
+                    <a href="./load_seat.html">Danh sách chỗ ngồi</a>
+                    <a href="./load_feedback.html">Danh sách phản hồi</a>
+                    <a href="./load_violation.html">Danh sách vi phạm</a>
+                    <a href="./load_reward.html" class="active">Danh sách đổi thưởng</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <h2>Danh sách đổi thưởng</h2>
+
+            <button class="btn-add" onclick="openAddModal()">+ Thêm đổi thưởng</button>
+            <div class="table-scroll">
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>MSSV</th>
+                            <th>Họ tên</th>
+                            <th>Phần thưởng</th>
+                            <th>Điểm dùng</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày đổi</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reward-table"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div id="modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modal-title">Thêm đổi thưởng</h3>
+
+            <input id="studentid" class="modal-input" placeholder="MSSV">
+            <select id="rewardid" class="modal-input">
+                <option value="">-- Chọn phần thưởng --</option>
+            </select>
+            <input id="usedscore" class="modal-input" placeholder="Điểm sử dụng" type="number" readonly>
+
+            <select id="status" class="modal-input">
+                <option value="Chưa sử dụng">Chưa sử dụng</option>
+                <option value="Đã sử dụng">Đã sử dụng</option>
+            </select>
+
+            <div class="modal-buttons">
+                <button class="btn-save" onclick="saveReward()">Lưu</button>
+                <button class="btn-cancel" onclick="closeModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE MODAL -->
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn chắc chắn muốn xóa?</h3>
+            <div style="display:flex; gap:12px; justify-content:center">
+                <button class="btn-confirm" onclick="confirmDelete()">Xóa</button>
+                <button class="btn-cancel" onclick="closeDeleteModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./admin_common.js"></script>
+
+    <script>
+        let editingId = null;
+        let deleteId = null;
+        async function loadRewardOptions(selectedId = null) {
+            const select = document.getElementById("rewardid");
+            select.innerHTML = `<option value="">-- Chọn phần thưởng --</option>`;
+
+            const { data, error } = await db
+                .from("reward")
+                .select("reward_id, reward_name, cost_score")
+                .order("reward_name");
+
+            if (error || !data) return;
+
+            data.forEach(r => {
+                const opt = document.createElement("option");
+                opt.value = r.reward_id;
+                opt.textContent = r.reward_name;
+
+                // 👇 lưu cost_score vào option
+                opt.dataset.cost = r.cost_score;
+
+                if (selectedId && Number(selectedId) === r.reward_id) {
+                    opt.selected = true;
+                    usedscore.value = r.cost_score; // 👈 auto set khi edit
+                }
+
+                select.appendChild(opt);
+            });
+        }
+
+        async function loadRewards() {
+            const { data } = await db
+                .from("reward_redemption")
+                .select(`
+            redemption_id,
+            studentid,
+            reward_id,
+            used_score,
+            status_redemption,
+            redeemed_date,
+            student ( fullname ),
+            reward ( reward_name )
+        `)
+                .order("redeemed_date", { ascending: false });
+
+            const table = document.getElementById("reward-table");
+            table.innerHTML = "";
+
+            data.forEach(r => {
+                table.innerHTML += `
+        <tr>
+            <td>${r.redemption_id}</td>
+            <td>${r.studentid}</td>
+            <td>${r.student?.fullname || "—"}</td>
+            <td>${r.reward?.reward_name || "—"}</td>
+            <td>${r.used_score}</td>
+            <td>${r.status_redemption}</td>
+            <td>${new Date(r.redeemed_date).toLocaleString("vi-VN")}</td>
+            <td>
+                <button class="btn-edit" onclick='openEditModal(${JSON.stringify(r)})'>Sửa</button>
+                <button class="btn-delete" onclick="deleteReward(${r.redemption_id})">Xóa</button>
+            </td>
+        </tr>`;
+            });
+        }
+
+        function openAddModal() {
+            editingId = null;
+            document.getElementById("modal-title").innerText = "Thêm đổi thưởng";
+
+            studentid.value = "";
+            usedscore.value = "";
+            status.value = "Chưa sử dụng";
+
+            loadRewardOptions(); // 👈 load dropdown
+
+            document.getElementById("modal").style.display = "flex";
+        }
+
+        function openEditModal(item) {
+            editingId = item.redemption_id;
+            console.log("editingId: ", editingId);
+            document.getElementById("modal-title").innerText = "Chỉnh sửa đổi thưởng";
+            studentid.value = item.studentid;
+            usedscore.value = item.used_score;
+            status.value = item.status_redemption;
+
+            loadRewardOptions(item.reward_id); // 👈 chọn đúng reward
+
+            document.getElementById("modal").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("modal").style.display = "none";
+        }
+
+        async function saveReward() {
+            // 3️⃣ Insert lịch sử đổi thưởng
+            const statusEl = document.getElementById("status");
+            const nowVN = new Date();
+            const data = {
+                studentid: Number(studentid.value),
+                reward_id: Number(rewardid.value),
+                used_score: Number(usedscore.value),
+                status_redemption: statusEl.value,
+                redeemed_date: toLocalTimestampString(nowVN)
+            };
+            console.log("statusEl.value: ", statusEl.value);
+
+            if (editingId) {
+                await db.from("reward_redemption")
+                    .update(data)
+                    .eq("redemption_id", editingId);
+
+                showPopup("Thành công", "Đã cập nhật thông tin đổi thưởng!");
+
+            } else {
+                await db.from("reward_redemption").insert(data);
+                showPopup("Thành công", "Đã thêm lịch sử đổi thưởng!");
+            }
+
+            closeModal();
+            loadRewards();
+        }
+
+        function deleteReward(id) {
+            deleteId = id;
+            document.getElementById("delete-modal").style.display = "flex";
+        }
+
+        function closeDeleteModal() {
+            document.getElementById("delete-modal").style.display = "none";
+        }
+
+        async function confirmDelete() {
+            await db.from("reward_redemption")
+                .delete()
+                .eq("redemption_id", deleteId);
+
+            closeDeleteModal();
+            loadRewards();
+        }
+
+        document.getElementById("rewardid").addEventListener("change", function () {
+            const selectedOption = this.options[this.selectedIndex];
+
+            if (!selectedOption || !selectedOption.dataset.cost) {
+                usedscore.value = "";
+                return;
+            }
+
+            // 👇 auto fill điểm sử dụng
+            usedscore.value = selectedOption.dataset.cost;
+        });
+
+        loadRewards();
+    </script>
+
+</body>
+
+</html>
