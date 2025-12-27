@@ -451,22 +451,6 @@
             if (!ok) return;
           }
 
-          // ❌ không cho đặt trong ngày
-          // const today = new Date();
-          // today.setHours(0, 0, 0, 0);
-
-          // for (const itv of merged) {
-          //   const d = new Date(itv.start);
-          //   d.setHours(0, 0, 0, 0);
-          //   if (d.getTime() === today.getTime()) {
-          //     showPopup(
-          //       "Lỗi",
-          //       "Bạn không thể đặt chỗ trong ngày hôm nay. Vui lòng đặt trước ít nhất 1 ngày."
-          //     );
-          //     return;
-          //   }
-          // }
-
           const studentid = Number(localStorage.getItem("studentid"));
           // ❌ CHECK TRÙNG KHUNG GIỜ
           const isDuplicated = await checkDuplicateBookingTime(studentid, merged);
@@ -475,7 +459,8 @@
           const bookingLateText = isLateBooking ? "Đúng" : "Sai";
 
           const rows = merged.map(itv => {
-            const hold = new Date(itv.start.getTime() + 15 * 60 * 1000); // +15 phút
+            const holdFromStart = new Date(itv.start.getTime() + 15 * 60 * 1000);
+            const holdFromNow = new Date(now.getTime() + 15 * 60 * 1000);
 
             return {
               studentid,
@@ -483,8 +468,12 @@
               seatid: selectedSeatId,
               starttime: toLocalTimestampString(itv.start),
               endtime: toLocalTimestampString(itv.end),
-              holdtime: toLocalTimestampString(hold),
-              booking_status: bookingLateText === "Đúng" ? "Đang sử dụng" : "Đang giữ chỗ",
+
+              holdtime: bookingLateText === "Đúng"
+                ? toLocalTimestampString(holdFromNow)
+                : toLocalTimestampString(holdFromStart),
+
+              booking_status: "Đang giữ chỗ",
               booking_late: bookingLateText
             };
           });
@@ -573,4 +562,5 @@
         });
       </script>
 </body>
+
 </html>

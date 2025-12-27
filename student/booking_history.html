@@ -166,7 +166,7 @@
 
     <script>
         let allBookings = [];
-        
+
         async function autoUpdateBookingStatus(data) {
             const now = new Date();
 
@@ -227,7 +227,16 @@
                         violationdate: new Date().toISOString().split("T")[0]
                     });
 
-                    // ❌ KHÔNG tiếp tục xử lý trạng thái
+                    // ❌ HỦY BOOKING
+                    await db
+                        .from("booking")
+                        .update({ booking_status: "Hủy" })
+                        .eq("bookingid", b.bookingid);
+
+                    // Cập nhật local object để tránh xử lý lại
+                    b.booking_status = "Hủy";
+
+                    // ⛔ DỪNG XỬ LÝ BOOKING NÀY
                     continue;
                 }
 
@@ -246,12 +255,12 @@
 
                 // ⛔ Nếu muốn update DB thì mở lại
                 if (newStatus !== b.booking_status) {
-                  await db
-                    .from("booking")
-                    .update({ booking_status: newStatus })
-                    .eq("bookingid", b.bookingid);
-                
-                  b.booking_status = newStatus;
+                    await db
+                        .from("booking")
+                        .update({ booking_status: newStatus })
+                        .eq("bookingid", b.bookingid);
+
+                    b.booking_status = newStatus;
                 }
             }
         }

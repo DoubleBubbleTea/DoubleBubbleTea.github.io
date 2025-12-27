@@ -184,12 +184,49 @@
             </div>
         </div>
     </div>
-
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Xóa lịch sử đặt phòng?</h3>
+            <p>Bạn có chắc muốn xóa bản ghi này?</p>
+            <div style="margin-top:12px; text-align:right;">
+                <button class="btn-confirm" onclick="confirmDelete()">Xóa</button>
+                <button class="btn-cancel" onclick="closeDeleteModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./admin_common.js"></script>
 
     <script>
         let allHistory = [];
+        let deleteBookingId = null;
+
+        function deleteBooking(id) {
+            deleteBookingId = id;
+            document.getElementById("delete-modal").style.display = "flex";
+        }
+
+        function closeDeleteModal() {
+            deleteBookingId = null;
+            document.getElementById("delete-modal").style.display = "none";
+        }
+
+        async function confirmDelete() {
+            if (!deleteBookingId) return;
+
+            const { error } = await db
+                .from("booking")
+                .delete()
+                .eq("bookingid", deleteBookingId);
+
+            if (error) {
+                alert("Xóa thất bại!");
+                return;
+            }
+
+            closeDeleteModal();
+            loadHistory();
+        }
 
         function formatDate(dt) {
             if (!dt) return "—";
@@ -218,7 +255,12 @@
                 const holdTime = holdStr.split(" ")[0];
                 // Nút con mắt để xem chi tiết
                 const viewBtn = `<td><button class="btn-view" onclick="showMemberDetails('${row.bookingid}')"><i class="fa fa-eye"></i></button></td>`;
-
+                const deleteBtn = `
+                    <td>
+                        <button class="btn-delete" onclick="deleteBooking('${row.bookingid}')">
+                            Xóa
+                        </button>
+                    </td>`;
                 let html = "";
                 if (type === "I") {
                     html = `<tr>
@@ -230,6 +272,7 @@
                 <td>${startTime}</td>
                 <td>${endTime}</td>
                 ${viewBtn}
+                ${deleteBtn}
               </tr>`;
                 } else if (type === "G") {
                     html = `<tr>
@@ -244,6 +287,8 @@
                 <td>${startTime}</td>
                 <td>${endTime}</td>
                 ${viewBtn}
+                ${deleteBtn}
+
               </tr>`;
                 } else {
                     html = `<tr>
@@ -260,6 +305,8 @@
                 <td>${startTime}</td>
                 <td>${endTime}</td>
                 ${viewBtn}
+                ${deleteBtn}
+
               </tr>`;
                 }
                 table.insertAdjacentHTML("beforeend", html);
@@ -269,15 +316,37 @@
         function renderHeader(type) {
             const head = document.getElementById("history-head");
             let detailCol = "<th>Chi tiết</th>";
+            let actionCol = "<th>Hành động</th>";
 
             if (type === "I") {
-                head.innerHTML = `<tr><th>Mã đặt</th><th>MSSV</th><th>Mã ghế</th><th>Trạng thái</th><th>Ngày đặt</th><th>Bắt đầu</th><th>Kết thúc</th>${detailCol}</tr>`;
+                head.innerHTML = `
+        <tr>
+            <th>Mã đặt</th><th>MSSV</th><th>Mã ghế</th>
+            <th>Trạng thái</th><th>Ngày đặt</th>
+            <th>Bắt đầu</th><th>Kết thúc</th>
+            ${detailCol}${actionCol}
+        </tr>`;
             } else if (type === "G") {
-                head.innerHTML = `<tr><th>Mã đặt</th><th>MSSV</th><th>Mã phòng</th><th>CSVC</th><th>SL</th><th>Mục đích</th><th>Trạng thái</th><th>Ngày đặt</th><th>Bắt đầu</th><th>Kết thúc</th>${detailCol}</tr>`;
+                head.innerHTML = `
+        <tr>
+            <th>Mã đặt</th><th>MSSV</th><th>Mã phòng</th>
+            <th>CSVC</th><th>SL</th><th>Mục đích</th>
+            <th>Trạng thái</th><th>Ngày đặt</th>
+            <th>Bắt đầu</th><th>Kết thúc</th>
+            ${detailCol}${actionCol}
+        </tr>`;
             } else {
-                head.innerHTML = `<tr><th>Mã đặt</th><th>MSSV</th><th>Phòng</th><th>Ghế</th><th>CSVC</th><th>SL</th><th>Mục đích</th><th>Giữ chỗ</th><th>Trạng thái</th><th>Ngày đặt</th><th>Bắt đầu</th><th>Kết thúc</th>${detailCol}</tr>`;
+                head.innerHTML = `
+        <tr>
+            <th>Mã đặt</th><th>MSSV</th><th>Phòng</th><th>Ghế</th>
+            <th>CSVC</th><th>SL</th><th>Mục đích</th>
+            <th>Giữ chỗ</th><th>Trạng thái</th>
+            <th>Ngày đặt</th><th>Bắt đầu</th><th>Kết thúc</th>
+            ${detailCol}${actionCol}
+        </tr>`;
             }
         }
+
 
         // HÀM XỬ LÝ CLICK CON MẮT (YÊU CẦU 13)
         async function showMemberDetails(bookingId) {
