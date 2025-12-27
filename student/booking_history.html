@@ -6,7 +6,6 @@
     <title>Lịch sử đặt phòng</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="./layout.css">
     <script src="./student_header.js"></script>
@@ -39,12 +38,44 @@
 
         .action-bar {
             margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         select {
             padding: 8px 14px;
             border-radius: 6px;
             border: 1px solid #d1d5db;
+        }
+
+        /* --- STYLE CHO ĐIỂM UY TÍN --- */
+        .score-card {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border: 1px solid #bfdbfe;
+            padding: 15px 25px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-title {
+            font-size: 16px;
+            color: #1e40af;
+            font-weight: 600;
+        }
+
+        .score-number {
+            font-size: 24px;
+            font-weight: 800;
+            color: #2563eb;
+            background: #fff;
+            padding: 5px 15px;
+            border-radius: 8px;
+            border: 1px solid #93c5fd;
         }
     </style>
 </head>
@@ -110,7 +141,11 @@
         <div class="content">
             <h2>Lịch sử đặt phòng của bạn</h2>
 
-            <!-- FILTER -->
+            <div class="score-card">
+                <div class="score-title">💎 Điểm uy tín hiện tại:</div>
+                <div id="trust-score-display" class="score-number">...</div>
+            </div>
+
             <div class="action-bar">
                 <select id="room-filter" onchange="filterByRoomType()">
                     <option value="all">Hiển thị tất cả</option>
@@ -166,6 +201,27 @@
 
     <script>
         let allBookings = [];
+
+        /* ================= LOAD TRUST SCORE (MỚI) ================= */
+        async function loadTrustScore() {
+            const studentId = localStorage.getItem("studentid");
+            if (!studentId) return;
+
+            const { data, error } = await db
+                .from("student")
+                .select("trust_score")
+                .eq("studentid", studentId)
+                .single();
+
+            const display = document.getElementById("trust-score-display");
+
+            if (!error && data) {
+                // Nếu null thì mặc định là 0
+                display.textContent = data.trust_score !== null ? data.trust_score : 0;
+            } else {
+                display.textContent = "Error";
+            }
+        }
 
         async function autoUpdateBookingStatus(data) {
             const now = new Date();
@@ -478,6 +534,7 @@
 
         /* INIT */
         loadStudentName();
+        loadTrustScore(); // Gọi hàm load điểm
         loadBookingHistory();
     </script>
 

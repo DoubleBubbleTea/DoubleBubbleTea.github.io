@@ -6,7 +6,6 @@
     <title>Check-in phòng</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="./layout.css">
     <script src="./student_header.js"></script>
@@ -17,12 +16,23 @@
             padding: 40px 80px;
         }
 
+        .checkin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
         .checkin-box {
             max-width: 520px;
             background: #fff;
             padding: 30px;
             border-radius: 14px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .checkout-box {
+            border: 2px dashed #fecaca;
+            background: #fff7f7;
         }
 
         .checkin-box h2 {
@@ -72,7 +82,6 @@
 </head>
 
 <body>
-    <!-- LOGOUT MODAL -->
     <div id="logout-modal" class="modal-overlay">
         <div class="modal-box">
             <h3>Bạn muốn đăng xuất?</h3>
@@ -82,7 +91,6 @@
             </div>
         </div>
     </div>
-    <!-- HEADER -->
     <div class="header">
         <div class="header-title">THÔNG TIN CÁ NHÂN</div>
 
@@ -105,22 +113,15 @@
         </div>
     </div>
 
-    <!-- ================= REMINDER BOX ================= -->
     <div id="bookingReminder" class="booking-reminder" style="display:none;">
         <div class="reminder-icon">⏰</div>
         <div class="reminder-content">
-            <div class="reminder-title">
-                Sắp đến giờ sử dụng phòng
-            </div>
-            <div class="reminder-text" id="reminderText">
-                —
-            </div>
+            <div class="reminder-title">Sắp đến giờ sử dụng phòng</div>
+            <div class="reminder-text" id="reminderText">—</div>
         </div>
     </div>
-    <!-- MAIN -->
-    <div class="main">
 
-        <!-- SIDEBAR -->
+    <div class="main">
         <div class="sidebar">
             <div class="avatar-box">
                 <img id="student-avatar" src="../img/logo.png">
@@ -131,44 +132,43 @@
             <a href="./information.html">Thông tin cá nhân</a>
             <a href="#" onclick="checkTrustBeforeBooking()">Đặt phòng</a>
             <a href="./booking_history.html">Lịch sử đặt phòng</a>
-            <a href="./checking_room.html" class="active">Check-in phòng</a>
+            <a href="./checkin_room.html" class="active">Check-in phòng</a>
             <a href="./checkin_seat.html">Check-in chỗ ngồi</a>
             <a href="./student_feedback.html">Phản hồi sinh viên</a>
             <a href="./reward.html">Đổi phần thưởng</a>
             <a href="./student_reward.html">Danh sách phần thưởng</a>
         </div>
 
-        <!-- CONTENT -->
         <div class="content">
-            <div class="checkin-box">
-                <h2>Check-in phòng học</h2>
-
-                <label>Chọn phòng</label>
-                <select id="roomSelect"></select>
-
-                <label>Chọn Booking ID</label>
-                <select id="bookingSelect"></select>
-
-                <div id="memberInfo" class="note" style="margin-top:10px;">
-                    👥 Số lượng đăng ký: —
-                    <br>
-                    ✅ Đã check-in: — / —
+            <div class="checkin-grid">
+                <div class="checkin-box">
+                    <h2>Check-in phòng học</h2>
+                    <label>Chọn phòng</label>
+                    <select id="roomSelect"></select>
+                    <label>Chọn Booking ID</label>
+                    <select id="bookingSelect"></select>
+                    <div id="memberInfo" class="note" style="margin-top:10px;">
+                        👥 Số lượng đăng ký: — <br> ✅ Đã check-in: — / —
+                    </div>
+                    <div class="note">⏰ Cho phép check-in phòng trước <strong>15 phút</strong></div>
+                    <div class="checkin-actions">
+                        <button class="btn-primary" onclick="handleCheckin()">Check-in phòng</button>
+                    </div>
                 </div>
 
-                <div class="note">
-                    ⏰ Cho phép check-in phòng trước <strong>15 phút</strong>
-                </div>
-
-                <div class="checkin-actions">
-                    <button class="btn-primary" onclick="handleCheckin()">
-                        Check-in phòng
-                    </button>
+                <div class="checkin-box checkout-box">
+                    <h2>Checkout phòng học</h2>
+                    <label>Chọn phòng đang dùng</label>
+                    <select id="checkoutRoomSelect"></select>
+                    <div class="note" style="color:#dc2626;">⏹ Trạng thái → <strong>Đã sử dụng</strong></div>
+                    <div class="checkin-actions">
+                        <button class="btn-primary" style="background:#dc2626" onclick="handleCheckoutRoom()">Xác nhận checkout</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- POPUP -->
     <div id="popupModal" class="modal-overlay">
         <div class="modal-box small-popup">
             <h3 id="modal-title"></h3>
@@ -184,7 +184,9 @@
         async function loadRooms() {
             const { data } = await db.from("room").select("*");
             const select = document.getElementById("roomSelect");
+            const checkoutSelect = document.getElementById("checkoutRoomSelect");
             select.innerHTML = "";
+            checkoutSelect.innerHTML = "";
 
             data.forEach(r => {
                 roomMap[r.roomid] = r;
@@ -192,156 +194,131 @@
                 opt.value = r.roomid;
                 opt.textContent = `${r.roomid} (Sức chứa ${r.capacity})`;
                 select.appendChild(opt);
-            });
 
+                const optOut = opt.cloneNode(true);
+                checkoutSelect.appendChild(optOut);
+            });
             loadBookings();
         }
+
         function updateMemberInfo() {
             const bookingId = Number(document.getElementById("bookingSelect").value);
             const booking = bookings.find(b => b.bookingid === bookingId);
-
             const info = document.getElementById("memberInfo");
-
             if (!booking) {
-                info.innerHTML = `
-            👥 Số lượng đăng ký: —
-            <br>
-            ✅ Đã check-in: — / —
-        `;
+                info.innerHTML = `👥 Số lượng đăng ký: — <br> ✅ Đã check-in: — / —`;
                 return;
             }
-
             const maxMembers = booking.numbermember || 0;
             const key = `checkin_${bookingId}`;
             const checkedIn = Number(localStorage.getItem(key) || 0);
-
-            info.innerHTML = `
-        👥 Số lượng đăng ký: <strong>${maxMembers}</strong>
-        <br>
-        ✅ Đã check-in: <strong>${checkedIn} / ${maxMembers}</strong>
-    `;
+            info.innerHTML = `👥 Số lượng đăng ký: <strong>${maxMembers}</strong> <br> ✅ Đã check-in: <strong>${checkedIn} / ${maxMembers}</strong>`;
         }
 
         async function loadBookings() {
             const roomid = document.getElementById("roomSelect").value;
             const select = document.getElementById("bookingSelect");
-
-            const { data } = await db
-                .from("booking")
-                .select("*")
-                .eq("roomid", roomid)
-                .neq("booking_status", "Hủy");
-
+            const { data } = await db.from("booking").select("*").eq("roomid", roomid).neq("booking_status", "Hủy");
             bookings = data || [];
             select.innerHTML = "";
-
             bookings.forEach(b => {
                 const opt = document.createElement("option");
                 opt.value = b.bookingid;
                 opt.textContent = `Booking #${b.bookingid}`;
                 select.appendChild(opt);
             });
-
-            // 🔥 QUAN TRỌNG: auto hiển thị booking đầu tiên
             if (bookings.length > 0) {
                 select.value = bookings[0].bookingid;
                 updateMemberInfo();
-            } else {
-                document.getElementById("memberInfo").innerHTML = `
-            👥 Số lượng đăng ký: —
-            <br>
-            ✅ Đã check-in: — / —
-        `;
             }
         }
-
 
         document.getElementById("roomSelect").onchange = loadBookings;
         document.getElementById("bookingSelect").onchange = updateMemberInfo;
-        
+
         async function increaseTrustScore(studentId, point = 5) {
-            const { data, error } = await db
-                .from("student")
-                .select("trust_score")
-                .eq("studentid", studentId)
-                .single();
-
-            if (error || !data) {
-                console.error("Không lấy được trust_score", error);
-                return;
-            }
-
+            const { data } = await db.from("student").select("trust_score").eq("studentid", studentId).single();
+            if (!data) return;
             const newScore = (data.trust_score || 0) + point;
-
-            await db
-                .from("student")
-                .update({ trust_score: newScore })
-                .eq("studentid", studentId);
+            await db.from("student").update({ trust_score: newScore }).eq("studentid", studentId);
         }
 
-        function handleCheckin() {
+        async function handleCheckin() {
             const bookingId = Number(document.getElementById("bookingSelect").value);
             const booking = bookings.find(b => b.bookingid === bookingId);
-
             if (!booking) return;
 
             const now = new Date();
             const start = new Date(booking.starttime);
             const end = new Date(booking.endtime);
-
-            // ⏰ cho phép check-in trước 15 phút
             const allowFrom = new Date(start.getTime() - 15 * 60000);
 
             if (now < allowFrom || now > end) {
-                return showPopup(
-                    "Không thể check-in",
-                    "Chưa đến thời gian check-in phòng."
-                );
+                return showPopup("Không thể check-in", "Chưa đến thời gian check-in phòng.");
             }
 
             const maxMembers = booking.numbermember || 0;
-
-            if (maxMembers <= 0) {
-                return showPopup(
-                    "Lỗi",
-                    "Booking này không có thông tin số lượng thành viên."
-                );
-            }
-
-            // 🔑 KEY localStorage theo booking
             const key = `checkin_${bookingId}`;
             let count = Number(localStorage.getItem(key) || 0);
 
-            // 🚫 ĐÃ ĐỦ SỐ NGƯỜI
             if (count >= maxMembers) {
-                return showPopup(
-                    "Hết lượt check-in",
-                    `Số lượng check-in đã đạt tối đa (${maxMembers}).`
-                );
+                return showPopup("Hết lượt check-in", `Số lượng check-in đã đạt tối đa (${maxMembers}).`);
             }
 
-            // ✅ CHECK-IN
             count++;
             localStorage.setItem(key, count);
             updateMemberInfo();
 
-            // CỘNG ĐIỂM UY TÍN
-            const studentId = Number(localStorage.getItem("studentid"));
-            if (studentId) {
-                increaseTrustScore(studentId, 5);
-            }
+            // Cập nhật trạng thái booking sang Đang sử dụng và lưu thời gian bắt đầu thực tế
+            await db.from("booking").update({ 
+                booking_status: "Đang sử dụng",
+                starttime: toLocalTimestampString(now)
+            }).eq("bookingid", bookingId);
 
-            showPopup(
-                "Thành công",
-                `Check-in thành công (${count}/${maxMembers})`
-            );
+            const studentId = Number(localStorage.getItem("studentid"));
+            if (studentId) await increaseTrustScore(studentId, 5);
+
+            showPopup("Thành công", `Check-in thành công (${count}/${maxMembers})`);
         }
 
+        async function handleCheckoutRoom() {
+            const studentid = localStorage.getItem("studentid");
+            const roomid = document.getElementById("checkoutRoomSelect").value;
+
+            const { data: booking } = await db.from("booking")
+                .select("*")
+                .eq("studentid", studentid)
+                .eq("roomid", roomid)
+                .eq("booking_status", "Đang sử dụng")
+                .order("starttime", { ascending: false })
+                .limit(1)
+                .single();
+
+            if (!booking) return showPopup("Lỗi", "Không tìm thấy phòng đang sử dụng.");
+
+            const now = new Date();
+            const start = new Date(booking.starttime);
+            const bookedEnd = new Date(booking.endtime);
+            
+            // Logic cộng điểm: sử dụng >= 80% thời gian đăng ký
+            const bookedDuration = bookedEnd - start;
+            const actualDuration = now - start;
+
+            if (actualDuration >= (bookedDuration * 0.8)) {
+                const { data: std } = await db.from("student").select("trust_score").eq("studentid", studentid).single();
+                await db.from("student").update({ trust_score: (std.trust_score || 0) + 10 }).eq("studentid", studentid);
+            }
+
+            await db.from("booking").update({
+                booking_status: "Đã sử dụng",
+                endtime: toLocalTimestampString(now)
+            }).eq("bookingid", booking.bookingid);
+
+            showPopup("Thành công", "Checkout thành công. Điểm uy tín đã được cập nhật.");
+        }
 
         loadStudentName();
         loadRooms();
     </script>
-
 </body>
-
 </html>
