@@ -65,6 +65,8 @@
             width: 360px;
             border-radius: 8px;
             text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-input {
@@ -73,6 +75,7 @@
             margin: 6px 0;
             border-radius: 4px;
             border: 1px solid #ccc;
+            box-sizing: border-box;
         }
 
         .modal-buttons button {
@@ -98,45 +101,53 @@
         .filter-box .btn-add,
         #major-input {
             height: 42px;
-            /* ÉP CHIỀU CAO GIỐNG NHAU */
             padding-top: 0;
             padding-bottom: 0;
         }
 
-        /* Button căn chữ chuẩn */
         .filter-box .btn-add {
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        /* FIX LỆCH DO MARGIN-BOTTOM CỦA BTN-ADD */
         .action-bar .btn-add {
             margin-bottom: 0;
         }
 
-        #major-select {
+        /* CSS cho các ô Select lọc */
+        .filter-select {
             background: #275167;
             color: #faf9f9;
             height: 38px;
             padding: 0 14px;
             min-width: 100px;
-
             border: 1px solid #d1d5db;
             border-radius: 4px;
             font-size: 14px;
             cursor: pointer;
+            margin-left: 5px;
         }
 
-        #major-select:hover {
-            background: #275167;
+        /* Input lọc điểm uy tín */
+        .filter-input {
+            height: 38px;
+            padding: 0 10px;
+            width: 80px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-left: 5px;
+            box-sizing: border-box;
         }
 
-        #major-select option {
+        .filter-select:hover {
+            background: #1e3f50;
+        }
+
+        .filter-select option {
             background: white;
-            /* nền option */
             color: #111;
-            /* chữ đen */
         }
     </style>
 </head>
@@ -144,13 +155,12 @@
 <body>
     <div id="popupModal" class="modal-overlay">
         <div class="modal-box">
-            <h3 id="modal-title">Completed</h3>
+            <h3 id="modal-title-info">Completed</h3>
             <p id="modal-message">Message here</p>
             <button onclick="closeModalInfo()">OK</button>
         </div>
     </div>
 
-    <!-- LOGOUT MODAL -->
     <div id="logout-modal" class="modal-overlay">
         <div class="modal-box">
             <h3>Bạn muốn đăng xuất?</h3>
@@ -161,7 +171,6 @@
         </div>
     </div>
 
-    <!-- DELETE CONFIRM MODAL -->
     <div id="delete-modal" class="modal-overlay">
         <div class="modal-box">
             <h3>Xóa sinh viên?</h3>
@@ -171,7 +180,6 @@
         </div>
     </div>
 
-    <!-- HEADER -->
     <div class="header">
         <div>Dashboard</div>
         <div class="header-right">
@@ -182,9 +190,7 @@
             <div class="icon logout-icon" onclick="openLogoutModal()">
                 <img src="../img/logout_new.png" class="icon-img">
             </div>
-
             <div id="header-user">Đang tải...</div>
-
             <div id="notif-dropdown" class="notif-dropdown">
                 <div class="notif-title">Thông báo</div>
                 <div id="notif-list" class="notif-list">Không có thông báo!</div>
@@ -193,9 +199,7 @@
     </div>
 
     <div class="main">
-        <!-- SIDEBAR -->
         <div class="sidebar">
-            <!-- AVATAR BOX -->
             <div class="avatar-box">
                 <img id="student-avatar" src="../img/logo.png" alt="avatar">
                 <div class="avatar-name" id="avatar-fullname">—</div>
@@ -208,8 +212,7 @@
             <a href="./load_news.html">Quản lý bản tin</a>
             <div class="sidebar-group">
                 <a href="javascript:void(0)" class="sidebar-dropdown-toggle" onclick="toggleSidebarDropdown(this)">
-                    Danh sách
-                    <i class="fa fa-caret-down"></i>
+                    Danh sách <i class="fa fa-caret-down"></i>
                 </a>
                 <div class="sidebar-dropdown">
                     <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
@@ -222,18 +225,53 @@
             </div>
         </div>
 
-        <!-- CONTENT -->
         <div class="content">
             <h2>Danh sách sinh viên</h2>
-
             <div class="action-bar">
-                <div class="left-actions">
+                <div class="left-actions" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                     <button class="btn-add" onclick="openAddModal()">+ Thêm sinh viên</button>
-
-                    <select id="major-select" onchange="filterByMajor()">
+                    
+                    <select id="major-select" class="filter-select" onchange="applyFilters()">
                         <option value="">Lọc theo ngành</option>
                     </select>
 
+                    <select id="year-select" class="filter-select" onchange="applyFilters()">
+                        <option value="">Lọc niên khóa</option>
+                        <option>2020-2024</option>
+                        <option>2021-2025</option>
+                        <option>2022-2026</option>
+                        <option>2023-2027</option>
+                        <option>2024-2028</option>
+                        <option>2025-2029</option>
+                    </select>
+
+                    <select id="edu-select" class="filter-select" onchange="applyFilters()">
+                        <option value="">Hệ đào tạo</option>
+                        <option>Chính quy tập trung</option>
+                        <option>Chất lượng cao CLC</option>
+                        <option>Liên kết quốc tế</option>
+                        <option>Đại trà</option>
+                        <option>Sau đại học</option>
+                    </select>
+
+                    <div style="display: flex; align-items: center; gap: 2px;">
+                        <select id="trust-select" class="filter-select" onchange="syncTrustInput()">
+                            <option value="">Điểm uy tín</option>
+                            <option value="100">100</option>
+                            <option value="200">200</option>
+                            <option value="300">300</option>
+                            <option value="400">400</option>
+                            <option value="500">500</option>
+                            <option value="600">600</option>
+                            <option value="700">700</option>
+                            <option value="800">800</option>
+                            <option value="900">900</option>
+                            <option value="1000">1000</option>
+                        </select>
+                        <input type="number" id="trust-input" class="filter-input" placeholder="Nhập điểm" oninput="applyFilters()">
+                    </div>
+                    
+                    <button class="btn-cancel" style="margin: 0; height: 38px;" onclick="resetFilters()">Đặt lại</button>
                 </div>
             </div>
 
@@ -260,11 +298,9 @@
                     <tbody id="student-table"></tbody>
                 </table>
             </div>
-
         </div>
     </div>
 
-    <!-- ADD / EDIT MODAL -->
     <div id="modal" class="modal-overlay">
         <div class="modal-box">
             <h3 id="modal-title">Thêm sinh viên</h3>
@@ -282,25 +318,26 @@
 
             <input id="st-phone" class="modal-input" placeholder="Số điện thoại">
             <input id="st-major" class="modal-input" placeholder="Ngành học">
-
             <input id="st-placebirth" class="modal-input" placeholder="Nơi sinh">
             <input id="st-address" class="modal-input" placeholder="Địa chỉ thường trú">
 
             <select id="st-education" class="modal-input">
                 <option value="">— Hệ đào tạo —</option>
-                <option value="Đại trà">Đại trà</option>
-                <option value="Chất lượng cao">Chất lượng cao</option>
+                <option value="Chính quy tập trung">Chính quy tập trung</option>
+                <option value="Chất lượng cao CLC">Chất lượng cao CLC</option>
                 <option value="Liên kết quốc tế">Liên kết quốc tế</option>
+                <option value="Đại trà">Đại trà</option>
+                <option value="Sau đại học">Sau đại học</option>
             </select>
 
             <select id="st-academicyear" class="modal-input">
                 <option value="">— Niên khoá —</option>
-                <option>2020-2021</option>
-                <option>2021-2022</option>
-                <option>2022-2023</option>
-                <option>2023-2024</option>
-                <option>2024-2025</option>
-                <option>2025-2026</option>
+                <option>2020-2024</option>
+                <option>2021-2025</option>
+                <option>2022-2026</option>
+                <option>2023-2027</option>
+                <option>2024-2028</option>
+                <option>2025-2029</option>
             </select>
 
             <select id="st-status" class="modal-input">
@@ -308,10 +345,24 @@
                 <option value="Đang hoạt động">Đang hoạt động</option>
                 <option value="Vô hiệu hóa">Vô hiệu hóa</option>
             </select>
-            <input id="st-trust" class="modal-input" placeholder="Điểm uy tín">
+
+            <select id="st-trust" class="modal-input">
+                <option value="" disabled selected>— Chọn điểm uy tín —</option>
+                <option value="0">0</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
+                <option value="300">300</option>
+                <option value="400">400</option>
+                <option value="500">500</option>
+                <option value="600">600</option>
+                <option value="700">700</option>
+                <option value="800">800</option>
+                <option value="900">900</option>
+                <option value="1000">1000</option>
+            </select>
 
             <div class="modal-buttons">
-                <button class="btn-save" onclick="saveStudent()">Lưu</button>
+                <button class="btn-save" style="background: #275167; color: white;" onclick="saveStudent()">Lưu</button>
                 <button class="btn-cancel" onclick="closeModal()">Hủy</button>
             </div>
         </div>
@@ -347,7 +398,10 @@
             document.getElementById("st-education").value = student.education_type || "";
             document.getElementById("st-academicyear").value = student.academic_year || "";
             document.getElementById("st-status").value = student.status;
-            document.getElementById("st-trust").value = student.trust_score;
+            
+            const trustScore = student.trust_score ?? 0;
+            const trustSelect = document.getElementById("st-trust");
+            trustSelect.value = trustScore;
 
             document.getElementById("modal").style.display = "flex";
         }
@@ -366,16 +420,11 @@
             document.getElementById("st-address").value = "";
             document.getElementById("st-education").value = "";
             document.getElementById("st-academicyear").value = "";
-
         }
 
         function closeModal() {
             document.getElementById("modal").style.display = "none";
         }
-
-        /* ======================
-           DELETE MODAL
-        ====================== */
 
         function openDeleteModal(id) {
             deleteId = id;
@@ -393,95 +442,53 @@
             loadStudents();
         }
 
-        /* OLD deleteStudent() — replaced */
         function deleteStudent(id) {
             openDeleteModal(id);
         }
 
-        /* ======================
-           SAVE STUDENT
-        ====================== */
         async function saveStudent() {
             const studentid = document.getElementById("st-id").value.trim();
             const fullname = document.getElementById("st-name").value.trim();
             const email = document.getElementById("st-email").value.trim();
             const phonenumber = document.getElementById("st-phone").value.trim();
-            const trust_score = document.getElementById("st-trust").value.trim();
+            const trust_score = document.getElementById("st-trust").value;
 
-            /* ======================
-               VALIDATION
-            ====================== */
-
-            // Không được để trống
-            if (!fullname) {
-                showPopup("Lỗi", "Họ và tên không được để trống!");
+            if (!fullname || !email || !studentid || trust_score === "") {
+                showPopup("Lỗi", "Vui lòng nhập đầy đủ các thông tin bắt buộc!");
                 return;
             }
 
-            if (!email) {
-                showPopup("Lỗi", "Email không được để trống!");
-                return;
-            }
-
-            // Chỉ toàn số
             const numberRegex = /^\d+$/;
-
             if (!numberRegex.test(studentid)) {
                 showPopup("Lỗi", "Mã số sinh viên chỉ được chứa chữ số!");
                 return;
             }
 
-            if (phonenumber && !numberRegex.test(phonenumber)) {
-                showPopup("Lỗi", "Số điện thoại chỉ được chứa chữ số!");
-                return;
-            }
-
-            if (trust_score && !numberRegex.test(trust_score)) {
-                showPopup("Lỗi", "Điểm uy tín chỉ được chứa chữ số!");
-                return;
-            }
-
-            /* ======================
-               DATA OBJECT
-            ====================== */
-
             const newData = {
                 studentid: Number(studentid),
                 fullname,
                 email,
-
                 birth_date: document.getElementById("st-birthdate").value || null,
                 gender: document.getElementById("st-gender").value || null,
-
                 phonenumber: phonenumber || null,
                 major: document.getElementById("st-major").value,
-
                 place_of_birth: document.getElementById("st-placebirth").value,
                 permanent_address: document.getElementById("st-address").value,
-
                 education_type: document.getElementById("st-education").value,
                 academic_year: document.getElementById("st-academicyear").value,
-
                 status: document.getElementById("st-status").value,
-                trust_score: trust_score ? Number(trust_score) : null,
+                trust_score: Number(trust_score),
                 password: "123"
             };
 
             let result;
-
             if (editingId) {
-                result = await db
-                    .from("student")
-                    .update(newData)
-                    .eq("studentid", editingId);
+                result = await db.from("student").update(newData).eq("studentid", editingId);
             } else {
-                result = await db
-                    .from("student")
-                    .insert(newData);
+                result = await db.from("student").insert(newData);
             }
 
             if (result.error) {
-                console.error(result.error);
                 showPopup("Lỗi", result.error.message);
                 return;
             }
@@ -491,73 +498,85 @@
             loadStudents();
         }
 
-
-        /* ======================
-           LOAD STUDENTS
-        ====================== */
-
-        async function loadStudents() {
-            const { data } = await db.from("student").select("*");
-
+        function renderTable(data) {
             const table = document.getElementById("student-table");
             table.innerHTML = "";
-
             data.forEach(st => {
                 table.innerHTML += `
                 <tr>
                     <td>${st.studentid}</td>
                     <td>${st.fullname}</td>
                     <td>${st.email}</td>
-
                     <td>${st.birth_date ? new Date(st.birth_date).toLocaleDateString("vi-VN") : "—"}</td>
                     <td>${st.gender || "—"}</td>
-
                     <td>${st.phonenumber || "—"}</td>
                     <td>${st.major || "—"}</td>
-
                     <td>${st.place_of_birth || "—"}</td>
                     <td>${st.permanent_address || "—"}</td>
-
                     <td>${st.education_type || "—"}</td>
                     <td>${st.academic_year || "—"}</td>
-
                     <td>${st.status || "—"}</td>
-                    <td>${st.trust_score ?? "—"}</td>
-
+                    <td><b style="color: ${st.trust_score < 500 ? 'red' : 'green'}">${st.trust_score ?? 0}</b></td>
                     <td>
-                        <button class="btn-edit" onclick='openEditModal(${JSON.stringify(st)})'>Sửa</button>
-                        <button class="btn-delete" onclick="deleteStudent('${st.studentid}')">Xóa</button>
+                        <button class="btn-edit" style="padding: 4px 8px; cursor:pointer;" onclick='openEditModal(${JSON.stringify(st)})'>Sửa</button>
+                        <button class="btn-delete" style="padding: 4px 8px; cursor:pointer;" onclick="deleteStudent('${st.studentid}')">Xóa</button>
                     </td>
                 </tr>
                 `;
             });
         }
 
+        async function loadStudents() {
+            const { data } = await db.from("student").select("*").order("studentid", { ascending: true });
+            renderTable(data);
+        }
+
+        // Đồng bộ giá trị từ Select sang Input khi chọn nhanh điểm uy tín
+        function syncTrustInput() {
+            const selectVal = document.getElementById("trust-select").value;
+            if (selectVal !== "") {
+                document.getElementById("trust-input").value = selectVal;
+            }
+            applyFilters();
+        }
+
+        async function applyFilters() {
+            const major = document.getElementById("major-select").value;
+            const year = document.getElementById("year-select").value;
+            const edu = document.getElementById("edu-select").value;
+            const trustVal = document.getElementById("trust-input").value;
+
+            let query = db.from("student").select("*");
+
+            if (major) query = query.eq("major", major);
+            if (year) query = query.eq("academic_year", year);
+            if (edu) query = query.eq("education_type", edu);
+            if (trustVal !== "") query = query.eq("trust_score", Number(trustVal));
+
+            const { data, error } = await query.order("studentid", { ascending: true });
+            if (!error) renderTable(data);
+        }
+
+        function resetFilters() {
+            document.getElementById("major-select").value = "";
+            document.getElementById("year-select").value = "";
+            document.getElementById("edu-select").value = "";
+            document.getElementById("trust-select").value = "";
+            document.getElementById("trust-input").value = "";
+            loadStudents();
+        }
+
         async function loadHeader() {
             const adminId = localStorage.getItem("adminid");
             const { data } = await db.from("admin").select("fullname").eq("adminid", adminId).single();
-            document.getElementById("header-user").innerText =
-                data ? `Xin chào, ${data.fullname}` : "";
+            document.getElementById("header-user").innerText = data ? `Xin chào, ${data.fullname}` : "";
         }
 
-        loadHeader();
-        loadStudents();
-
         async function loadMajorList() {
-            const { data, error } = await db
-                .from("student")
-                .select("major");
-
-            if (error) {
-                showPopup("Lỗi", "Không load được danh sách ngành!");
-                return;
-            }
-
+            const { data } = await db.from("student").select("major");
+            if (!data) return;
             const select = document.getElementById("major-select");
-
-            // Lấy danh sách ngành không trùng
             const majors = [...new Set(data.map(s => s.major).filter(Boolean))];
-
             majors.forEach(m => {
                 const opt = document.createElement("option");
                 opt.value = m;
@@ -565,57 +584,9 @@
                 select.appendChild(opt);
             });
         }
-        async function filterByMajor() {
-            const major = document.getElementById("major-select").value;
 
-            if (!major) {
-                loadStudents(); // tất cả
-                return;
-            }
-
-            const { data, error } = await db
-                .from("student")
-                .select("*")
-                .eq("major", major);
-
-            if (error) {
-                showPopup("Lỗi", "Không thể lọc sinh viên!");
-                return;
-            }
-
-            const table = document.getElementById("student-table");
-            table.innerHTML = "";
-
-            data.forEach(st => {
-                table.innerHTML += `
-                <tr>
-                    <td>${st.studentid}</td>
-                    <td>${st.fullname}</td>
-                    <td>${st.email}</td>
-
-                    <td>${st.birth_date ? new Date(st.birth_date).toLocaleDateString("vi-VN") : "—"}</td>
-                    <td>${st.gender || "—"}</td>
-
-                    <td>${st.phonenumber || "—"}</td>
-                    <td>${st.major || "—"}</td>
-
-                    <td>${st.place_of_birth || "—"}</td>
-                    <td>${st.permanent_address || "—"}</td>
-
-                    <td>${st.education_type || "—"}</td>
-                    <td>${st.academic_year || "—"}</td>
-
-                    <td>${st.status || "—"}</td>
-                    <td>${st.trust_score ?? "—"}</td>
-
-                    <td>
-                        <button class="btn-edit" onclick='openEditModal(${JSON.stringify(st)})'>Sửa</button>
-                        <button class="btn-delete" onclick="deleteStudent('${st.studentid}')">Xóa</button>
-                    </td>
-                </tr>
-                `;
-            });
-        }
+        loadHeader();
+        loadStudents();
         loadMajorList();
     </script>
 </body>
