@@ -158,10 +158,16 @@
         .info-box {
             flex: 1;
         }
+        
+        /* Highlight Trust Score */
+        .trust-highlight {
+            color: #2563eb;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
     </style>
 </head>
 
-<!-- POPUP SUCCESS -->
 <div id="popupModal" class="modal-overlay">
     <div class="modal-box">
         <h3 id="modal-title">Completed</h3>
@@ -172,7 +178,6 @@
 
 <body>
 
-    <!-- HEADER -->
     <div class="header">
         <div class="header-title">THÔNG TIN CÁ NHÂN</div>
 
@@ -194,7 +199,6 @@
             </div>
         </div>
     </div>
-    <!-- ================= REMINDER BOX ================= -->
     <div id="bookingReminder" class="booking-reminder" style="display:none;">
         <div class="reminder-icon">⏰</div>
         <div class="reminder-content">
@@ -207,12 +211,9 @@
         </div>
     </div>
 
-    <!-- MAIN -->
     <div class="main">
 
-        <!-- SIDEBAR -->
         <div class="sidebar">
-            <!-- AVATAR BOX -->
             <div class="avatar-box">
                 <img id="student-avatar" src="../img/logo.png" alt="avatar">
                 <div class="avatar-name" id="avatar-fullname">—</div>
@@ -230,19 +231,15 @@
             <a href="./student_reward.html">Danh sách phần thưởng</a>
         </div>
 
-        <!-- CONTENT -->
         <div class="content">
             <h2>Thông tin sinh viên</h2>
             <div class="profile-layout">
-                <!-- AVATAR BOX (BÊN TRÁI) -->
                 <div class="avatar-box-left">
                     <img id="student-avatar-profile" src="../img/avata.png" alt="Avatar sinh viên">
                 </div>
 
-                <!-- INFO BOX (BÊN PHẢI) -->
                 <div class="info-box">
 
-                    <!-- VIEW MODE -->
                     <div id="info-view-mode">
                         <div class="info-item"><label>Mã số sinh viên:</label><span id="info-studentid">...</span></div>
                         <div class="info-item"><label>Họ và tên:</label><span id="info-fullname">...</span></div>
@@ -255,7 +252,7 @@
                         <div class="info-item"><label>Địa chỉ thường trú:</label><span id="info-address">—</span></div>
                         <div class="info-item"><label>Hệ đào tạo:</label><span id="info-education">—</span></div>
                         <div class="info-item"><label>Niên khoá:</label><span id="info-academicyear">—</span></div>
-                        <div class="info-item"><label>Điểm uy tín:</label><span id="info-trust">—</span></div>
+                        <div class="info-item"><label>Điểm uy tín (TrustScore):</label><span id="info-trust" class="trust-highlight">0</span></div>
 
                         <div style="margin-top: 25px;">
                             <button class="btn-change-pass" onclick="openPasswordModal()">Đổi mật khẩu</button>
@@ -263,7 +260,6 @@
                         </div>
                     </div>
 
-                    <!-- EDIT MODE -->
                     <div id="info-edit-mode" style="display:none">
                         <div class="info-item"><label>Mã số sinh viên:</label>
                             <input id="edit-studentid" class="info-edit" disabled>
@@ -322,7 +318,7 @@
                                 <option>2025-2026</option>
                             </select>
                         </div>
-                        <div class="info-item"><label>Điểm uy tín:</label>
+                        <div class="info-item"><label>Điểm uy tín (Không thể sửa):</label>
                             <input id="edit-trust" class="info-edit" disabled>
                         </div>
 
@@ -337,7 +333,6 @@
 
     </div>
 
-    <!-- MODAL ĐỔI MẬT KHẨU -->
     <div id="passModal" class="modal-overlay">
         <div class="modal-box">
             <h3>Đổi mật khẩu</h3>
@@ -364,7 +359,6 @@
         </div>
     </div>
 
-    <!-- LOGOUT MODAL -->
     <div id="logout-modal" class="modal-overlay">
         <div class="modal-box">
             <h3>Bạn muốn đăng xuất?</h3>
@@ -373,7 +367,6 @@
         </div>
     </div>
 
-    <!-- SUPABASE + HEADER SCRIPT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./student_header.js"></script>
 
@@ -395,7 +388,7 @@
             if (avatarProfile) avatarProfile.src = avatarPath;
         }
         /* ============================
-           PASSWORD TOGGLE
+            PASSWORD TOGGLE
         ============================ */
         function togglePassword(id, eyeIcon) {
             const input = document.getElementById(id);
@@ -406,7 +399,7 @@
         }
 
         /* ============================
-           REALTIME CHECK MATCH
+            REALTIME CHECK MATCH
         ============================ */
         function checkPasswordMatch() {
             const newPass = document.getElementById("pass-new").value;
@@ -422,7 +415,7 @@
         }
 
         /* ============================
-           LOAD STUDENT INFO
+            LOAD STUDENT INFO
         ============================ */
         async function loadStudentInfo() {
             const { data } = await db
@@ -439,7 +432,9 @@
             document.getElementById("info-email").innerText = data.email;
             document.getElementById("info-phonenumber").innerText = data.phonenumber || "—";
             document.getElementById("info-major").innerText = data.major || "—";
-            document.getElementById("info-trust").innerText = data.trust_score ?? "—";
+            // Hiển thị Trust Score
+            document.getElementById("info-trust").innerText = data.trust_score ?? "0";
+            
             document.getElementById("info-birthdate").innerText = data.birth_date ? new Date(data.birth_date).toLocaleDateString("vi-VN") : "—";
 
             document.getElementById("info-gender").innerText = data.gender || "—";
@@ -447,13 +442,16 @@
             document.getElementById("info-address").innerText = data.permanent_address || "—";
             document.getElementById("info-education").innerText = data.education_type || "—";
             document.getElementById("info-academicyear").innerText = data.academic_year || "—";
+            
             // Fill edit mode
             document.getElementById("edit-studentid").value = data.studentid;
             document.getElementById("edit-fullname").value = data.fullname;
             document.getElementById("edit-email").value = data.email;
             document.getElementById("edit-phonenumber").value = data.phonenumber || "";
             document.getElementById("edit-major").value = data.major || "";
-            document.getElementById("edit-trust").value = data.trust_score ?? "";
+            // Đưa Trust Score vào ô input disable trong edit mode
+            document.getElementById("edit-trust").value = data.trust_score ?? "0";
+            
             document.getElementById("edit-birthdate").value = data.birth_date || "";
             document.getElementById("edit-gender").value = data.gender || "";
             document.getElementById("edit-placebirth").value = data.place_of_birth || "";
@@ -463,7 +461,7 @@
         }
 
         /* ============================
-           EDIT MODE SWITCH
+            EDIT MODE SWITCH
         ============================ */
         function enableEdit() {
             document.getElementById("info-view-mode").style.display = "none";
@@ -476,7 +474,7 @@
         }
 
         /* ============================
-           SAVE INFO
+            SAVE INFO
         ============================ */
         async function saveInfo() {
             const studentId = localStorage.getItem("studentid");
@@ -486,7 +484,7 @@
             const phonenumber = document.getElementById("edit-phonenumber").value.trim();
 
             /* ======================
-               VALIDATION
+                VALIDATION
             ====================== */
 
             // Không được để trống
@@ -509,7 +507,7 @@
             }
 
             /* ======================
-               DATA OBJECT
+                DATA OBJECT
             ====================== */
 
             const updated = {
@@ -544,7 +542,7 @@
             cancelEdit();
         }
         /* ============================
-           PASSWORD HANDLING
+            PASSWORD HANDLING
         ============================ */
         function openPasswordModal() {
             document.getElementById("passModal").style.display = "flex";
