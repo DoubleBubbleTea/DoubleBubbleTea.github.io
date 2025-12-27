@@ -120,8 +120,12 @@
         <div class="wall" style="left:330px;top:320px;width:6px;height:600px"></div>
         <div class="wall" style="right:330px;top:0;width:6px;height:220px"></div>
         <div class="wall" style="right:330px;top:320px;width:6px;height:600px"></div>
+        
+        <div class="wall" style="left:330px; bottom:0; width:970px; height:6px"></div>
 
-        <!-- MANAGER -->
+        <div style="position:absolute; left:618px; bottom:-4px; width:254px; height:14px; background-color:white; z-index:100; box-shadow: 0 0 0 1px white;"></div>
+        <div style="position:absolute; left:620px; bottom:15px; width:250px; text-align:center; font-size:22px; font-weight:bold; color:black; z-index:101;">Cửa chính</div>
+
         <div class="manager-box" style="left:370px;top:750px;width:250px;height:100px">QUẢN LÝ</div>
 
         <!-- LEFT PRIVATE -->
@@ -145,9 +149,13 @@
 
         <!-- CENTER TOP -->
         <div class="desk-oval" style="left:400px;top:140px;width:500px;height:80px"></div>
+        <div style="position:absolute; background:white; left:400px; top:179px; width:500px; height:2px; z-index:5;"></div>
         <script>
           for (let i = 0; i < 5; i++) {
             const t = 18 + i, b = 13 + i;
+            if (i > 0) {
+              document.write(`<div style="position:absolute; background:white; left:${400 + i * 100}px; top:140px; width:2px; height:80px; z-index:5;"></div>`);
+            }
             document.write(`<div class="seat" data-seatid="I${100 + t}" style="left:${445 + i * 95}px;top:75px"
         onclick="onSeatClick(${t})">${t}</div>`);
             document.write(`<div class="seat" data-seatid="I${100 + b}" style="left:${445 + i * 95}px;top:235px"
@@ -155,11 +163,17 @@
           }
         </script>
 
-        <!-- CENTER MIDDLE -->
         <div class="desk-oval" style="left:470px;top:380px;width:80px;height:220px"></div>
         <div class="desk-oval" style="left:750px;top:380px;width:80px;height:220px"></div>
+        <div style="position:absolute; background:white; left:509px; top:380px; width:2px; height:220px; z-index:5;"></div>
+        <div style="position:absolute; background:white; left:789px; top:380px; width:2px; height:220px; z-index:5;"></div>
         <script>
           for (let i = 0; i < 3; i++) {
+            if (i > 0) {
+              document.write(`<div style="position:absolute; background:white; left:470px; top:${380 + i * 73.3}px; width:80px; height:2px; z-index:5;"></div>`);
+              document.write(`<div style="position:absolute; background:white; left:750px; top:${380 + i * 73.3}px; width:80px; height:2px; z-index:5;"></div>`);
+            }
+
             const ids = [
               [3 - i, 405],
               [4 + i, 565],
@@ -193,6 +207,10 @@
             [35, 1040, 780, true], [40, 1190, 780, true]
           ];
           rightData.forEach(([id, x, y, h]) => {
+            if (!h && id >= 23 && id <= 30) {
+              document.write(`<div class="solo-desk" style="left:${x - 4}px;top:${y + 60}px"></div>`);
+            }
+
             if (h) document.write(`<div class="solo-desk-horizontal" style="left:${x + 60}px;top:${y}px"></div>`);
             document.write(`<div class="seat ${h ? 'rotate-side' : ''}" data-seatid="I${100 + id}"
         style="left:${x}px;top:${y}px"
@@ -270,7 +288,7 @@
           const { data, error } = await db
             .from("room")
             .select("roomid, status")
-            .like("roomid", "I%")          // ✅ chỉ lấy room bắt đầu bằng I
+            .like("roomid", "I%")
             .order("roomid");
 
           if (error) {
@@ -341,7 +359,7 @@
           });
 
           document.querySelectorAll(".seat").forEach(el => {
-            const seatNumber = el.textContent.trim();      // "1".."60"
+            const seatNumber = el.textContent.trim();
             const seatNo = String(seatNumber).padStart(2, "0");
             const seatId = `${room}${seatNo}`;
 
@@ -425,7 +443,6 @@
               (slotEndTime.getTime() - now.getTime()) / 60000
             );
             // ⛔ Đặt trễ nhưng còn < 30 phút → CHẶN
-            console.log("lateMinutes: ", lateMinutes);
             if (remainingMinutes < 30) {
               showPopup(
                 "Không thể đặt chỗ",
