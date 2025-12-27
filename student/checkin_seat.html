@@ -196,13 +196,13 @@
             const text = document.getElementById("holdCountdownText");
             const end = new Date(holdtime);
 
-            box.style.display = "flex";
             if (holdInterval) clearInterval(holdInterval);
 
             holdInterval = setInterval(async () => {
                 const now = new Date();
                 const diff = end - now;
 
+                // ⛔ Hết thời gian giữ chỗ → auto cancel
                 if (diff <= 0) {
                     clearInterval(holdInterval);
                     box.style.display = "none";
@@ -210,11 +210,21 @@
                     return;
                 }
 
-                const min = Math.floor(diff / 60000);
-                const sec = Math.floor((diff % 60000) / 1000);
-                text.innerHTML = `Còn <strong>${min} phút ${sec} giây</strong>`;
+                // ⚠️ CHỈ HIỆN COUNTDOWN KHI < 15 PHÚT
+                if (diff < 15 * 60 * 1000) {
+                    box.style.display = "flex";
+
+                    const min = Math.floor(diff / 60000);
+                    const sec = Math.floor((diff % 60000) / 1000);
+                    text.innerHTML = `Còn <strong>${min} phút ${sec} giây</strong>`;
+                } else {
+                    // ⛔ Còn nhiều thời gian → ẩn countdown
+                    box.style.display = "none";
+                }
+
             }, 1000);
         }
+
 
         function clearHoldCountdown() {
             if (holdInterval) clearInterval(holdInterval);
@@ -230,7 +240,7 @@
                 .update({ booking_status: "Hủy" })
                 .eq("studentid", studentid)
                 .eq("booking_status", "Đang giữ chỗ")
-                .eq("booking_late", "Sai");   // ✅ CHỈ AUTO-HỦY KHI KHÔNG PHẢI BOOKING TRỄ
+            // .eq("booking_late", "Sai");   // ✅ CHỈ AUTO-HỦY KHI KHÔNG PHẢI BOOKING TRỄ
         }
 
         /* ================= LOAD HOLD ================= */
@@ -254,9 +264,9 @@
             const studentid = localStorage.getItem("studentid");
             const roomid = roomSelect.value;
             const seatid = seatSelect.value;
-            console.log("handleCheckinSeat: studentid ", studentid);
-            console.log("handleCheckinSeat: roomid ", roomid);
-            console.log("handleCheckinSeat: seatid ", seatid);
+            // console.log("handleCheckinSeat: studentid ", studentid);
+            // console.log("handleCheckinSeat: roomid ", roomid);
+            // console.log("handleCheckinSeat: seatid ", seatid);
 
             const { data } = await db
                 .from("booking")
@@ -265,6 +275,7 @@
                 .eq("roomid", roomid)
                 .eq("seatid", seatid)
                 .eq("booking_status", "Đang giữ chỗ")
+                .eq("booking_late", "Đúng")
                 .order("starttime", { ascending: false }) // booking gần nhất
                 .limit(1)
                 .single();
@@ -287,14 +298,14 @@
             loadCheckoutRooms();
         }
 
-        /* ================= CHECKOUT (CÓ TÍNH ĐIỂM) ================= */
+        /* ================= CHECKOUT (CẬP NHẬT TÍNH ĐIỂM UY TÍN) ================= */
         async function handleCheckoutSeat() {
             const studentid = localStorage.getItem("studentid");
             const roomid = checkoutRoomSelect.value;
             const seatid = checkoutSeatSelect.value;
 
-            // 1. Lấy thông tin booking hiện tại
-            const { data } = await db.from("booking")
+            // 1. Lấy thông tin booking đang sử dụng
+            const { data: booking } = await db.from("booking")
                 .select("*")
                 .eq("studentid", studentid)
                 .eq("roomid", roomid)
@@ -302,54 +313,63 @@
                 .eq("booking_status", "Đang sử dụng")
                 .single();
 
-            if (!data) return showPopup("Lỗi", "Không tìm thấy booking.");
+            if (!booking) return showPopup("Lỗi", "Không tìm thấy booking.");
 
+            // 2. Tính toán thời gian
             const now = new Date();
+            const start = new Date(booking.starttime);
+            const end = new Date(booking.endtime);
 
-            // 2. Tính toán điểm uy tín (Trust Score)
-            const startTime = new Date(data.starttime);
-            const bookedEndTime = new Date(data.endtime);
-            const actualEndTime = now;
+            const actualDuration = now - start; // Thời gian thực tế ngồi (ms)
+            const bookedDuration = end - start; // Thời gian đăng ký (ms)
 
-            // Tính thời gian (miliseconds)
-            const bookedDuration = bookedEndTime - startTime;
-            const actualDuration = actualEndTime - startTime;
+            let popupMessage = "Checkout thành công.";
+            let popupTitle = "Hoàn tất";
 
-            // Điều kiện: Thời gian thực tế >= 80% Thời gian đã đặt
-            if (actualDuration >= (bookedDuration * 0.8)) {
+            // 3. Kiểm tra điều kiện > 80% thời gian đăng ký
+            // Tránh chia cho 0 nếu lỗi dữ liệu
+            if (bookedDuration > 0) {
+                const ratio = actualDuration / bookedDuration;
                 
-                // Lấy điểm hiện tại
-                const { data: studentData } = await db
-                    .from("student")
-                    .select("trust_score")
-                    .eq("studentid", studentid)
-                    .single();
+                // Nếu ngồi > 80% (0.8)
+                if (ratio >= 0.8) {
+                    try {
+                        // Lấy điểm uy tín hiện tại
+                        const { data: studentData } = await db
+                            .from("student")
+                            .select("trust_score")
+                            .eq("studentid", studentid)
+                            .single();
 
-                const currentScore = studentData?.trust_score || 0;
-                
-                // Cộng thêm 10 điểm (Có thể sửa số này)
-                const newScore = currentScore + 10;
+                        if (studentData) {
+                            const currentScore = studentData.trust_score || 0;
+                            const newScore = currentScore + 100;
 
-                // Cập nhật điểm
-                await db.from("student")
-                    .update({ trust_score: newScore })
-                    .eq("studentid", studentid);
-                
-                console.log(`Đã cộng điểm uy tín: ${currentScore} -> ${newScore}`);
-            } else {
-                console.log("Chưa đủ thời gian để cộng điểm uy tín.");
+                            // Cập nhật điểm uy tín mới
+                            await db.from("student")
+                                .update({ trust_score: newScore })
+                                .eq("studentid", studentid);
+
+                            popupMessage += `<br><br>🎉 Bạn đã ngồi <strong>${(ratio * 100).toFixed(0)}%</strong> thời gian đăng ký.<br><span style="color:#16a34a; font-weight:bold;">+100 điểm uy tín (Trustcore)!</span>`;
+                        }
+                    } catch (err) {
+                        console.error("Lỗi cộng điểm:", err);
+                    }
+                } else {
+                     popupMessage += `<br><br><span style="color:#dc2626; font-size:14px;">Bạn chỉ ngồi ${(ratio * 100).toFixed(0)}% thời gian (yêu cầu >80% để nhận điểm).</span>`;
+                }
             }
 
-            // 3. Cập nhật trạng thái Booking (Checkout)
+            // 4. Cập nhật trạng thái booking -> Đã sử dụng
             await db.from("booking")
                 .update({
                     booking_status: "Đã sử dụng",
-                    endtime: toLocalTimestampString(now)
+                    checkout_time: toLocalTimestampString(now)
                 })
-                .eq("bookingid", data.bookingid);
+                .eq("bookingid", booking.bookingid);
 
             clearHoldCountdown();
-            showPopup("Hoàn tất", "Checkout thành công.");
+            showPopup(popupTitle, popupMessage);
             loadCheckoutRooms();
         }
 
@@ -406,16 +426,20 @@
 
         async function loadCheckoutSeats() {
             const roomid = checkoutRoomSelect.value;
-            const now = new Date().toISOString();
+            const now = new Date();
+            // console.log("loadCheckoutSeats: studentid ", studentid);
+            // console.log("loadCheckoutSeats: seatid ", seatid);
+            // console.log("loadCheckoutSeats: roomid ", roomid);
+            // console.log("loadCheckoutSeats: now ", now);
 
             const { data, error } = await db
                 .from("booking")
                 .select("seatid, starttime, endtime")
                 .eq("roomid", roomid)
                 .eq("booking_status", "Đang sử dụng")
-                .lte("starttime", now)
-                .gte("endtime", now)
-                .order("starttime");
+            // .lte("starttime", now)
+            // .gte("endtime", now)
+            // .order("starttime");
 
             if (error) {
                 console.error("Load checkout seats error:", error);
