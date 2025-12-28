@@ -140,21 +140,21 @@
 
         /* AVATAR BOX */
         .avatar-box-left {
-            width: 220px;
+            width: 250px;
             background: #ffffff;
             border-radius: 14px;
-            padding: 25px 20px;
+            padding: 15px 15px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-            text-align: center;
+            /* text-align: center; */
         }
 
         .avatar-box-left img {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
+            width: 250px;
+            height: 300px;
+            border-radius: 5%;
             object-fit: cover;
-            border: 4px solid #e5e7eb;
-            margin-bottom: 15px;
+            /* border: 4px solid #e5e7eb; */
+            /* margin-bottom: 15px; */
         }
 
         /* INFO BOX GIỮ NGUYÊN */
@@ -409,10 +409,11 @@
 
     <script>
         const avatarMap = {
-            132: "../img/avatar_Minh.png",      // Minh
-            184: "../img/avatar_Ngan.png",      // Ngan
-            113: "../img/avatar_Truc.png",      // Truc
-            123: "../img/avatar_Binh.png"       // Binh
+            132:       "../img/avatar_Minh.png",      // Minh
+            202221003: "../img/avatar_Tam.png",      // Tam
+            202233002: "../img/avatar_Ngan.png",      // Ngan
+            202211004: "../img/avatar_Truc.png",      // Truc
+            202212001: "../img/avatar_Binh.png"       // Binh
         };
         function loadStudentAvatar() {
             const studentId = localStorage.getItem("studentid");
