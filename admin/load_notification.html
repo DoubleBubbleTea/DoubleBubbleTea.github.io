@@ -188,6 +188,8 @@
                             <th>ID</th>
                             <th>MSSV</th>
                             <th>Họ tên</th>
+                            <th>Đối tượng</th>
+
                             <th>Loại</th>
                             <th>Nội dung</th>
                             <th>Ngày</th>
@@ -206,6 +208,10 @@
             <h3 id="modal-title">Thêm thông báo</h3>
             <input id="notif-studentid" class="modal-input" placeholder="MSSV sinh viên">
             <input id="notif-fullname" class="modal-input" placeholder="Họ tên sinh viên">
+            <select id="notif-scope" class="modal-input">
+                <option value="Sinh viên">Sinh viên</option>
+                <option value="Tất cả">Tất cả</option>
+            </select>
             <select id="notif-type" class="modal-input">
                 <option value="Thông tin">Thông tin</option>
                 <option value="Cảnh báo">Cảnh báo</option>
@@ -245,43 +251,60 @@
             document.getElementById("notif-fullname").value = "";
             document.getElementById("notif-message").value = "";
             document.getElementById("notif-type").value = "Thông tin";
+            document.getElementById("notif-scope").value = "Sinh viên"; // ✅
 
             document.getElementById("modal").style.display = "flex";
         }
+
 
         function openEditModal(item) {
             editingId = item.notification_id;
             document.getElementById("modal-title").innerText = "Sửa thông báo";
 
-            document.getElementById("notif-studentid").value = item.studentid;
-            document.getElementById("notif-fullname").value = item.fullname;
+            document.getElementById("notif-studentid").value = item.studentid ?? "";
+            document.getElementById("notif-fullname").value = item.fullname ?? "";
             document.getElementById("notif-message").value = item.message;
             document.getElementById("notif-type").value = item.type;
+            document.getElementById("notif-scope").value = item.scope; // ✅
 
             document.getElementById("modal").style.display = "flex";
         }
+
 
         function closeModal() {
             document.getElementById("modal").style.display = "none";
         }
 
         async function saveNotification() {
-            const studentid = Number(document.getElementById("notif-studentid").value);
-            const fullname = document.getElementById("notif-fullname").value.trim();
+            const scope = document.getElementById("notif-scope").value;
+            const studentidRaw = document.getElementById("notif-studentid").value;
+            const fullnameRaw = document.getElementById("notif-fullname").value;
             const msg = document.getElementById("notif-message").value.trim();
             const type = document.getElementById("notif-type").value;
 
-            if (!studentid || !fullname || !msg) {
-                alert("Vui lòng nhập đầy đủ MSSV, Họ tên và nội dung!");
+            if (!msg) {
+                alert("Vui lòng nhập nội dung thông báo!");
                 return;
             }
 
-            const newData = {
-                studentid,
-                fullname,
+            let newData = {
                 message: msg,
-                type
+                type,
+                scope
             };
+
+            if (scope === "Sinh viên") {
+                if (!studentidRaw || !fullnameRaw) {
+                    alert("Thông báo sinh viên cần MSSV và Họ tên!");
+                    return;
+                }
+                newData.studentid = Number(studentidRaw);
+                newData.fullname = fullnameRaw.trim();
+            } else {
+                // TẤT CẢ
+                newData.studentid = null;
+                newData.fullname = "Hệ thống";
+            }
 
             if (editingId) {
                 await db
@@ -297,6 +320,7 @@
             closeModal();
             loadNotifications();
         }
+
 
         /* OPEN DELETE MODAL */
         function openDeleteModal(id) {
@@ -325,38 +349,50 @@
         async function loadNotifications() {
             const { data } = await db
                 .from("notification")
-                .select("notification_id, studentid, fullname, message, type, notidate")
+                .select("notification_id, studentid, fullname, scope, message, type, notidate")
                 .order("notification_id", { ascending: false });
+
 
             const table = document.getElementById("notif-table");
             table.innerHTML = "";
 
             data.forEach(n => {
                 table.innerHTML += `
-        <tr>
-            <td>${n.notification_id}</td>
-            <td>${n.studentid}</td>
-            <td>${n.fullname}</td>
-            <td>
-                <span style="
-                    padding:2px 8px;
-                    border-radius:999px;
-                    font-size:12px;
-                    color:white;
-                    background:${n.type === 'Cảnh báo' ? '#f59e0b' : '#3b82f6'};
-                ">
-                    ${n.type}
-                </span>
-            </td>
-            <td>${n.message}</td>
-            <td>${n.notidate}</td>
-            <td>
-                <button class="btn-edit"
-                    onclick='openEditModal(${JSON.stringify(n)})'>Sửa</button>
-                <button class="btn-delete"
-                    onclick="deleteNotification(${n.notification_id})">Xóa</button>
-            </td>
-        </tr>
+<tr>
+    <td>${n.notification_id}</td>
+    <td>${n.studentid ?? "—"}</td>
+    <td>${n.fullname}</td>
+    <td>
+        <span style="
+            padding:2px 8px;
+            border-radius:999px;
+            font-size:12px;
+            color:white;
+            background:${n.scope === 'Tất cả' ? '#16a34a' : '#6366f1'};
+        ">
+            ${n.scope}
+        </span>
+    </td>
+    <td>
+        <span style="
+            padding:2px 8px;
+            border-radius:999px;
+            font-size:12px;
+            color:white;
+            background:${n.type === 'Cảnh báo' ? '#f59e0b' : '#3b82f6'};
+        ">
+            ${n.type}
+        </span>
+    </td>
+    <td>${n.message}</td>
+    <td>${n.notidate}</td>
+    <td>
+        <button class="btn-edit"
+            onclick='openEditModal(${JSON.stringify(n)})'>Sửa</button>
+        <button class="btn-delete"
+            onclick="deleteNotification(${n.notification_id})">Xóa</button>
+    </td>
+</tr>
         `;
             });
         }

@@ -1,13 +1,11 @@
 /* =========================
    CSS CHUNG: HEADER + SIDEBAR
    ========================= */
-
 body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
     background: #dfeaf5;
-    /* xanh nhạt giống nền ngoài */
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -18,15 +16,12 @@ body {
     width: 100%;
     height: 64px;
     min-height: 62px;
-    /* ⬅ tăng nhẹ */
     padding: 12px 28px;
-    /* ⬅ QUAN TRỌNG */
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 28px;
     background: #e7f0f8;
-    /* nền header xanh nhạt */
     box-sizing: border-box;
     box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
 }
@@ -145,8 +140,8 @@ body {
 
 /* ===== MINI ICON ===== */
 .notif-mini-icon {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     flex-shrink: 0;
 
@@ -154,15 +149,44 @@ body {
     align-items: center;
     justify-content: center;
 
-    font-size: 14px;
-    font-weight: bold;
     color: white;
 }
 
+/* icon size */
+.notif-mini-icon i {
+    font-size: 15px;
+    line-height: 1;
+}
+
+/* 🔵 Xác nhận */
+.notif-mini-icon.confirm {
+    background: #2563eb;
+    /* xanh dương trầm */
+}
+
+/* 🟡 Cảnh báo */
+.notif-mini-icon.warning {
+    background: #eab308;
+    /* vàng trầm */
+    color: #1f2937;
+}
+
+/* 🔴 Nhắc nhở */
+.notif-mini-icon.remind {
+    background: #dc2626;
+    /* đỏ */
+}
+
+/* 🟢 Thông tin */
+.notif-mini-icon.info {
+    background: #16a34a;
+    /* xanh lá */
+}
+
 /* icon theo trạng thái */
-.notif-mini-icon.success { background: #22c55e; }
+/* .notif-mini-icon.success { background: #22c55e; }
 .notif-mini-icon.info { background: #3b82f6; }
-.notif-mini-icon.warning { background: #ef4444; }
+.notif-mini-icon.warning { background: #ef4444; } */
 
 /* ===== CONTENT ===== */
 .notif-content {
@@ -211,15 +235,11 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    /* gom item lên trên */
     gap: 4px;
-    /* khoảng cách nhỏ giữa các dòng */
 }
 
-/* Tiêu đề “Danh sách” */
 .sidebar h3 {
     margin: 0 0 10px 0;
-    /* bỏ margin trên, giảm margin dưới */
     text-align: center;
     font-size: 18px;
     font-weight: 700;
@@ -230,18 +250,14 @@ body {
     display: flex;
     align-items: center;
     padding: 8px 14px;
-    /* giảm padding cho item mỏng lại */
     margin: 0;
-    /* không thêm margin dọc */
     border-radius: 999px;
     font-size: 15px;
     color: #e5edf5;
     text-decoration: none;
     cursor: pointer;
     background: transparent;
-    /* không card to */
     box-shadow: none;
-
     opacity: 0.95;
     transition:
         background 0.18s ease,
@@ -250,7 +266,6 @@ body {
         transform 0.12s ease;
 }
 
-/* Hover + menu đang chọn */
 .sidebar a:hover,
 .sidebar a.active {
     background: #f0f4f8;
@@ -259,7 +274,6 @@ body {
     transform: translateX(2px);
 }
 
-/* Footer logout giống hình (nếu dùng <a class="logout-link">) */
 .sidebar .logout-link {
     margin-top: 24px;
     color: #f97373;
@@ -327,8 +341,6 @@ body {
 }
 
 /* ======================== FIX RESPONSIVE ========================= */
-
-/* Sidebar + layout responsive */
 @media (max-width: 900px) {
     .main {
         flex-direction: column;
@@ -392,26 +404,17 @@ table.calendar {
 .avatar-box img {
     width: 50%;
     height: 80%;
-
-    /* làm avatar tròn */
     border-radius: 50%;
     object-fit: cover;
-
     border: 3px solid rgba(255, 255, 255, 0.9);
-
-    /* đổ bóng mềm cho avatar nổi bật */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-
-    /* hiệu ứng trơn tru */
     transition: 0.3s ease;
 }
 
-/* Hiệu ứng hover */
 .avatar-box img:hover {
     transform: scale(1.08);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
     border-color: #dbeafe;
-    /* màu xanh nhạt theo theme */
 }
 
 .avatar-name {
@@ -420,8 +423,6 @@ table.calendar {
     font-weight: bold;
     color: #fff;
     letter-spacing: 0.3px;
-
-    /* hiệu ứng mờ nhẹ */
     opacity: 0.9;
     transition: 0.3s ease;
 }
@@ -431,29 +432,23 @@ table.calendar {
     text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
 }
 
-
 /* ================= REMINDER BOX ================= */
 .booking-reminder {
     display: flex;
     align-items: center;
     gap: 14px;
-
     margin: 12px 24px;
     padding: 14px 18px;
-
     background: #eff6ff;
     border-left: 5px solid #2563eb;
     border-radius: 10px;
-
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .reminder-icon {
     font-size: 34px;
-    /* to hơn */
     display: inline-block;
     cursor: pointer;
-
     animation: shake-bell 2.2s infinite;
     transform-origin: top center;
 }
@@ -534,9 +529,7 @@ iframe[src*="fastbots.ai"] {
 
 #room-filter option {
     background: white;
-    /* nền option */
     color: #111;
-    /* chữ đen */
 }
 
 .btn-cancel-booking {
@@ -550,11 +543,9 @@ iframe[src*="fastbots.ai"] {
 
 .btn-cancel-booking.canceled:hover {
     background: #FEBF07 !important;
-    /* không đổi */
     transform: none !important;
 }
 
-/* BUTTON KHÔNG THỂ HỦY */
 .btn-cancel-booking.disabled {
     background: #DC3546;
     cursor: not-allowed;

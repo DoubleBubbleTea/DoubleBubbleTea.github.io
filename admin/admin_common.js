@@ -32,6 +32,7 @@ async function loadAdminNotifications() {
     const { data, error } = await db
         .from("notification")
         .select("notification_id, message, type, notidate")
+        .eq("scope", "Tất cả")
         .order("notification_id", { ascending: false });
 
     const list = document.getElementById("notif-list");
@@ -42,7 +43,9 @@ async function loadAdminNotifications() {
         console.error(error);
         list.innerHTML = `
             <div class="notif-item">
-                <div class="notif-mini-icon warning">!</div>
+                <div class="notif-mini-icon warning">
+                    <i class="fa fa-exclamation"></i>
+                </div>
                 <div class="notif-content">
                     <div class="notif-item-title">Lỗi tải thông báo</div>
                 </div>
@@ -55,24 +58,29 @@ async function loadAdminNotifications() {
     if (!data || data.length === 0) {
         list.innerHTML = `
             <div class="notif-item">
-                <div class="notif-mini-icon info">i</div>
+                <div class="notif-mini-icon info">
+                    <i class="fa fa-bullhorn"></i>
+                </div>
                 <div class="notif-content">
-                    <div class="notif-item-title">Không có thông báo</div>
+                    <div class="notif-item-title">Không có thông báo chung</div>
                 </div>
             </div>`;
         count.style.display = "none";
         return;
     }
-
-    // ✅ Có thông báo → hiện badge
+    const TYPE_MAP = {
+        "Xác nhận": { cls: "confirm", icon: "fa-check" },
+        "Cảnh báo": { cls: "warning", icon: "fa-exclamation" },
+        "Nhắc nhở": { cls: "remind", icon: "fa-bullhorn" },
+        "Thông tin": { cls: "info", icon: "fa-bullhorn" }
+    };
+    // ✅ Hiện badge số lượng
     count.style.display = "block";
     count.innerText = data.length;
 
-    // ✅ Render danh sách theo format mới
+    // ✅ Render notification
     list.innerHTML = data.map(n => {
-        const isWarning = n.type === "Cảnh báo";
-        const iconClass = isWarning ? "warning" : "success";
-        const iconText = isWarning ? "!" : "✓";
+        const t = TYPE_MAP[n.type] || TYPE_MAP["Thông tin"];
 
         const dateText = n.notidate
             ? new Date(n.notidate).toLocaleDateString("vi-VN")
@@ -80,8 +88,8 @@ async function loadAdminNotifications() {
 
         return `
             <div class="notif-item">
-                <div class="notif-mini-icon ${iconClass}">
-                    ${iconText}
+                <div class="notif-mini-icon ${t.cls}">
+                    <i class="fa ${t.icon}"></i>
                 </div>
                 <div class="notif-content">
                     <div class="notif-item-title">${n.message}</div>
@@ -91,6 +99,7 @@ async function loadAdminNotifications() {
         `;
     }).join("");
 }
+
 /* ====================== LOGOUT CONTROL ======================= */
 function openLogoutModal() {
     document.getElementById("logout-modal").style.display = "flex";

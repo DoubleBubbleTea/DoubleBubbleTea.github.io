@@ -7,6 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./layout.css">
     <script defer src="https://app.fastbots.ai/embed.js" data-bot-id="cmj49xvd200slpa1pjdwephas"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
     <style>
         /* CONTENT */
         .content {
@@ -55,7 +58,7 @@
         }
 
         .btn-edit {
-            background: #2563eb;
+            background: #275167;
             color: white;
         }
 
@@ -66,13 +69,13 @@
         }
 
         .btn-save {
-            background: #16a34a;
+            background: #275167;
             color: white;
             margin-right: 10px;
         }
 
         .btn-cancel-info-page {
-            background: #dc2626;
+            background: #6b7280;
             color: white;
         }
 
@@ -158,12 +161,45 @@
         .info-box {
             flex: 1;
         }
-        
+
         /* Highlight Trust Score */
         .trust-highlight {
             color: #2563eb;
             font-weight: bold;
             font-size: 1.1em;
+        }
+
+        /* ===== VIEW MODE: HIỂN THỊ DẠNG FORM ===== */
+        #info-view-mode .info-item {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            align-items: center;
+            gap: 12px;
+        }
+
+        #info-view-mode .info-item label {
+            font-weight: 500;
+            color: #374151;
+            margin: 0;
+        }
+
+        #info-view-mode .info-item span {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #111827;
+        }
+
+        /* TrustScore nổi bật */
+        #info-view-mode #info-trust {
+            background: #eef2ff;
+            border-color: #c7d2fe;
+            color: #1d4ed8;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -252,7 +288,8 @@
                         <div class="info-item"><label>Địa chỉ thường trú:</label><span id="info-address">—</span></div>
                         <div class="info-item"><label>Hệ đào tạo:</label><span id="info-education">—</span></div>
                         <div class="info-item"><label>Niên khoá:</label><span id="info-academicyear">—</span></div>
-                        <div class="info-item"><label>Điểm uy tín (TrustScore):</label><span id="info-trust" class="trust-highlight">0</span></div>
+                        <div class="info-item"><label>Điểm uy tín:</label><span id="info-trust"
+                                class="trust-highlight">0</span></div>
 
                         <div style="margin-top: 25px;">
                             <button class="btn-change-pass" onclick="openPasswordModal()">Đổi mật khẩu</button>
@@ -434,7 +471,7 @@
             document.getElementById("info-major").innerText = data.major || "—";
             // Hiển thị Trust Score
             document.getElementById("info-trust").innerText = data.trust_score ?? "0";
-            
+
             document.getElementById("info-birthdate").innerText = data.birth_date ? new Date(data.birth_date).toLocaleDateString("vi-VN") : "—";
 
             document.getElementById("info-gender").innerText = data.gender || "—";
@@ -442,7 +479,7 @@
             document.getElementById("info-address").innerText = data.permanent_address || "—";
             document.getElementById("info-education").innerText = data.education_type || "—";
             document.getElementById("info-academicyear").innerText = data.academic_year || "—";
-            
+
             // Fill edit mode
             document.getElementById("edit-studentid").value = data.studentid;
             document.getElementById("edit-fullname").value = data.fullname;
@@ -451,7 +488,7 @@
             document.getElementById("edit-major").value = data.major || "";
             // Đưa Trust Score vào ô input disable trong edit mode
             document.getElementById("edit-trust").value = data.trust_score ?? "0";
-            
+
             document.getElementById("edit-birthdate").value = data.birth_date || "";
             document.getElementById("edit-gender").value = data.gender || "";
             document.getElementById("edit-placebirth").value = data.place_of_birth || "";

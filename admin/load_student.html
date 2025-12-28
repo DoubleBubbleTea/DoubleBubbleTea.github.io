@@ -230,7 +230,7 @@
             <div class="action-bar">
                 <div class="left-actions" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                     <button class="btn-add" onclick="openAddModal()">+ Thêm sinh viên</button>
-                    
+
                     <select id="major-select" class="filter-select" onchange="applyFilters()">
                         <option value="">Lọc theo ngành</option>
                     </select>
@@ -268,10 +268,12 @@
                             <option value="900">900</option>
                             <option value="1000">1000</option>
                         </select>
-                        <input type="number" id="trust-input" class="filter-input" placeholder="Nhập điểm" oninput="applyFilters()">
+                        <input type="number" id="trust-input" class="filter-input" placeholder="Nhập điểm"
+                            oninput="applyFilters()">
                     </div>
-                    
-                    <button class="btn-cancel" style="margin: 0; height: 38px;" onclick="resetFilters()">Đặt lại</button>
+
+                    <button class="btn-cancel" style="margin: 0; height: 38px;" onclick="resetFilters()">Đặt
+                        lại</button>
                 </div>
             </div>
 
@@ -398,7 +400,7 @@
             document.getElementById("st-education").value = student.education_type || "";
             document.getElementById("st-academicyear").value = student.academic_year || "";
             document.getElementById("st-status").value = student.status;
-            
+
             const trustScore = student.trust_score ?? 0;
             const trustSelect = document.getElementById("st-trust");
             trustSelect.value = trustScore;

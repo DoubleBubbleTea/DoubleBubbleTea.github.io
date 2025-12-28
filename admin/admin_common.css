@@ -132,10 +132,11 @@ body {
 .notif-item:last-child {
     border-bottom: none;
 }
+
 /* ===== MINI ICON ===== */
 .notif-mini-icon {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     flex-shrink: 0;
 
@@ -143,15 +144,39 @@ body {
     align-items: center;
     justify-content: center;
 
-    font-size: 14px;
-    font-weight: bold;
     color: white;
 }
 
-/* icon theo trạng thái */
-.notif-mini-icon.success { background: #22c55e; }
-.notif-mini-icon.info { background: #3b82f6; }
-.notif-mini-icon.warning { background: #ef4444; }
+/* icon size */
+.notif-mini-icon i {
+    font-size: 15px;
+    line-height: 1;
+}
+
+/* 🔵 Xác nhận */
+.notif-mini-icon.confirm {
+    background: #2563eb;
+    /* xanh dương trầm */
+}
+
+/* 🟡 Cảnh báo */
+.notif-mini-icon.warning {
+    background: #eab308;
+    /* vàng trầm */
+    color: #1f2937;
+}
+
+/* 🔴 Nhắc nhở */
+.notif-mini-icon.remind {
+    background: #dc2626;
+    /* đỏ */
+}
+
+/* 🟢 Thông tin */
+.notif-mini-icon.info {
+    background: #16a34a;
+    /* xanh lá */
+}
 
 /* ===== CONTENT ===== */
 .notif-content {
@@ -176,12 +201,19 @@ body {
     color: #2563eb;
     margin-top: 4px;
 }
+
 /* =========================================================
    MAIN LAYOUT
 ========================================================= */
 .main {
     display: flex;
-    height: calc(100vh - 64px);
+    /* height: calc(100vh - 64px); */
+    height: 950px;
+    gap: 16px;
+    padding: 16px;
+    flex: 1;
+    overflow-y: auto;
+    /* 🔥 QUAN TRỌNG */
 }
 
 /* =========================================================
@@ -193,14 +225,12 @@ body {
     background: #275167;
     color: white;
     border-radius: 20px;
-    margin: 16px;
+    /* margin: 16px; */
     padding: 22px 18px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
     display: flex;
     flex-direction: column;
     gap: 10px;
-    height: calc(100vh - 32px);
-    /* trừ margin top + bottom */
     overflow-y: auto;
 }
 
@@ -243,7 +273,7 @@ body {
     flex: 1;
     padding: 40px 60px;
     background: #f4f6fa;
-    margin: 16px 16px 16px 0;
+    /* margin: 16px 16px 16px 0; */
     border-radius: 20px;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }

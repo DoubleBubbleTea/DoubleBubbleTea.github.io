@@ -47,6 +47,18 @@ function toggleNotification() {
     const box = document.getElementById("notif-dropdown");
     box.style.display = box.style.display === "block" ? "none" : "block";
 }
+function getNotifIcon(type) {
+    switch (type) {
+        case "Xác nhận":
+            return { cls: "confirm", icon: "fa-check" };
+        case "Cảnh báo":
+            return { cls: "warning", icon: "fa-exclamation" };
+        case "Nhắc nhở":
+            return { cls: "remind", icon: "fa-bullhorn" };
+        default: // "Thông tin"
+            return { cls: "info", icon: "fa-bullhorn" };
+    }
+}
 
 async function loadNotifications() {
     const studentid = localStorage.getItem("studentid");
@@ -86,32 +98,36 @@ async function loadNotifications() {
         return;
     }
 
-    // ✅ Hiển thị số lượng thông báo
+    // ✅ Hiển thị số lượng
     count.style.display = "block";
     count.innerText = data.length;
 
-    // ✅ Render notification + icon + ngày
-    list.innerHTML = data.map(n => {
-        const isWarning = n.type === "Cảnh báo";
-        const iconClass = isWarning ? "warning" : "success";
-        const iconText = isWarning ? "!" : "✓";
+    // 🎯 MAP TYPE → ICON + CLASS
+    const TYPE_MAP = {
+        "Xác nhận": { cls: "confirm", icon: "fa-check" },
+        "Cảnh báo": { cls: "warning", icon: "fa-exclamation" },
+        "Nhắc nhở": { cls: "remind", icon: "fa-bullhorn" },
+        "Thông tin": { cls: "info", icon: "fa-bullhorn" }
+    };
 
-        // format ngày kiểu VN
+    list.innerHTML = data.map(n => {
+        const t = TYPE_MAP[n.type] || TYPE_MAP["Thông tin"];
+
         const dateText = n.notidate
             ? new Date(n.notidate).toLocaleDateString("vi-VN")
             : "";
 
         return `
-            <div class="notif-item">
-                <div class="notif-mini-icon ${iconClass}">
-                    ${iconText}
-                </div>
-                <div class="notif-content">
-                    <div class="notif-item-title">${n.message}</div>
-                    <div class="notif-item-time">${dateText}</div>
-                </div>
+        <div class="notif-item">
+            <div class="notif-mini-icon ${t.cls}">
+                <i class="fa ${t.icon}"></i>
             </div>
-        `;
+            <div class="notif-content">
+                <div class="notif-item-title">${n.message}</div>
+                <div class="notif-item-time">${dateText}</div>
+            </div>
+        </div>
+    `;
     }).join("");
 }
 
@@ -494,8 +510,9 @@ async function insertNotification(studentId, message, type = "Thông tin") {
         return;
     }
 
-    // validate type
-    if (!["Thông tin", "Cảnh báo"].includes(type)) {
+    // ✅ validate type theo 4 loại
+    const VALID_TYPES = ["Xác nhận", "Cảnh báo", "Nhắc nhở", "Thông tin"];
+    if (!VALID_TYPES.includes(type)) {
         type = "Thông tin";
     }
 
@@ -522,7 +539,7 @@ async function insertNotification(studentId, message, type = "Thông tin") {
             fullname: student.fullname,
             message: message,
             type: type
-            // notidate sẽ tự CURRENT_DATE
+            // notidate để DEFAULT / CURRENT_DATE
         });
 
     if (error) {
@@ -601,9 +618,9 @@ async function checkUpcomingSeatBookingReminder() {
     // 1️⃣ Lấy booking sắp tới (≤ 15 phút)
     const { data: upcomingBookings, error } = await db
         .from("booking")
-        .select("bookingid, studentid, seatid, roomid, starttime, reminder_sent")
+        .select("bookingid, studentid, seatid, roomid, starttime, reminder")
         .eq("booking_status", "Đang giữ chỗ")
-        .eq("reminder_sent", false)
+        .eq("reminder", false)
         .gt("starttime", nowStr)
         .lte("starttime", in15Str);
 
@@ -641,7 +658,7 @@ async function checkUpcomingSeatBookingReminder() {
         // 4️⃣ Đánh dấu đã gửi để tránh spam
         await db
             .from("booking")
-            .update({ reminder_sent: true })
+            .update({ reminder: true })
             .eq("bookingid", b.bookingid);
     }
 }
