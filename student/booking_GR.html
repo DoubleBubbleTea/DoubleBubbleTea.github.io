@@ -311,6 +311,18 @@
             document.getElementById("checkinQRModal").style.display = "none";
             finalizeBookingWithPayment();
         }
+        function getRoomImageByCapacity(capacity) {
+            const map = {
+                5: "small5.jpg",
+                7: "small7.jpg",
+                8: "small8.jpg",
+                12: "big12.jpg",
+                16: "big16.jpg",
+                20: "big20.jpg"
+            };
+
+            return map[capacity] || "imgGR.png"; // fallback
+        }
 
         /* ===================================================================
             LOAD ROOMS FROM DATABASE
@@ -343,41 +355,42 @@
                 const roomRow = document.createElement("div");
                 roomRow.className = "room-row";
 
+                const roomImg = getRoomImageByCapacity(room.capacity);
+
                 roomRow.innerHTML = `
-            <div class="room-image">
-                <img src="../img/imgGR.png" alt="${room.roomid}">
-            </div>
+    <div class="room-image">
+        <img src="../img/${roomImg}" alt="${room.roomid}">
+    </div>
 
-            <div class="room-info">
-                <h2>${room.roomid}</h2>
-                <p><strong>Mã phòng:</strong> ${room.roomid}</p>
-                <p><strong>Loại phòng:</strong> ${room.roomtype || "Phòng nhóm"}</p>
-                <p><strong>Vị trí:</strong> ${room.location || "—"}</p>
-                <p><strong>Sức chứa:</strong> ${room.capacity ?? "—"}</p>
+    <div class="room-info">
+        <h2>${room.roomid}</h2>
+        <p><strong>Mã phòng:</strong> ${room.roomid}</p>
+        <p><strong>Loại phòng:</strong> ${room.roomtype || "Phòng nhóm"}</p>
+        <p><strong>Vị trí:</strong> ${room.location || "—"}</p>
+        <p><strong>Sức chứa:</strong> ${room.capacity ?? "—"}</p>
 
-                ${isAvailable
+        ${isAvailable
                         ? `<p><strong>Mô tả:</strong> ${room.description || "—"}</p>
-                            <p><strong>Giá phòng:</strong> ${(room.cost || 0).toLocaleString()} đ/giờ</p>`
+               <p><strong>Giá phòng:</strong> ${(room.cost || 0).toLocaleString()} đ/giờ</p>`
                         : `<p style="color:#ef4444; font-weight:600">
-                             Phòng học hiện không mở cho việc đăng ký.<br> 
-                             Vui lòng thử lại sau.
-                           </p>`
+                 Phòng học hiện không mở cho việc đăng ký.<br> 
+                 Vui lòng thử lại sau.
+               </p>`
                     }
 
-                <div class="room-info-bottom">
-                    ${isAvailable
+        <div class="room-info-bottom">
+            ${isAvailable
                         ? `<button class="room-btn"
-                                  onclick="openBookingModal('${room.roomid}')">
-                                  Chọn phòng
-                               </button>`
+                          onclick="openBookingModal('${room.roomid}')">
+                          Chọn phòng
+                       </button>`
                         : `<button class="room-btn disabled" disabled>
-                                  Không thể đặt
-                               </button>`
+                          Không thể đặt
+                       </button>`
                     }
-                </div>
-            </div>
-        `;
-
+        </div>
+    </div>
+`;
                 container.appendChild(roomRow);
             });
         }

@@ -251,8 +251,7 @@
             document.getElementById("notif-fullname").value = "";
             document.getElementById("notif-message").value = "";
             document.getElementById("notif-type").value = "Thông tin";
-            document.getElementById("notif-scope").value = "Sinh viên"; // ✅
-
+            document.getElementById("notif-scope").value = "Sinh viên";
             document.getElementById("modal").style.display = "flex";
         }
 
@@ -260,13 +259,11 @@
         function openEditModal(item) {
             editingId = item.notification_id;
             document.getElementById("modal-title").innerText = "Sửa thông báo";
-
             document.getElementById("notif-studentid").value = item.studentid ?? "";
             document.getElementById("notif-fullname").value = item.fullname ?? "";
             document.getElementById("notif-message").value = item.message;
             document.getElementById("notif-type").value = item.type;
-            document.getElementById("notif-scope").value = item.scope; // ✅
-
+            document.getElementById("notif-scope").value = item.scope;
             document.getElementById("modal").style.display = "flex";
         }
 
