@@ -64,8 +64,8 @@
         }
 
         .reward-icon {
-            width: 90px;
-            height: 90px;
+            width: 150px;
+            height: 150px;
             margin-bottom: 14px;
         }
 
@@ -298,24 +298,38 @@
 
             grid.innerHTML = "";
 
+            // ✅ MAP ẢNH
+            const rewardImageMap = {
+                1: "../img/gift_lunch.png",
+                2: "../img/gift_drl.png",
+                3: "../img/gift_drink.png",
+                4: "../img/gift_parking.png"
+            };
+
             data.forEach(r => {
                 const disabled = r.quantity <= 0;
 
-                grid.innerHTML += `
-                    <div class="reward-card">
-                        <img src="../img/gift.png" class="reward-icon">
-                        <div class="reward-name">${r.reward_name}</div>
-                        <div class="reward-desc">${r.description || "—"}</div>
-                        <div class="reward-score">🎯 ${r.cost_score} điểm</div>
-                        <div class="reward-quantity">Còn lại: ${r.quantity}</div>
+                // ✅ LẤY ẢNH THEO reward_id
+                const rewardImg = rewardImageMap[r.reward_id] || "../img/gift.png";
 
-                        <button class="reward-btn ${disabled ? "disabled" : ""}"
-                            ${disabled ? "disabled" : ""}
-                            onclick="redeemReward(${r.reward_id})">
-                            Đổi thưởng
-                        </button>
-                    </div>
-                `;
+                grid.innerHTML += `
+            <div class="reward-card">
+                <img src="${rewardImg}"
+                     class="reward-icon"
+                     onerror="this.src='../img/gift.png'">
+
+                <div class="reward-name">${r.reward_name}</div>
+                <div class="reward-desc">${r.description || "—"}</div>
+                <div class="reward-score">🎯 ${r.cost_score} điểm</div>
+                <div class="reward-quantity">Còn lại: ${r.quantity}</div>
+
+                <button class="reward-btn ${disabled ? "disabled" : ""}"
+                        ${disabled ? "disabled" : ""}
+                        onclick="redeemReward(${r.reward_id})">
+                    Đổi thưởng
+                </button>
+            </div>
+        `;
             });
         }
 
@@ -408,7 +422,7 @@
 
                 // 3️⃣ Insert lịch sử đổi thưởng
                 const nowVN = new Date();
-                
+
                 await db
                     .from("reward_redemption")
                     .insert({
