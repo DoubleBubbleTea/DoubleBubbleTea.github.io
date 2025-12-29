@@ -76,18 +76,6 @@
             margin-top: 20px;
         }
 
-        .btn-submit {
-            padding: 12px 26px;
-            border-radius: 12px;
-            border: none;
-            background: #2563eb;
-            color: #fff;
-            font-weight: 700;
-            cursor: pointer;
-        }
-        .btn-submit:hover {
-            background: #1d4ed8;
-        }
     </style>
 </head>
 
@@ -97,7 +85,7 @@
         <div class="modal-box small-popup">
             <h3 id="modal-title"></h3>
             <p id="modal-message"></p>
-            <button class="btn-primary" onclick="closeModal()">OK</button>
+            <button class="btn-close" onclick="closeModal()">OK</button>
         </div>
     </div>
     <!-- LOGOUT MODAL -->
@@ -141,7 +129,6 @@
                 <div class="avatar-name" id="avatar-fullname">—</div>
             </div>
             <h3>Danh sách</h3>
-            <a href="../news.html">Bản tin</a>
             <a href="./information.html">Thông tin cá nhân</a>
             <a href="#" onclick="checkTrustBeforeBooking()">Đặt phòng</a>
             <a href="./booking_history.html">Lịch sử đặt phòng</a>
@@ -149,7 +136,8 @@
             <a href="./checkin_seat.html">Check-in chỗ ngồi</a>
             <a href="./student_feedback.html" class="active">Phản hồi sinh viên</a>
             <a href="./reward.html">Đổi phần thưởng</a>
-            <a href="./student_reward.html">Danh sách phần thưởng</a>
+            <a href="./student_reward.html">Lịch sử đổi thưởng</a>
+            <a href="../news.html">Bản tin</a>
         </div>
 
         <!-- CONTENT -->

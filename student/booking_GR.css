@@ -80,13 +80,13 @@ body {
 .room-btn {
     padding: 8px 18px;
     border-radius: 6px;
-    border: 1px solid #111827;
+    border: 1px solid #275167;
     background: #fff;
     cursor: pointer;
 }
 
 .room-btn:hover {
-    background: #111827;
+    background: #275167;
     color: #fff;
 }
 

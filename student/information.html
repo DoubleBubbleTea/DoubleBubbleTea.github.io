@@ -208,7 +208,7 @@
     <div class="modal-box">
         <h3 id="modal-title">Completed</h3>
         <p id="modal-message">Message here</p>
-        <button onclick="closeModal()">OK</button>
+        <button class="btn-close" onclick="closeModal()">OK</button>
     </div>
 </div>
 
@@ -256,7 +256,6 @@
             </div>
 
             <h3>Danh sách</h3>
-            <a href="../news.html">Bản tin</a>
             <a href="./information.html" class="active">Thông tin cá nhân</a>
             <a href="#" onclick="checkTrustBeforeBooking()">Đặt phòng</a>
             <a href="./booking_history.html">Lịch sử đặt phòng</a>
@@ -264,7 +263,8 @@
             <a href="./checkin_seat.html">Check-in chỗ ngồi</a>
             <a href="./student_feedback.html">Phản hồi sinh viên</a>
             <a href="./reward.html">Đổi phần thưởng</a>
-            <a href="./student_reward.html">Danh sách phần thưởng</a>
+            <a href="./student_reward.html">Lịch sử đổi thưởng</a>
+            <a href="../news.html">Bản tin</a>
         </div>
 
         <div class="content">
@@ -302,33 +302,28 @@
                             <input id="edit-studentid" class="info-edit" disabled>
                         </div>
                         <div class="info-item"><label>Họ và tên:</label>
-                            <input id="edit-fullname" class="info-edit">
+                            <input id="edit-fullname" class="info-edit" disabled>
                         </div>
                         <div class="info-item">
                             <label>Ngày sinh:</label>
-                            <input type="date" id="edit-birthdate" class="info-edit">
+                            <input type="date" id="edit-birthdate" class="info-edit" disabled>
                         </div>
                         <div class="info-item">
                             <label>Giới tính:</label>
-                            <select id="edit-gender" class="info-edit">
-                                <option value="">-- Chọn --</option>
-                                <option value="Nam">Nam</option>
-                                <option value="Nữ">Nữ</option>
-                                <option value="Khác">Khác</option>
-                            </select>
+                            <input id="edit-gender" class="info-edit" disabled readonly>
                         </div>
                         <div class="info-item"><label>Email:</label>
-                            <input id="edit-email" class="info-edit">
+                            <input id="edit-email" class="info-edit" disabled>
                         </div>
                         <div class="info-item"><label>Số điện thoại:</label>
                             <input id="edit-phonenumber" class="info-edit">
                         </div>
                         <div class="info-item"><label>Ngành học:</label>
-                            <input id="edit-major" class="info-edit">
+                            <input id="edit-major" class="info-edit" disabled>
                         </div>
                         <div class="info-item">
                             <label>Nơi sinh:</label>
-                            <input id="edit-placebirth" class="info-edit">
+                            <input id="edit-placebirth" class="info-edit" disabled>
                         </div>
                         <div class="info-item">
                             <label>Địa chỉ thường trú:</label>
@@ -336,26 +331,13 @@
                         </div>
                         <div class="info-item">
                             <label>Hệ đào tạo:</label>
-                            <select id="edit-education" class="info-edit">
-                                <option value="">-- Chọn --</option>
-                                <option value="Đại trà">Đại trà</option>
-                                <option value="Chất lượng cao">Chất lượng cao</option>
-                                <option value="Liên kết quốc tế">Liên kết quốc tế</option>
-                            </select>
+                            <input id="edit-education" class="info-edit" disabled readonly>
                         </div>
                         <div class="info-item">
                             <label>Niên khoá:</label>
-                            <select id="edit-academicyear" class="info-edit">
-                                <option value="">-- Chọn --</option>
-                                <option>2020-2021</option>
-                                <option>2021-2022</option>
-                                <option>2022-2023</option>
-                                <option>2023-2024</option>
-                                <option>2024-2025</option>
-                                <option>2025-2026</option>
-                            </select>
+                            <input id="edit-academicyear" class="info-edit" disabled readonly>
                         </div>
-                        <div class="info-item"><label>Điểm uy tín (Không thể sửa):</label>
+                        <div class="info-item"><label>Điểm uy tín:</label>
                             <input id="edit-trust" class="info-edit" disabled>
                         </div>
 
@@ -376,19 +358,19 @@
 
             <div class="input-wrapper">
                 <input id="pass-old" type="password" class="info-edit" placeholder="Mật khẩu hiện tại">
-                <span class="toggle-emoji" onclick="togglePassword('pass-old', this)">🙈</span>
+                <span class="toggle-emoji fa fa-eye-slash" onclick="togglePassword('pass-old', this)"></span>
             </div>
 
             <div class="input-wrapper">
                 <input id="pass-new" type="password" class="info-edit" placeholder="Mật khẩu mới">
-                <span class="toggle-emoji" onclick="togglePassword('pass-new', this)">🙈</span>
+                <span class="toggle-emoji fa fa-eye-slash" onclick="togglePassword('pass-new', this)"></span>
             </div>
 
             <div class="input-wrapper">
                 <input id="pass-confirm" type="password" class="info-edit" placeholder="Nhập lại mật khẩu"
                     oninput="checkPasswordMatch()">
                 <span class="error-x" id="pw-error">✖</span>
-                <span class="toggle-emoji" onclick="togglePassword('pass-confirm', this)">🙈</span>
+                <span class="toggle-emoji fa fa-eye-slash" onclick="togglePassword('pass-confirm', this)"></span>
             </div>
 
             <button class="btn-save" onclick="savePassword()">Lưu mật khẩu</button>
@@ -409,7 +391,7 @@
 
     <script>
         const avatarMap = {
-            132:       "../img/avatar_Minh.png",      // Minh
+            132: "../img/avatar_Minh.png",      // Minh
             202221003: "../img/avatar_Tam.png",      // Tam
             202233002: "../img/avatar_Ngan.png",      // Ngan
             202211004: "../img/avatar_Truc.png",      // Truc
@@ -433,7 +415,10 @@
             const isHidden = input.type === "password";
 
             input.type = isHidden ? "text" : "password";
-            eyeIcon.textContent = isHidden ? "👁️" : "🙈";
+
+            // đổi icon
+            eyeIcon.classList.toggle("fa-eye", isHidden);
+            eyeIcon.classList.toggle("fa-eye-slash", !isHidden);
         }
 
         /* ============================

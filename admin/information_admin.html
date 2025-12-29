@@ -138,7 +138,7 @@
         <div class="modal-box">
             <h3 id="modal-title"></h3>
             <p id="modal-message"></p>
-            <button onclick="closeModal()">OK</button>
+            <button class="btn-close" onclick="closeModal()">OK</button>
         </div>
     </div>
 
@@ -149,19 +149,19 @@
 
             <div class="input-wrapper">
                 <input id="pass-old" type="password" class="info-edit" placeholder="Mật khẩu hiện tại">
-                <span class="toggle-emoji" onclick="togglePassword('pass-old', this)">🙈</span>
+                <span class="toggle-emoji fa fa-eye-slash" onclick="togglePassword('pass-old', this)"></span>
             </div>
 
             <div class="input-wrapper">
                 <input id="pass-new" type="password" class="info-edit" placeholder="Mật khẩu mới">
-                <span class="toggle-emoji" onclick="togglePassword('pass-new', this)">🙈</span>
+                <span class="toggle-emoji fa fa-eye-slash" onclick="togglePassword('pass-new', this)"></span>
             </div>
 
             <div class="input-wrapper">
                 <input id="pass-confirm" type="password" class="info-edit" placeholder="Nhập lại mật khẩu"
                     oninput="checkPasswordMatch()">
                 <span class="error-x" id="pw-error">✖</span>
-                <span class="toggle-emoji" onclick="togglePassword('pass-confirm', this)">🙈</span>
+                <span class="toggle-emoji fa fa-eye-slash" onclick="togglePassword('pass-confirm', this)"></span>
             </div>
 
             <button class="btn-save" onclick="savePassword()">Lưu mật khẩu</button>
@@ -177,9 +177,10 @@
             const isHidden = input.type === "password";
 
             input.type = isHidden ? "text" : "password";
-            eyeIcon.textContent = isHidden ? "👁️" : "🙈";
-        }
 
+            eyeIcon.classList.toggle("fa-eye", isHidden);
+            eyeIcon.classList.toggle("fa-eye-slash", !isHidden);
+        }
         function checkPasswordMatch() {
             const newPass = document.getElementById("pass-new").value;
             const confirm = document.getElementById("pass-confirm").value;
@@ -202,9 +203,10 @@
             // Reset icon lỗi
             document.getElementById("pw-error").style.display = "none";
 
-            // Reset icon 🙈 về mặc định
+            // Reset icon  về mặc định
             document.querySelectorAll(".toggle-emoji").forEach(icon => {
-                icon.textContent = "🙈";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
             });
 
             // Đặt tất cả input về type="password"

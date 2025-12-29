@@ -335,6 +335,19 @@ body {
     color: white;
 }
 
+.btn-close {
+  padding: 10px 30px;
+  border: none;
+  background: #0A84FF;
+  color: white;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-close:hover {
+  background: #0066cc;
+}
 /* =========================================================
    MODAL
 ========================================================= */

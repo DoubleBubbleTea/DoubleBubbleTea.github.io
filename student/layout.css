@@ -183,11 +183,6 @@ body {
     /* xanh lá */
 }
 
-/* icon theo trạng thái */
-/* .notif-mini-icon.success { background: #22c55e; }
-.notif-mini-icon.info { background: #3b82f6; }
-.notif-mini-icon.warning { background: #ef4444; } */
-
 /* ===== CONTENT ===== */
 .notif-content {
     flex: 1;
@@ -222,7 +217,6 @@ body {
 }
 
 /* ========================= SIDEBAR ========================= */
-/* ===== SIDEBAR ===== */
 .sidebar {
     min-width: 240px;
     max-width: 260px;
@@ -236,6 +230,12 @@ body {
     flex-direction: column;
     justify-content: flex-start;
     gap: 4px;
+    /* ⭐ QUAN TRỌNG */
+    position: sticky;
+    top: 20px;
+    /* khoảng cách với top khi dính */
+    height: 100vh;
+    /* không kéo full chiều cao */
 }
 
 .sidebar h3 {
@@ -338,6 +338,22 @@ body {
     border: none;
     border-radius: 999px;
     cursor: pointer;
+}
+
+.btn-close,
+.btn-submit {
+    padding: 12px 26px;
+    border-radius: 12px;
+    border: none;
+    background: #2563eb;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-close,
+.btn-submit:hover {
+    background: #1d4ed8;
 }
 
 /* ======================== FIX RESPONSIVE ========================= */
