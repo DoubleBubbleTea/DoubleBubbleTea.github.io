@@ -13,7 +13,7 @@
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="https://app.fastbots.ai/embed.js" data-bot-id="cmj49xvd200slpa1pjdwephas"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 </head>
 
@@ -122,11 +122,15 @@
         <div class="wall" style="left:330px;top:320px;width:6px;height:600px"></div>
         <div class="wall" style="right:330px;top:0;width:6px;height:220px"></div>
         <div class="wall" style="right:330px;top:320px;width:6px;height:600px"></div>
-        
+
         <div class="wall" style="left:330px; bottom:0; width:970px; height:6px"></div>
 
-        <div style="position:absolute; left:618px; bottom:-4px; width:254px; height:14px; background-color:white; z-index:100; box-shadow: 0 0 0 1px white;"></div>
-        <div style="position:absolute; left:620px; bottom:15px; width:250px; text-align:center; font-size:22px; font-weight:bold; color:black; z-index:101;">Cửa chính</div>
+        <div
+          style="position:absolute; left:618px; bottom:-4px; width:254px; height:14px; background-color:white; z-index:100; box-shadow: 0 0 0 1px white;">
+        </div>
+        <div
+          style="position:absolute; left:620px; bottom:15px; width:250px; text-align:center; font-size:22px; font-weight:bold; color:black; z-index:101;">
+          Cửa chính</div>
 
         <div class="manager-box" style="left:370px;top:750px;width:250px;height:100px">QUẢN LÝ</div>
 
@@ -151,7 +155,8 @@
 
         <!-- CENTER TOP -->
         <div class="desk-oval" style="left:400px;top:140px;width:500px;height:80px"></div>
-        <div style="position:absolute; background:white; left:400px; top:179px; width:500px; height:2px; z-index:5;"></div>
+        <div style="position:absolute; background:white; left:400px; top:179px; width:500px; height:2px; z-index:5;">
+        </div>
         <script>
           for (let i = 0; i < 5; i++) {
             const t = 18 + i, b = 13 + i;
@@ -167,8 +172,10 @@
 
         <div class="desk-oval" style="left:470px;top:380px;width:80px;height:220px"></div>
         <div class="desk-oval" style="left:750px;top:380px;width:80px;height:220px"></div>
-        <div style="position:absolute; background:white; left:509px; top:380px; width:2px; height:220px; z-index:5;"></div>
-        <div style="position:absolute; background:white; left:789px; top:380px; width:2px; height:220px; z-index:5;"></div>
+        <div style="position:absolute; background:white; left:509px; top:380px; width:2px; height:220px; z-index:5;">
+        </div>
+        <div style="position:absolute; background:white; left:789px; top:380px; width:2px; height:220px; z-index:5;">
+        </div>
         <script>
           for (let i = 0; i < 3; i++) {
             if (i > 0) {
@@ -372,9 +379,11 @@
             const bookings = bookingBySeat[seatId] || [];
 
             let isUsing = false;
+            let isHolding = false;   // 🟡 đang giữ chỗ (đúng giờ)
             let hasUpcoming = false;
 
             for (const b of bookings) {
+
               // 🔴 Đang sử dụng
               if (
                 b.status === "Đang sử dụng" &&
@@ -382,7 +391,16 @@
                 now < b.end
               ) {
                 isUsing = true;
-                break;
+                break; // ưu tiên cao nhất
+              }
+
+              // 🟡 Đang giữ chỗ (đã tới giờ nhưng chưa sử dụng)
+              if (
+                b.status === "Đang giữ chỗ" &&
+                now >= b.start &&
+                now < b.end
+              ) {
+                isHolding = true;
               }
 
               // 🟡 Có booking trong tương lai
@@ -395,9 +413,11 @@
             }
 
             if (isUsing) {
-              el.classList.add("occupied");     // 🔴 đỏ
+              el.classList.add("occupied");   // 🔴 đỏ
+            } else if (isHolding) {
+              el.classList.add("holding");    // 🟡 vàng (đang giữ chỗ)
             } else if (hasUpcoming) {
-              el.classList.add("upcoming");     // 🟡 vàng
+              el.classList.add("upcoming");   // 🟡 vàng (sắp tới)
             }
           });
         }

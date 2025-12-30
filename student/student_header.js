@@ -565,34 +565,35 @@ function formatTimeRange(start, end) {
 async function checkDuplicateBookingTime(studentid, intervals) {
     if (!studentid || !intervals || intervals.length === 0) return false;
 
-    // Lấy tất cả booking của SV (chưa bị hủy)
+    // 🔹 Lấy tất cả booking của SV (chưa bị hủy)
     const { data, error } = await db
         .from("booking")
-        .select("starttime")
+        .select("starttime, endtime")
         .eq("studentid", studentid)
         .neq("booking_status", "Hủy");
 
     if (error) {
         console.error("Check duplicate booking error:", error.message);
-        return false; // fail-safe: không chặn
+        return false; // fail-safe
     }
 
-    // Convert starttime hiện tại sang string để so sánh
-    const newStartTimes = intervals.map(itv =>
-        toLocalTimestampString(itv.start)
-    );
+    // 🔹 Check overlap
+    const isOverlapping = data.some(b => {
+        const oldStart = new Date(b.starttime);
+        const oldEnd = new Date(b.endtime);
 
-    // Check trùng starttime
-    const duplicated = data.some(b =>
-        newStartTimes.includes(
-            toLocalTimestampString(new Date(b.starttime))
-        )
-    );
+        return intervals.some(itv => {
+            const newStart = itv.start;
+            const newEnd = itv.end;
 
-    if (duplicated) {
+            return newStart < oldEnd && newEnd > oldStart;
+        });
+    });
+
+    if (isOverlapping) {
         showPopup(
             "Không thể đặt",
-            "Bạn đã đặt khung giờ này rồi. Bạn không thể đặt 2 phòng/chỗ cùng 1 khung giờ."
+            "Khung giờ bạn chọn bị trùng với một đặt chỗ trước đó. Bạn không thể đặt 2 phòng/chỗ cùng thời gian."
         );
         return true;
     }

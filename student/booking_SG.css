@@ -45,10 +45,14 @@
   color: white;
 }
 
-/* 🟡 Ghế có booking sắp tới */
 .seat.upcoming {
   background: #fbc02d;
   color: #222;
+}
+
+.seat.holding {
+  background: #fbc02d;
+  color: #111;
 }
 
 .seat.rotate-side {

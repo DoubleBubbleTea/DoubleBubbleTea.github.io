@@ -118,15 +118,6 @@ window.addEventListener("DOMContentLoaded", () => {
     loadAdminNotifications();
 });
 
-// function toggleSidebarDropdown(el) {
-//     el.classList.toggle("open");
-
-//     const dropdown = el.nextElementSibling;
-//     if (!dropdown) return;
-
-//     dropdown.classList.toggle("open");
-// }
-
 function toggleSidebarDropdown(toggleEl) {
     const dropdown = toggleEl.nextElementSibling;
     const isOpen = dropdown.classList.contains("open");
@@ -144,7 +135,6 @@ function toggleSidebarDropdown(toggleEl) {
     }
 }
 
-// 🔹 Khi load trang → giữ nguyên trạng thái cũ
 document.addEventListener("DOMContentLoaded", () => {
     const isOpen = localStorage.getItem("sidebarDanhSachOpen");
     if (isOpen === "true") {
