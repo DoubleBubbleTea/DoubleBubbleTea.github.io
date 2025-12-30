@@ -155,6 +155,10 @@ function showPopup(title, message) {
 
 function closeModal() {
     document.getElementById("popupModal").style.display = "none";
+        // 👉 mở feedback cho checkout ghế
+    if (pendingSeatCheckoutBooking) {
+        document.getElementById("feedback-seat-modal").style.display = "flex";
+    }
 }
 
 async function checkTrustBeforeBooking() {

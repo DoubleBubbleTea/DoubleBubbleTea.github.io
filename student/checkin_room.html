@@ -163,7 +163,8 @@
                     <select id="checkoutRoomSelect"></select>
                     <div class="note" style="color:#dc2626;">⏹ Trạng thái → <strong>Đã sử dụng</strong></div>
                     <div class="checkin-actions">
-                        <button class="btn-primary" style="background:#dc2626" onclick="handleCheckoutRoom()">Xác nhận checkout</button>
+                        <button class="btn-primary" style="background:#dc2626" onclick="handleCheckoutRoom()">Xác nhận
+                            checkout</button>
                     </div>
                 </div>
             </div>
@@ -178,19 +179,53 @@
         </div>
     </div>
 
+    <!-- ===== FEEDBACK MODAL ===== -->
+    <div id="feedback-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box">
+            <h3>Đánh giá sự hài lòng</h3>
+
+            <p style="margin-bottom:10px;">Bạn đánh giá trải nghiệm phòng học này thế nào?</p>
+
+            <div id="starRating" style="font-size:28px; text-align:center; margin-bottom:15px;">
+                <span class="star" data-value="1">☆</span>
+                <span class="star" data-value="2">☆</span>
+                <span class="star" data-value="3">☆</span>
+                <span class="star" data-value="4">☆</span>
+                <span class="star" data-value="5">☆</span>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeFeedbackModal()">Hủy</button>
+                <button class="btn-confirm" onclick="confirmFeedback()">Xác nhận</button>
+            </div>
+        </div>
+    </div>
     <script>
         let bookings = [];
         let roomMap = {};
+        let selectedRating = 0;
+        let pendingCheckoutBooking = null;
 
         async function loadRooms() {
-            const { data } = await db.from("room").select("*");
+            const { data, error } = await db
+                .from("room")
+                .select("*")
+                .like("roomid", "G%");   // 👈 chỉ lấy roomid bắt đầu bằng G
+
+            if (error) {
+                console.error("Load room error:", error.message);
+                return;
+            }
+
             const select = document.getElementById("roomSelect");
             const checkoutSelect = document.getElementById("checkoutRoomSelect");
+
             select.innerHTML = "";
             checkoutSelect.innerHTML = "";
 
             data.forEach(r => {
                 roomMap[r.roomid] = r;
+
                 const opt = document.createElement("option");
                 opt.value = r.roomid;
                 opt.textContent = `${r.roomid} (Sức chứa ${r.capacity})`;
@@ -199,6 +234,7 @@
                 const optOut = opt.cloneNode(true);
                 checkoutSelect.appendChild(optOut);
             });
+
             loadBookings();
         }
 
@@ -271,7 +307,7 @@
             updateMemberInfo();
 
             // Cập nhật trạng thái booking sang Đang sử dụng và lưu thời gian bắt đầu thực tế
-            await db.from("booking").update({ 
+            await db.from("booking").update({
                 booking_status: "Đang sử dụng",
                 starttime: toLocalTimestampString(now)
             }).eq("bookingid", bookingId);
@@ -281,12 +317,84 @@
 
             showPopup("Thành công", `Check-in thành công (${count}/${maxMembers})`);
         }
+        // xử lý click sao
+        document.addEventListener("click", e => {
+            if (e.target.classList.contains("star")) {
+                selectedRating = Number(e.target.dataset.value);
+                document.querySelectorAll(".star").forEach(s => {
+                    s.classList.toggle(
+                        "active",
+                        Number(s.dataset.value) <= selectedRating
+                    );
+                    s.textContent = Number(s.dataset.value) <= selectedRating ? "★" : "☆";
+                });
+            }
+        });
+
+        function openFeedbackModal(booking) {
+            pendingCheckoutBooking = booking;
+            selectedRating = 0;
+
+            document.querySelectorAll(".star").forEach(s => {
+                s.classList.remove("active");
+                s.textContent = "☆";
+            });
+
+            document.getElementById("feedback-modal").style.display = "flex";
+        }
+
+        function closeFeedbackModal() {
+            pendingCheckoutBooking = null;
+            document.getElementById("feedback-modal").style.display = "none";
+        }
+
+        async function confirmFeedback() {
+            if (!pendingCheckoutBooking) return;
+
+            if (selectedRating < 1) {
+                return showPopup("Thiếu đánh giá", "Vui lòng chọn từ 1 đến 5 sao.");
+            }
+
+            const booking = pendingCheckoutBooking;
+            const studentid = Number(localStorage.getItem("studentid"));
+            const now = new Date();
+
+            const { data: student } = await db
+                .from("student")
+                .select("fullname, trust_score")
+                .eq("studentid", studentid)
+                .single();
+
+            // ✅ INSERT FEEDBACK
+            await db.from("feedback").insert({
+                studentid,
+                fullname: student?.fullname || "—",
+                roomid: booking.roomid,
+                satisfaction: selectedRating,
+                feedbackdate: now.toISOString().split("T")[0]
+            });
+
+            // ✅ +50 TRUST SCORE
+            await db.from("student")
+                .update({ trust_score: (student.trust_score || 0) + 50 })
+                .eq("studentid", studentid);
+
+            pendingCheckoutBooking = null;
+            closeFeedbackModal();
+
+            showPopup("Cảm ơn bạn đã đánh giá.", "Bạn được cộng 50 điểm uy tín.");
+        }
 
         async function handleCheckoutRoom() {
-            const studentid = localStorage.getItem("studentid");
+            const studentid = Number(localStorage.getItem("studentid"));
             const roomid = document.getElementById("checkoutRoomSelect").value;
 
-            const { data: booking } = await db.from("booking")
+            if (!studentid || !roomid) {
+                return showPopup("Lỗi", "Thiếu thông tin sinh viên hoặc phòng.");
+            }
+
+            const { data: booking, error } = await db
+                .from("booking")
                 .select("*")
                 .eq("studentid", studentid)
                 .eq("roomid", roomid)
@@ -295,31 +403,49 @@
                 .limit(1)
                 .single();
 
-            if (!booking) return showPopup("Lỗi", "Không tìm thấy phòng đang sử dụng.");
+            if (error || !booking) {
+                return showPopup("Lỗi", "Không tìm thấy phòng đang sử dụng.");
+            }
 
             const now = new Date();
             const start = new Date(booking.starttime);
-            const bookedEnd = new Date(booking.endtime);
-            
-            // Logic cộng điểm: sử dụng >= 80% thời gian đăng ký
-            const bookedDuration = bookedEnd - start;
-            const actualDuration = now - start;
+            const end = new Date(booking.endtime);
 
-            if (actualDuration >= (bookedDuration * 0.8)) {
-                const { data: std } = await db.from("student").select("trust_score").eq("studentid", studentid).single();
-                await db.from("student").update({ trust_score: (std.trust_score || 0) + 10 }).eq("studentid", studentid);
+            const bookedDuration = end - start;
+            const actualDuration = Math.min(now - start, bookedDuration);
+
+            let bonus = 0;
+
+            // ✅ +100 nếu dùng >= 80%
+            if (actualDuration >= bookedDuration * 0.8) {
+                bonus = 100;
+
+                const { data: std } = await db
+                    .from("student")
+                    .select("trust_score")
+                    .eq("studentid", studentid)
+                    .single();
+
+                await db.from("student")
+                    .update({ trust_score: (std.trust_score || 0) + 100 })
+                    .eq("studentid", studentid);
             }
 
+            // ✅ UPDATE BOOKING NGAY
             await db.from("booking").update({
                 booking_status: "Đã sử dụng",
                 endtime: toLocalTimestampString(now)
             }).eq("bookingid", booking.bookingid);
 
-            showPopup("Thành công", "Checkout thành công. Điểm uy tín đã được cập nhật.");
+            // 👉 LƯU booking cho feedback (KHÔNG query lại)
+            pendingCheckoutBooking = booking;
+
+            openFeedbackModal(booking);
         }
 
         loadStudentName();
         loadRooms();
     </script>
 </body>
+
 </html>

@@ -589,3 +589,14 @@ iframe[src*="fastbots.ai"] {
     cursor: not-allowed;
     opacity: 0.95;
 }
+
+.seat-star,
+.star {
+    cursor: pointer;
+    color: #d1d5db;
+}
+
+.seat-star,
+.star.active {
+    color: #facc15;
+}

@@ -598,6 +598,12 @@
           checkUpcomingSeatBookingReminder();
           setInterval(checkUpcomingSeatBookingReminder, 60 * 1000);
         });
+
+        setInterval(() => {
+          if (CURRENT_ROOM) {
+            loadSeats(CURRENT_ROOM);
+          }
+        }, 30 * 1000);
       </script>
 </body>
 

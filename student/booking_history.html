@@ -230,6 +230,7 @@
             for (const b of data) {
                 if (!b.starttime || !b.endtime) continue;
                 if (b.booking_status === "Hủy") continue;
+                if (b.booking_status === "Đã sử dụng") continue;
 
                 // 🔑 CHỐT RULE: CHỈ XỬ LÝ BOOKING KHÔNG TRỄ
                 if (b.booking_late === "Đúng") continue;
@@ -537,6 +538,10 @@
         loadStudentName();
         loadTrustScore(); // Gọi hàm load điểm
         loadBookingHistory();
+
+        setInterval(() => {
+            loadBookingHistory();
+        }, 60 * 1000); // 1 phút
     </script>
 
 </body>
