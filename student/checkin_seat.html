@@ -85,6 +85,24 @@
         #feedback-seat-modal {
             z-index: 9000;
         }
+
+        .popup-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 12px auto;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+        }
+
+        .popup-icon.success {
+            border: 3px solid #22c55e;
+            /* xanh lá */
+            color: #22c55e;
+        }
     </style>
 </head>
 
@@ -190,11 +208,19 @@
     <!-- POPUP -->
     <div id="popupModal" class="modal-overlay">
         <div class="modal-box small-popup">
+
+            <!-- ICON -->
+            <div class="popup-icon success">
+                ✓
+            </div>
+
             <h3 id="modal-title"></h3>
             <p id="modal-message"></p>
+
             <button class="btn-primary" onclick="closeModal()">OK</button>
         </div>
     </div>
+
 
     <!-- ===== FEEDBACK MODAL (SEAT) ===== -->
     <div id="feedback-seat-modal" class="modal-overlay" style="display:none;">
@@ -298,7 +324,7 @@
 
             showPopup(
                 "Cảm ơn bạn đã đánh giá!",
-                "Bạn được cộng 50 điểm uy tín!"
+                "Bạn được cộng 50 điểm uy tín."
             );
         }
 
@@ -414,19 +440,6 @@
             loadCheckoutRooms();
         }
 
-        // function openSeatFeedbackModal(booking) {
-        //     pendingSeatCheckoutBooking = booking;
-        //     seatRating = 0;
-
-        //     // Reset sao về trạng thái chưa chọn
-        //     document.querySelectorAll(".seat-star").forEach(s => {
-        //         s.textContent = "☆";
-        //     });
-
-        //     document.getElementById("feedback-seat-modal").style.display = "flex";
-        // }
-
-
         /* ================= CHECKOUT (CẬP NHẬT TÍNH ĐIỂM UY TÍN) ================= */
         async function handleCheckoutSeat() {
             const studentid = localStorage.getItem("studentid");
@@ -455,7 +468,7 @@
             const bookedDuration = end - start;
 
             let bonus = 0;
-            let popupMessage = "Checkout thành công.";
+            let popupMessage = "";
 
             if (bookedDuration > 0) {
                 const ratio = actualDuration / bookedDuration;
@@ -475,16 +488,14 @@
                         })
                         .eq("studentid", studentid);
 
-                    popupMessage += `
-                <br><br>🎉 Bạn đã sử dụng <strong>${(ratio * 100).toFixed(0)}%</strong> thời gian.
-                <br><span style="color:#16a34a;font-weight:bold;">+100 điểm uy tín!</span>
-            `;
+                    popupMessage += ``;
                 } else {
                     popupMessage += `
-                <br><br><span style="color:#dc2626;font-size:14px;">
-                Bạn chỉ sử dụng ${(ratio * 100).toFixed(0)}% thời gian (cần ≥80%).
-                </span>
-            `;
+                    <br><span style="color:#dc2626;font-size:14px;">
+                        Bạn vừa checkout sớm.<br>
+                        Không đủ thời gian cộng điểm uy tín.
+                    </span>
+                `;
                 }
             }
 
@@ -499,12 +510,13 @@
             clearHoldCountdown();
             loadCheckoutRooms();
 
-            // 4️⃣ Thông báo + mở feedback
+            const headerMessage = bonus > 0
+                ? "Bạn được cộng 100 điểm uy tín."
+                : "";
+
             showPopup(
-                "Checkout",
-                bonus > 0
-                    ? "Checkout thành công. +100 điểm uy tín. Bạn có thể đánh giá chỗ ngồi."
-                    : "Checkout thành công. Bạn có thể đánh giá chỗ ngồi."
+                "Checkout thành công!",
+                `${headerMessage}${popupMessage ? popupMessage : ""}`
             );
 
             pendingSeatCheckoutBooking = booking;

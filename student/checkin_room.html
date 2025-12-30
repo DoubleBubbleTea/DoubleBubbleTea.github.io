@@ -79,6 +79,15 @@
         .btn-primary:hover {
             background: #1d4ed8;
         }
+               /* popup thông báo */
+        #popupModal {
+            z-index: 9999;
+        }
+
+        /* feedback modal */
+        #feedback-modal {
+            z-index: 9000;
+        }
     </style>
 </head>
 
@@ -184,7 +193,9 @@
         <div class="modal-box">
             <h3>Đánh giá sự hài lòng</h3>
 
-            <p style="margin-bottom:10px;">Bạn đánh giá trải nghiệm phòng học này thế nào?</p>
+            <p style="margin-bottom:10px;">
+                Bạn đánh giá trải nghiệm phòng học này thế nào?
+            </p>
 
             <div id="starRating" style="font-size:28px; text-align:center; margin-bottom:15px;">
                 <span class="star" data-value="1">☆</span>
@@ -193,6 +204,20 @@
                 <span class="star" data-value="4">☆</span>
                 <span class="star" data-value="5">☆</span>
             </div>
+
+            <label style="font-weight:600; display:block; margin-bottom:6px;">
+                Nhận xét, góp ý:
+            </label>
+            <textarea id="feedback-text" placeholder="Nhập ý kiến của bạn (không bắt buộc)..." style="
+                width:100%;
+                min-height:90px;
+                padding:10px;
+                border-radius:8px;
+                border:1px solid #d1d5db;
+                resize:vertical;
+                margin-bottom:15px;
+            ">
+        </textarea>
 
             <div class="modal-buttons">
                 <button class="btn-cancel" onclick="closeFeedbackModal()">Hủy</button>
@@ -341,11 +366,15 @@
             });
 
             document.getElementById("feedback-modal").style.display = "flex";
+            document.getElementById("feedback-text").value = "";
+
         }
 
         function closeFeedbackModal() {
             pendingCheckoutBooking = null;
             document.getElementById("feedback-modal").style.display = "none";
+            document.getElementById("feedback-text").value = "";
+
         }
 
         async function confirmFeedback() {
@@ -358,6 +387,7 @@
             const booking = pendingCheckoutBooking;
             const studentid = Number(localStorage.getItem("studentid"));
             const now = new Date();
+            const feedbackText = document.getElementById("feedback-text").value.trim();
 
             const { data: student } = await db
                 .from("student")
@@ -370,6 +400,7 @@
                 studentid,
                 fullname: student?.fullname || "—",
                 roomid: booking.roomid,
+                feedback: feedbackText || null,
                 satisfaction: selectedRating,
                 feedbackdate: now.toISOString().split("T")[0]
             });
