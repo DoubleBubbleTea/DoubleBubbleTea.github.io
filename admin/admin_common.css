@@ -326,7 +326,7 @@ body {
 }
 
 .btn-save {
-    background: #16a34a;
+    background: #003b73;
     color: white;
 }
 
@@ -571,8 +571,9 @@ th {
     font-size: 14px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    background: white;
+    background: #275167;
     cursor: pointer;
+    /* color: #000;   */
 }
 
 /* Fix btn-add trong toolbar */
@@ -629,9 +630,7 @@ th {
 
 #room-filter option {
     background: white;
-    /* nền option */
     color: #111;
-    /* chữ đen */
 }
 
 /* ===== SIDEBAR DROPDOWN ===== */
@@ -657,7 +656,6 @@ th {
 
 .sidebar-dropdown.open {
     max-height: 300px;
-    /* đủ cho list */
 }
 
 .sidebar-dropdown a {
@@ -665,7 +663,6 @@ th {
     padding-left: 18px;
 }
 
-/* Arrow animation */
 .dropdown-arrow {
     transition: transform 0.25s ease;
 }

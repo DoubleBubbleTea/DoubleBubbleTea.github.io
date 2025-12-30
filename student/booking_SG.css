@@ -43,7 +43,6 @@
 .seat.occupied {
   background: #e53935;
   color: white;
-  cursor: not-allowed;
 }
 
 /* 🟡 Ghế có booking sắp tới */

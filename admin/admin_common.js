@@ -118,14 +118,45 @@ window.addEventListener("DOMContentLoaded", () => {
     loadAdminNotifications();
 });
 
-function toggleSidebarDropdown(el) {
-    el.classList.toggle("open");
+// function toggleSidebarDropdown(el) {
+//     el.classList.toggle("open");
 
-    const dropdown = el.nextElementSibling;
-    if (!dropdown) return;
+//     const dropdown = el.nextElementSibling;
+//     if (!dropdown) return;
 
-    dropdown.classList.toggle("open");
+//     dropdown.classList.toggle("open");
+// }
+
+function toggleSidebarDropdown(toggleEl) {
+    const dropdown = toggleEl.nextElementSibling;
+    const isOpen = dropdown.classList.contains("open");
+
+    if (isOpen) {
+        // 🔽 Thu gọn
+        dropdown.classList.remove("open");
+        toggleEl.classList.remove("open");
+        localStorage.setItem("sidebarDanhSachOpen", "false");
+    } else {
+        // 🔼 Xổ xuống
+        dropdown.classList.add("open");
+        toggleEl.classList.add("open");
+        localStorage.setItem("sidebarDanhSachOpen", "true");
+    }
 }
+
+// 🔹 Khi load trang → giữ nguyên trạng thái cũ
+document.addEventListener("DOMContentLoaded", () => {
+    const isOpen = localStorage.getItem("sidebarDanhSachOpen");
+    if (isOpen === "true") {
+        const toggleEl = document.querySelector(".sidebar-dropdown-toggle");
+        const dropdown = document.querySelector(".sidebar-dropdown");
+
+        if (toggleEl && dropdown) {
+            toggleEl.classList.add("open");
+            dropdown.classList.add("open");
+        }
+    }
+});
 
 function showPopup(title, message) {
     document.getElementById("modal-title").innerText = title;
