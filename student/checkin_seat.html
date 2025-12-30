@@ -330,10 +330,19 @@
             // Tránh chia cho 0 nếu lỗi dữ liệu
             if (bookedDuration > 0) {
                 const ratio = actualDuration / bookedDuration;
-                
+
                 // Nếu ngồi > 80% (0.8)
                 if (ratio >= 0.8) {
                     try {
+                        // --- SỬA LOGIC TÍNH ĐIỂM Ở ĐÂY ---
+                        // Tính số giờ ngồi (làm tròn xuống). Ví dụ: 3h15p -> 3 giờ
+                        const hours = Math.floor(actualDuration / (1000 * 60 * 60));
+                        
+                        // Tính điểm: 1 giờ = 100 điểm. 
+                        // Tuy nhiên, nếu ngồi < 1 giờ nhưng vẫn đủ 80% (ví dụ booking ngắn), vẫn tặng 100 điểm tối thiểu.
+                        let pointsToAdd = hours * 100;
+                        if (pointsToAdd < 100) pointsToAdd = 100;
+
                         // Lấy điểm uy tín hiện tại
                         const { data: studentData } = await db
                             .from("student")
@@ -343,20 +352,22 @@
 
                         if (studentData) {
                             const currentScore = studentData.trust_score || 0;
-                            const newScore = currentScore + 100;
+                            const newScore = currentScore + pointsToAdd;
 
                             // Cập nhật điểm uy tín mới
                             await db.from("student")
                                 .update({ trust_score: newScore })
                                 .eq("studentid", studentid);
 
-                            popupMessage += `<br><br>🎉 Bạn đã ngồi <strong>${(ratio * 100).toFixed(0)}%</strong> thời gian đăng ký.<br><span style="color:#16a34a; font-weight:bold;">+100 điểm uy tín (Trustcore)!</span>`;
+                            popupMessage += `<br><br>⏱ Bạn đã ngồi: <strong>${(actualDuration / (1000*60*60)).toFixed(1)} giờ</strong>`;
+                            popupMessage += `<br>🎉 Đạt <strong>${(ratio * 100).toFixed(0)}%</strong> thời gian đăng ký.`;
+                            popupMessage += `<br><span style="color:#16a34a; font-weight:bold; font-size:1.1em;">+${pointsToAdd} điểm uy tín!</span>`;
                         }
                     } catch (err) {
                         console.error("Lỗi cộng điểm:", err);
                     }
                 } else {
-                     popupMessage += `<br><br><span style="color:#dc2626; font-size:14px;">Bạn chỉ ngồi ${(ratio * 100).toFixed(0)}% thời gian (yêu cầu >80% để nhận điểm).</span>`;
+                    popupMessage += `<br><br><span style="color:#dc2626; font-size:14px;">Bạn chỉ ngồi ${(ratio * 100).toFixed(0)}% thời gian (yêu cầu >80% để nhận điểm).</span>`;
                 }
             }
 
