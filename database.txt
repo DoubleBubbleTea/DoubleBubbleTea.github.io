@@ -1,0 +1,137 @@
+CREATE TABLE student (
+  studentid INT PRIMARY KEY,
+  fullname TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  phonenumber TEXT,
+  major TEXT,
+  status TEXT CHECK (status IN ('Đang hoạt động', 'Vô hiệu hóa')),
+  password TEXT NOT NULL,
+  trust_score INT DEFAULT 100,
+  birth_date DATE,
+  gender TEXT CHECK (gender IN ('Nam', 'Nữ', 'Khác')),
+  place_of_birth TEXT,
+  permanent_address TEXT,
+  education_type TEXT CHECK ( education_type IN ('Đại trà', 'Chất lượng cao', 'Liên kết quốc tế')),
+  academic_year TEXT
+);
+
+CREATE TABLE admin (
+    adminid SERIAL PRIMARY KEY,
+    fullname TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    status TEXT CHECK (status IN ('Hoạt động', 'Khóa')),
+    password TEXT NOT NULL
+);
+
+CREATE TABLE room (
+    roomid TEXT PRIMARY KEY,
+    roomtype TEXT,
+    location TEXT,
+    capacity INT,
+    cost INT,
+    status TEXT CHECK (status IN ('Có thể đặt', 'Không thể đặt')),
+    description TEXT
+);
+
+
+CREATE TABLE seat (
+    seatid TEXT PRIMARY KEY,
+    roomid TEXT REFERENCES room(roomid) ON DELETE CASCADE,
+    status TEXT CHECK (status IN ('Có thể đặt', 'Không thể đặt'))
+);
+
+CREATE TABLE facilities (
+    facility_id SERIAL PRIMARY KEY,
+    facility_type TEXT NOT NULL,
+    cost INT NOT NULL    
+);
+
+CREATE TABLE booking (
+    bookingid BIGSERIAL PRIMARY KEY,
+    studentid INT REFERENCES student(studentid) ON DELETE CASCADE,
+    roomid TEXT REFERENCES room(roomid),
+    seatid TEXT REFERENCES seat(seatid),
+    facilities TEXT,   
+    numbermember INT,
+    purpose TEXT,
+    booking_time TIMESTAMP,  
+    holdtime TIMESTAMP,
+    booking_status TEXT CHECK (booking_status IN ('Đang giữ chỗ', 'Đang sử dụng', 'Đã sử dụng', 'Hủy')),
+    booking_late TEXT CHECK (booking_late IN ('Đúng', 'Sai')) DEFAULT 'Sai',
+    reminder BOOLEAN DEFAULT FALSE,
+    checkout_time TIMESTAMP,    
+    starttime TIMESTAMP,
+    endtime TIMESTAMP
+);
+
+CREATE TABLE payment (
+    paymentid BIGSERIAL PRIMARY KEY,
+    bookingid BIGINT REFERENCES booking(bookingid) ON DELETE CASCADE,
+    studentid INT REFERENCES student(studentid),
+    studentname TEXT,
+    cost INT,
+    paymentmethod TEXT CHECK (paymentmethod IN ('Tiền mặt', 'Momo', 'Ngân hàng')),
+    paymenttime TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE notification (
+    notification_id BIGSERIAL PRIMARY KEY,
+    studentid INT NOT NULL REFERENCES student(studentid) ON DELETE CASCADE,
+    fullname TEXT NOT NULL,
+    message TEXT NOT NULL,
+    type TEXT CHECK (type IN ('Xác nhận','Cảnh báo','Nhắc nhở','Thông tin')) DEFAULT 'Thông tin',
+    scope TEXT CHECK (scope IN ('Tất cả', 'Sinh viên')) DEFAULT 'Sinh viên',
+    notidate DATE DEFAULT CURRENT_DATE
+);
+
+CREATE TABLE feedback (
+    feedbackid BIGSERIAL PRIMARY KEY,
+    studentid INT NOT NULL REFERENCES student(studentid) ON DELETE CASCADE,
+    fullname TEXT NOT NULL,
+    roomid TEXT REFERENCES room(roomid),
+    feedback TEXT,
+    satisfaction float NOT NULL,
+    feedbackdate date
+);
+
+CREATE TABLE violation (
+    violationid BIGSERIAL PRIMARY KEY,
+    studentid INT NOT NULL REFERENCES student(studentid) ON DELETE CASCADE,
+    fullname TEXT NOT NULL,
+    description TEXT NOT NULL,
+    violationdate date
+);
+
+CREATE TABLE news (
+    newsid BIGSERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    summary TEXT,
+    image_url TEXT,
+    section_order INT NOT NULL,
+    shownews TEXT CHECK (shownews IN ('Có', 'Không')) DEFAULT 'Có',
+    date_post DATE
+);
+
+CREATE TABLE reward (
+    reward_id BIGSERIAL PRIMARY KEY,
+    reward_name TEXT NOT NULL,
+    description TEXT,
+    cost_score INT NOT NULL CHECK (cost_score > 0),
+    quantity INT DEFAULT 0 CHECK (quantity >= 0)
+);
+
+CREATE TABLE reward_redemption (
+    redemption_id BIGSERIAL PRIMARY KEY,
+    studentid INT NOT NULL REFERENCES student(studentid) ON DELETE CASCADE,
+    reward_id BIGINT NOT NULL REFERENCES reward(reward_id),
+    used_score INT NOT NULL CHECK (used_score > 0),
+    status_redemption TEXT CHECK (status_redemption IN ('Đã sử dụng', 'Chưa sử dụng')) DEFAULT 'Chưa sử dụng',
+    redeemed_date TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE booking_members (
+    id BIGSERIAL PRIMARY KEY,
+    bookingid BIGINT REFERENCES booking(bookingid) ON DELETE CASCADE,
+    studentid INT NOT NULL,
+    fullname TEXT NOT NULL
+);

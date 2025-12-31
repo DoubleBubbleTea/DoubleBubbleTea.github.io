@@ -714,6 +714,17 @@
                 }
             }
             mergedIntervals.push(cur);
+
+            const bookingStartTime = mergedIntervals[0].start;
+
+            if (!isAllowedBookingDate(bookingStartTime)) {
+                showPopup(
+                    "Không thể đặt phòng",
+                    "Bạn chỉ được đặt phòng cho <b>hôm nay</b> hoặc <b>ngày mai</b>.<br>" +
+                    "Không thể đặt trước quá 1 ngày."
+                );
+                return;
+            }
             // ❌ CHECK KHÔNG CHO ĐẶT 2 PHÒNG CÙNG GIỜ
             const isDuplicated = await checkDuplicateBookingTime(
                 studentid,
@@ -875,7 +886,7 @@
                 paymentmethod: "Tiền mặt", // default
                 purpose: purpose,
                 numbermember: memberCount,
-                memberList: memberList // Lưu danh sách thành viên để insert sau
+                memberList: memberList
             };
 
             document.getElementById("paymentModal").style.display = "flex";
@@ -909,6 +920,7 @@
                 facilities: selectedFacilities.map(f => f.name).join(","),
                 numbermember: pendingPayment.numbermember,
                 purpose: pendingPayment.purpose,
+                booking_time: toLocalTimestampString(now),
                 starttime: toLocalTimestampString(itv.start),
                 endtime: toLocalTimestampString(itv.end),
                 booking_status: now < itv.start ? "Đang giữ chỗ" : "Đang sử dụng"

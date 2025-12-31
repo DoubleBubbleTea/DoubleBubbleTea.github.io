@@ -511,8 +511,38 @@
             });
         }
         /* ==================== OPEN/CLOSE CANCEL MODAL ==================== */
+        let bookingToCancel = null;
+
         function openCancelModal(bookingId) {
+            const booking = allBookings.find(b => b.bookingid === bookingId);
+            if (!booking) return;
+
+            const now = new Date();
+
+            // booking_time có thể null nếu dữ liệu cũ
+            if (!booking.booking_time) {
+                showPopup("Không thể hủy", "Không xác định được thời gian đặt phòng.");
+                return;
+            }
+
+            const bookingTime = new Date(booking.booking_time);
+            const diffMs = now - bookingTime;
+            const diffHours = diffMs / (1000 * 60 * 60);
+
+            // ❌ RULE: không cho hủy sau 2 tiếng kể từ khi đặt
+            if (diffHours > 2) {
+                const remainMinutes = Math.ceil((2 - diffHours) * 60);
+                showPopup(
+                    "Không thể hủy",
+                    `Bạn chỉ có thể hủy trong vòng 2 giờ kể từ lúc đặt.`
+                );
+                return;
+            }
+
+            // ✅ OK → mở modal
             bookingToCancel = bookingId;
+            document.getElementById("cancel-text").innerText =
+                `Bạn có chắc chắn muốn hủy đăng ký phòng ${booking.roomid || booking.seatid}?`;
             document.getElementById("cancel-modal").style.display = "flex";
         }
 

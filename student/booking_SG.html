@@ -453,7 +453,16 @@
           // hệ thống dùng mốc giờ cố định → check slot đầu tiên
           const bookingStartTime = merged[0].start;
           const slotEndTime = merged[0].end;
-
+          // ❌ CHECK: chỉ cho đặt trước 1 ngày
+          if (!isAllowedBookingDate(bookingStartTime)) {
+            showPopup(
+              "Không thể đặt phòng",
+              "Bạn chỉ được đặt phòng cho hôm nay hoặc ngày mai. " +
+              "Không thể đặt trước quá 1 ngày."
+            );
+            return;
+          }
+          
           const isLateBooking = bookingStartTime < now;
 
           if (isLateBooking) {
@@ -506,7 +515,7 @@
               seatid: selectedSeatId,
               starttime: toLocalTimestampString(itv.start),
               endtime: toLocalTimestampString(itv.end),
-
+              booking_time: toLocalTimestampString(now),
               holdtime: bookingLateText === "Đúng"
                 ? toLocalTimestampString(holdFromNow)
                 : toLocalTimestampString(holdFromStart),

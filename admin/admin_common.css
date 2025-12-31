@@ -351,24 +351,6 @@ body {
 /* =========================================================
    MODAL
 ========================================================= */
-/* .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.55);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 9998;
-} */
-
-/* .modal-box {
-    background: white;
-    width: 350px;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-} */
-
 /* Logout modal */
 #logout-modal {
     display: none;
@@ -586,7 +568,7 @@ th {
 
 /* SCROLL RIÊNG CHO BẢNG */
 .table-scroll {
-    max-height: 400px;
+    max-height: calc(100vh - 50vh); /* chỉnh số này 1 lần */
     /* chỉnh theo layout */
     overflow-y: auto;
     border-radius: 10px;

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý tiện ích phòng</title>
+    <title>Quản lý cơ sở vật chất phòng</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="./admin_common.css">
@@ -92,15 +92,15 @@
 
         <!-- CONTENT -->
         <div class="content">
-            <h2>Danh sách tiện ích</h2>
+            <h2>Danh sách cơ sở vật chất</h2>
 
-            <button class="btn-add" onclick="openAddModal()">+ Thêm tiện ích</button>
+            <button class="btn-add" onclick="openAddModal()">+ Thêm cơ sở vật chất</button>
             <div class="table-scroll">
                 <table>
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Loại tiện ích</th>
+                            <th>Loại cơ sở vật chất</th>
                             <th>Chi phí (VND/giờ)</th>
                             <th>Hành động</th>
                         </tr>
@@ -113,9 +113,9 @@
     <!-- MODAL -->
     <div id="modal" class="modal-overlay">
         <div class="modal-box">
-            <h3 id="modal-title">Thêm tiện ích</h3>
+            <h3 id="modal-title">Thêm cơ sở vật chất</h3>
 
-            <input id="facility-type" class="modal-input" placeholder="Tên tiện ích (VD: Máy lạnh)">
+            <input id="facility-type" class="modal-input" placeholder="Tên cơ sở vật chất (VD: Máy lạnh)">
             <input id="facility-cost" class="modal-input" placeholder="Chi phí / giờ" type="number">
 
             <div class="modal-buttons">
@@ -128,8 +128,8 @@
     <!-- MODAL DELETE CONFIRM -->
     <div id="delete-modal" class="modal-overlay">
         <div class="modal-box">
-            <h3 style="margin-bottom: 10px;">Xóa tiện ích?</h3>
-            <p style="margin-bottom: 18px;">Bạn có chắc muốn xóa tiện ích này?</p>
+            <h3 style="margin-bottom: 10px;">Xóa cơ sở vật chất?</h3>
+            <p style="margin-bottom: 18px;">Bạn có chắc muốn xóa cơ sở vật chất này?</p>
 
             <div style="display:flex; justify-content:center; gap:12px;">
                 <button class="btn-confirm" onclick="confirmDeleteFacility()">Xóa</button>
@@ -167,7 +167,7 @@
 
         function openAddModal() {
             editingId = null;
-            document.getElementById("modal-title").innerText = "Thêm tiện ích";
+            document.getElementById("modal-title").innerText = "Thêm cơ sở vật chất";
             document.getElementById("facility-type").value = "";
             document.getElementById("facility-cost").value = "";
             document.getElementById("modal").style.display = "flex";
@@ -175,7 +175,7 @@
 
         function openEditModal(item) {
             editingId = item.facility_id;
-            document.getElementById("modal-title").innerText = "Sửa tiện ích";
+            document.getElementById("modal-title").innerText = "Sửa cơ sở vật chất";
             document.getElementById("facility-type").value = item.facility_type;
             document.getElementById("facility-cost").value = item.cost;
             document.getElementById("modal").style.display = "flex";

@@ -668,3 +668,16 @@ async function checkUpcomingSeatBookingReminder() {
     }
 }
 
+function isAllowedBookingDate(bookingDate) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const target = new Date(bookingDate);
+  target.setHours(0, 0, 0, 0);
+
+  const diffDays =
+    (target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+
+  // chỉ cho hôm nay (0) hoặc ngày mai (1)
+  return diffDays >= 0 && diffDays <= 1;
+}

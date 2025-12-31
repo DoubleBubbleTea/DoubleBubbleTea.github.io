@@ -254,7 +254,7 @@
             const select = document.getElementById("seat-room");
             select.innerHTML = `<option disabled selected>— Chọn phòng —</option>`;
 
-            const { data } = await db.from("room").select("roomid").order("roomid");
+            const { data } = await db.from("room").select("roomid").order("roomid").like("roomid", "I%");
             data.forEach(r => {
                 const opt = document.createElement("option");
                 opt.value = r.roomid;

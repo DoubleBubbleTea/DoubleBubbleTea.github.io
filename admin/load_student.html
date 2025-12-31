@@ -246,11 +246,11 @@
 
                     <select id="edu-select" class="filter-select" onchange="applyFilters()">
                         <option value="">Hệ đào tạo</option>
-                        <option>Chính quy tập trung</option>
-                        <option>Chất lượng cao CLC</option>
+                        <!-- <option>Chính quy tập trung</option> -->
+                        <option>Chất lượng cao</option>
                         <option>Liên kết quốc tế</option>
                         <option>Đại trà</option>
-                        <option>Sau đại học</option>
+                        <!-- <option>Sau đại học</option> -->
                     </select>
 
                     <div style="display: flex; align-items: center; gap: 2px;">
@@ -324,21 +324,21 @@
 
             <select id="st-education" class="modal-input">
                 <option value="">— Hệ đào tạo —</option>
-                <option value="Chính quy tập trung">Chính quy tập trung</option>
-                <option value="Chất lượng cao CLC">Chất lượng cao CLC</option>
+                <!-- <option value="Chính quy tập trung">Chính quy tập trung</option> -->
+                <option value="Chất lượng cao">Chất lượng cao</option>
                 <option value="Liên kết quốc tế">Liên kết quốc tế</option>
                 <option value="Đại trà">Đại trà</option>
-                <option value="Sau đại học">Sau đại học</option>
+                <!-- <option value="Sau đại học">Sau đại học</option> -->
             </select>
 
             <select id="st-academicyear" class="modal-input">
-                <option value="">— Niên khoá —</option>
-                <option>2020-2024</option>
-                <option>2021-2025</option>
-                <option>2022-2026</option>
-                <option>2023-2027</option>
-                <option>2024-2028</option>
-                <option>2025-2029</option>
+                <option value="" disabled>— Niên khóa —</option>
+                <option value="2020-2024">2020-2024</option>
+                <option value="2021-2025">2021-2025</option>
+                <option value="2022-2026">2022-2026</option>
+                <option value="2023-2027">2023-2027</option>
+                <option value="2024-2028">2024-2028</option>
+                <option value="2025-2029">2025-2029</option>
             </select>
 
             <select id="st-status" class="modal-input">
@@ -348,7 +348,7 @@
             </select>
 
             <select id="st-trust" class="modal-input">
-                <option value="" disabled selected>— Chọn điểm uy tín —</option>
+                <option value="" disabled>— Chọn điểm uy tín —</option>
                 <option value="0">0</option>
                 <option value="100">100</option>
                 <option value="200">200</option>
@@ -397,12 +397,14 @@
             document.getElementById("st-placebirth").value = student.place_of_birth || "";
             document.getElementById("st-address").value = student.permanent_address || "";
             document.getElementById("st-education").value = student.education_type || "";
-            document.getElementById("st-academicyear").value = student.academic_year || "";
-            document.getElementById("st-status").value = student.status;
+            document.getElementById("st-academicyear").value =
+                (student.academic_year || "").trim();
 
-            const trustScore = student.trust_score ?? 0;
-            const trustSelect = document.getElementById("st-trust");
-            trustSelect.value = trustScore;
+            // ✅ FIX QUAN TRỌNG
+            document.getElementById("st-trust").value =
+                String(student.trust_score ?? 0);
+
+            document.getElementById("st-status").value = student.status;
 
             document.getElementById("modal").style.display = "flex";
         }
