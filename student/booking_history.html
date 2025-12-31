@@ -148,11 +148,18 @@
             </div>
 
             <div class="action-bar">
-                <select id="room-filter" onchange="filterByRoomType()">
-                    <option value="all">Hiển thị tất cả</option>
-                    <option value="I">Phòng đơn</option>
-                    <option value="G">Phòng nhóm</option>
-                </select>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <select id="room-filter" onchange="filterByRoomType()">
+                        <option value="all">Hiển thị tất cả</option>
+                        <option value="I">Phòng đơn</option>
+                        <option value="G">Phòng nhóm</option>
+                    </select>
+
+                    <button class="btn-delete-all" onclick="openDeleteAllModal()">
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                        Xóa tất cả lịch sử
+                    </button>
+                </div>
             </div>
 
             <table>
@@ -164,6 +171,21 @@
                 </tbody>
             </table>
 
+        </div>
+    </div>
+    <!-- MODAL XÓA TẤT CẢ LỊCH SỬ -->
+    <div id="delete-all-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Xóa toàn bộ lịch sử đặt phòng?</h3>
+            <p>
+                Tất cả lịch sử đặt phòng của bạn sẽ bị <b>xóa vĩnh viễn</b>.<br>
+                Thao tác này không thể hoàn tác.
+            </p>
+
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="confirmDeleteAll()">Xóa tất cả</button>
+                <button class="btn-cancel" onclick="closeDeleteAllModal()">Hủy</button>
+            </div>
         </div>
     </div>
 
@@ -200,8 +222,89 @@
         </div>
     </div>
 
+    <!-- MODAL XÁC NHẬN XÓA -->
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Xác nhận xóa booking</h3>
+            <p id="delete-text"></p>
+
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="confirmDeleteBooking()">Xóa</button>
+                <button class="btn-cancel" onclick="closeDeleteModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let allBookings = [];
+
+        /* ==================== DELETE ALL BOOKINGS ==================== */
+        function openDeleteAllModal() {
+            document.getElementById("delete-all-modal").style.display = "flex";
+        }
+
+        function closeDeleteAllModal() {
+            document.getElementById("delete-all-modal").style.display = "none";
+        }
+
+        async function confirmDeleteAll() {
+            const studentId = localStorage.getItem("studentid");
+            if (!studentId) return;
+
+            const { error } = await db
+                .from("booking")
+                .delete()
+                .eq("studentid", studentId);
+
+            if (error) {
+                showPopup("Lỗi", "Xóa lịch sử thất bại!");
+                return;
+            }
+
+            closeDeleteAllModal();
+            loadBookingHistory();
+
+            showPopup("Thành công", "Đã xóa toàn bộ lịch sử đặt phòng.");
+        }
+
+        /* ==================== DELETE BOOKING ==================== */
+        let bookingToDelete = null;
+
+        function openDeleteModal(bookingId) {
+            const booking = allBookings.find(b => b.bookingid === bookingId);
+            if (!booking) return;
+
+            bookingToDelete = bookingId;
+            document.getElementById("delete-text").innerText =
+                `Bạn có chắc chắn muốn xóa booking ${booking.bookingid}? 
+        Thao tác này không thể hoàn tác.`;
+
+            document.getElementById("delete-modal").style.display = "flex";
+        }
+
+        function closeDeleteModal() {
+            bookingToDelete = null;
+            document.getElementById("delete-modal").style.display = "none";
+        }
+
+        async function confirmDeleteBooking() {
+            if (!bookingToDelete) return;
+
+            const { error } = await db
+                .from("booking")
+                .delete()
+                .eq("bookingid", bookingToDelete);
+
+            if (error) {
+                showPopup("Lỗi", "Xóa booking thất bại!");
+                return;
+            }
+
+            closeDeleteModal();
+            loadBookingHistory();
+
+            showPopup("Thành công", "Đã xóa booking thành công.");
+        }
 
         /* ================= LOAD TRUST SCORE (MỚI) ================= */
         async function loadTrustScore() {
@@ -378,7 +481,7 @@
                     <th>Ngày đặt</th>
                     <th>Bắt đầu</th>
                     <th>Kết thúc</th>
-                    <th>Hủy đăng ký</th>
+                    <th>Hành động</th>
                 </tr>`;
             } else if (type === "G") {
                 head.innerHTML = `
@@ -393,7 +496,7 @@
                     <th>Ngày đặt</th>
                     <th>Bắt đầu</th>
                     <th>Kết thúc</th>
-                    <th>Hủy đăng ký</th>
+                    <th>Hành động</th>
                 </tr>`;
             } else {
                 head.innerHTML = `
@@ -409,7 +512,7 @@
                     <th>Ngày đặt</th>
                     <th>Bắt đầu</th>
                     <th>Kết thúc</th>
-                    <th>Hủy</th>
+                    <th>Hành động</th>
                 </tr>`;
             }
         }
@@ -442,17 +545,30 @@
                 let actionButton = "";
 
                 if (b.booking_status === "Hủy") {
-                    actionButton = `<button class="btn-cancel-booking canceled" disabled>Đã hủy</button>`;
+                    actionButton = `<button class="btn-cancel-booking canceled" disabled>Đã hủy</button>                    
+                    <button class="btn-delete"
+                            onclick="openDeleteModal(${b.bookingid})">
+                        Xóa
+                    </button>`;
                 } else if (!allowCancel) {
-                    actionButton = `<button class="btn-cancel-booking disabled" disabled>Không thể hủy</button>`;
+                    actionButton = `<button class="btn-cancel-booking disabled" disabled>Không thể hủy</button>                     
+                    <button class="btn-delete"
+                            onclick="openDeleteModal(${b.bookingid})">
+                        Xóa
+                    </button>`;
                 } else {
                     actionButton = `
-                <button class="btn-cancel-booking cancel"
-                        onclick="openCancelModal(${b.bookingid})">
-                    Hủy
-                </button>`;
-                }
+                    <button class="btn-cancel-booking cancel"
+                            onclick="openCancelModal(${b.bookingid})">
+                        Hủy
+                    </button>
 
+                    <button class="btn-delete"
+                            onclick="openDeleteModal(${b.bookingid})">
+                        Xóa
+                    </button>
+                `;
+                }
                 let row = "";
 
                 /* ===== PHÒNG ĐƠN ===== */

@@ -715,16 +715,16 @@
             }
             mergedIntervals.push(cur);
 
-            const bookingStartTime = mergedIntervals[0].start;
+            // const bookingStartTime = mergedIntervals[0].start;
 
-            if (!isAllowedBookingDate(bookingStartTime)) {
-                showPopup(
-                    "Không thể đặt phòng",
-                    "Bạn chỉ được đặt phòng cho <b>hôm nay</b> hoặc <b>ngày mai</b>.<br>" +
-                    "Không thể đặt trước quá 1 ngày."
-                );
-                return;
-            }
+            // if (!isAllowedBookingDate(bookingStartTime)) {
+            //     showPopup(
+            //         "Không thể đặt phòng",
+            //         "Bạn chỉ được đặt phòng cho <b>hôm nay</b> hoặc <b>ngày mai</b>.<br>" +
+            //         "Không thể đặt trước quá 1 ngày."
+            //     );
+            //     return;
+            // }
             // ❌ CHECK KHÔNG CHO ĐẶT 2 PHÒNG CÙNG GIỜ
             const isDuplicated = await checkDuplicateBookingTime(
                 studentid,
@@ -755,20 +755,20 @@
                 );
             }
             // KHÔNG CHO ĐẶT TRONG NGÀY HÔM NAY
-            // const today = new Date();
-            // today.setHours(0, 0, 0, 0);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
 
-            // for (const itv of mergedIntervals) {
-            //     const bookingDate = new Date(itv.start);
-            //     bookingDate.setHours(0, 0, 0, 0);
+            for (const itv of mergedIntervals) {
+                const bookingDate = new Date(itv.start);
+                bookingDate.setHours(0, 0, 0, 0);
 
-            //     if (bookingDate.getTime() === today.getTime()) {
-            //         return showPopup(
-            //             "Lỗi",
-            //             "Bạn không thể đặt phòng trong ngày hôm nay. Vui lòng đặt trước ít nhất 1 ngày."
-            //         );
-            //     }
-            // }
+                if (bookingDate.getTime() === today.getTime()) {
+                    return showPopup(
+                        "Lỗi",
+                        "Bạn không thể đặt phòng trong ngày hôm nay. Vui lòng đặt trước ít nhất 1 ngày."
+                    );
+                }
+            }
             const room = roomDataMap[selectedRoomId];
             const roomCost = (room.cost || 0) * hours;
 

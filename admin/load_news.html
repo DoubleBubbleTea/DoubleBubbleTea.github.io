@@ -45,7 +45,7 @@
             background: #275167;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 10px;
             cursor: pointer;
             margin-bottom: 15px;
         }
@@ -55,7 +55,7 @@
             color: white;
             padding: 6px 12px;
             border: none;
-            border-radius: 4px;
+            border-radius: 10px;
             cursor: pointer;
         }
 
@@ -64,7 +64,7 @@
             color: white;
             padding: 6px 12px;
             border: none;
-            border-radius: 4px;
+            border-radius: 10px;
             cursor: pointer;
         }
 
@@ -81,14 +81,14 @@
             background: white;
             padding: 25px;
             width: 420px;
-            border-radius: 6px;
+            border-radius: 10px;
         }
 
         .modal-input {
             width: 100%;
             padding: 8px;
             margin: 6px 0;
-            border-radius: 4px;
+            border-radius: 10px;
             border: 1px solid #ccc;
         }
     </style>
@@ -197,7 +197,7 @@
                 <option value="Không">Ẩn</option>
             </select>
 
-            <div style="margin-top:10px; text-align:right;">
+            <div style="margin-top:10px; text-align:center;">
                 <button class="btn-save" onclick="saveNews()">Lưu</button>
                 <button class="btn-cancel" onclick="closeModal()">Hủy</button>
             </div>
@@ -209,8 +209,10 @@
         <div class="modal-box">
             <h3>Xóa bản tin?</h3>
             <p>Bạn có chắc muốn xóa bản tin này?</p>
-            <button class="btn-confirm" onclick="confirmDelete()">Xóa</button>
-            <button class="btn-cancel" onclick="closeDeleteModal()">Hủy</button>
+            <div style="margin-top:12px; text-align:center;">
+                <button class="btn-confirm" onclick="confirmDelete()">Xóa</button>
+                <button class="btn-cancel" onclick="closeDeleteModal()">Hủy</button>
+            </div>
         </div>
     </div>
 

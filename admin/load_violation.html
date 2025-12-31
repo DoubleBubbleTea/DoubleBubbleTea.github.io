@@ -44,7 +44,7 @@
             background: #275167;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 10px;
             cursor: pointer;
             margin-bottom: 15px;
         }
@@ -64,7 +64,7 @@
             background: white;
             padding: 22px;
             width: 380px;
-            border-radius: 8px;
+            border-radius: 10px;
         }
 
         .modal-box h3 {
@@ -76,7 +76,7 @@
             width: 100%;
             padding: 8px;
             margin: 6px 0;
-            border-radius: 4px;
+            border-radius: 10px;
             border: 1px solid #ccc;
         }
 
@@ -90,7 +90,7 @@
             color: white;
             padding: 8px 16px;
             border: none;
-            border-radius: 4px;
+            border-radius: 10px;
             cursor: pointer;
         }
 
@@ -99,7 +99,7 @@
             color: white;
             padding: 8px 16px;
             border: none;
-            border-radius: 4px;
+            border-radius: 10px;
             cursor: pointer;
             margin-left: 8px;
         }
@@ -129,14 +129,17 @@
             <button class="btn-close" onclick="closeModalInfo()">OK</button>
         </div>
     </div>
+
     <!-- DELETE CONFIRM MODAL -->
     <div id="delete-modal" class="modal-overlay">
         <div class="modal-box">
             <h3>Xóa vi phạm?</h3>
             <p style="margin-bottom: 15px;">Hành động này không thể hoàn tác.</p>
 
-            <button class="btn-confirm" onclick="confirmDeleteViolation()">Xóa</button>
-            <button class="btn-cancel" onclick="closeDeleteModal()">Hủy</button>
+            <div style="margin-top:12px; text-align:center;">
+                <button class="btn-confirm" onclick="confirmDeleteViolation()">Xóa</button>
+                <button class="btn-cancel" onclick="closeDeleteModal()">Hủy</button>
+            </div>
         </div>
     </div>
 
@@ -168,7 +171,7 @@
             <label>Ngày vi phạm</label>
             <input type="date" id="v-date" class="modal-input">
 
-            <div class="modal-buttons">
+            <div class="modal-buttons" style="margin-top:12px; text-align:center;">
                 <button class="btn-confirm" onclick="saveViolation()">Lưu</button>
                 <button class="btn-cancel" onclick="closeViolationModal()">Hủy</button>
             </div>
@@ -427,7 +430,7 @@
                     //     .from("student")
                     //     .update({ status: "Vô hiệu hóa" })
                     //     .eq("studentid", studentid);
-                    
+
                     await insertNotification(
                         studentid,
                         `Tài khoản của bạn đã bị vô hiệu hóa do không checkin hơn 2 lần `,

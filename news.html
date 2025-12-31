@@ -123,11 +123,46 @@
             transform: translateY(0);
             box-shadow: 0 3px 8px rgba(39, 81, 103, 0.25);
         }
+
         .news-date {
             font-size: 13px;
             color: #6b7280;
             margin: 4px 0 8px;
             font-weight: bold;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-home {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+
+            border: 1px solid #275167;
+            background: #fff;
+            color: #275167;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            cursor: pointer;
+            font-size: 16px;
+
+            transition: all 0.25s ease;
+        }
+
+        .btn-home:hover {
+            background: #275167;
+            color: #fff;
+        }
+
+        .btn-home:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
@@ -145,11 +180,18 @@
     </div>
     <!-- HEADER (CHỈ ĐĂNG NHẬP) -->
     <div class="header">
-        <div class="header-title">BẢNG TIN</div>
+        <div class="header-left">
+            <button class="btn-home" onclick="goHome()">
+                <i class="fa fa-home"></i>
+            </button>
+            <div class="header-title">BẢNG TIN</div>
+        </div>
+
         <div class="header-right" id="header-right">
             <!-- JS sẽ render nội dung ở đây -->
         </div>
     </div>
+
 
     <!-- CONTENT -->
     <div class="content">
@@ -254,6 +296,17 @@
                         `<div class="news-card">${renderNews(n)}</div>`;
                 }
             });
+        }
+        function goHome() {
+            const studentId = localStorage.getItem("studentid");
+
+            if (studentId) {
+                // ✅ Đã đăng nhập
+                window.location.href = "./student/information.html";
+            } else {
+                // ❌ Chưa đăng nhập
+                window.location.href = "./index.html";
+            }
         }
         // GỌI KHI LOAD TRANG
         window.addEventListener("DOMContentLoaded", renderHeaderByLoginStatus);

@@ -534,7 +534,7 @@ iframe[src*="fastbots.ai"] {
     min-width: 100px;
 
     border: 1px solid #d1d5db;
-    border-radius: 4px;
+    border-radius: 10px;
     font-size: 14px;
     cursor: pointer;
 }
@@ -600,3 +600,47 @@ iframe[src*="fastbots.ai"] {
 .star.active {
     color: #facc15;
 }
+
+
+.btn-delete {
+    padding: 6px 12px;
+    border-radius: 10px;
+    border: none;
+    background-color: #ef4444;
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    margin-left: 6px;
+}
+
+.btn-delete:hover {
+    background-color: #dc2626;
+}
+
+.btn-delete-all {
+    padding: 8px 14px;
+    border-radius: 10px;
+
+    border: 1px solid #275167;   /* 👈 viền màu xanh */
+
+    background-color: #fff;
+    color: #275167;
+
+    font-size: 14px;
+    cursor: pointer;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+
+.btn-delete-all i {
+    font-size: 14px;
+}
+
+.btn-delete-all:hover {
+    background-color: #fff;
+}
+
