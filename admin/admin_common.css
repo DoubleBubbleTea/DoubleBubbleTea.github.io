@@ -566,7 +566,7 @@ th {
     align-items: center;
 }
 
-/* SCROLL RIÊNG CHO BẢNG */
+/* SCROLL RIÊNG CHO BẢN */
 .table-scroll {
     max-height: calc(100vh - 50vh); /* chỉnh số này 1 lần */
     /* chỉnh theo layout */

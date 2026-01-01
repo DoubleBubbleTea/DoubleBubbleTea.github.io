@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Bảng tin</title>
+    <title>Bản tin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./student/student_header.js"></script>
@@ -184,7 +184,7 @@
             <button class="btn-home" onclick="goHome()">
                 <i class="fa fa-home"></i>
             </button>
-            <div class="header-title">BẢNG TIN</div>
+            <div class="header-title">BẢN TIN</div>
         </div>
 
         <div class="header-right" id="header-right">
@@ -253,7 +253,9 @@
         }
 
         function renderNews(item) {
-            const img = `./img/${item.image_url}`;
+            const img = item.image_url
+                ? `./img/${item.image_url}`
+                : "./img/news_default.jpg";
 
             // format ngày đăng
             let postDate = "—";
