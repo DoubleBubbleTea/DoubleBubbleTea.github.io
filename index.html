@@ -2,406 +2,316 @@
 <html lang="vi">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Đăng nhập đặt phòng</title>
+    <meta charset="UTF-8">
+    <title>Bảng tin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./student/student_header.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-  <!-- CSS ngoài -->
-  <link rel="stylesheet" href="./test.css">
+    <!-- Layout chung -->
+    <link rel="stylesheet" href="./student/layout.css">
 
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* ===== PAGE WRAPPER ===== */
+        .content {
+            padding: 40px 80px;
+            background: #f9fafb;
+        }
+
+        /* ===== NEWS LAYOUT ===== */
+        .news-top {
+            display: grid;
+            grid-template-columns: 2.2fr 1fr;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .news-main {
+            background: white;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .news-main img {
+            width: 100%;
+            height: 360px;
+            object-fit: cover;
+        }
+
+        .news-main .news-body {
+            padding: 20px;
+        }
+
+        .news-side {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .news-card {
+            background: white;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .news-card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+
+        .news-card .news-body {
+            padding: 14px 16px;
+        }
+
+        .news-body h3 {
+            margin: 0 0 8px;
+            font-size: 18px;
+        }
+
+        .news-body p {
+            margin: 0;
+            color: #555;
+            font-size: 14px;
+        }
+
+        /* ===== LIST BELOW ===== */
+        .news-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 24px;
+        }
+
+        .btn-login {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #275167;
+            color: #ffffff;
+
+            height: 40px;
+            padding: 0 22px;
+            min-width: 120px;
+
+            border: none;
+            border-radius: 999px;
+            /* bo tròn đẹp */
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+
+            cursor: pointer;
+            text-decoration: none;
+
+            box-shadow: 0 4px 10px rgba(39, 81, 103, 0.25);
+            transition: all 0.25s ease;
+        }
+
+        /* Hover */
+        .btn-login:hover {
+            background: #1f4254;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(39, 81, 103, 0.35);
+        }
+
+        /* Click */
+        .btn-login:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 8px rgba(39, 81, 103, 0.25);
+        }
+
+        .news-date {
+            font-size: 13px;
+            color: #6b7280;
+            margin: 4px 0 8px;
+            font-weight: bold;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-home {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+
+            border: 1px solid #275167;
+            background: #fff;
+            color: #275167;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            cursor: pointer;
+            font-size: 16px;
+
+            transition: all 0.25s ease;
+        }
+
+        .btn-home:hover {
+            background: #275167;
+            color: #fff;
+        }
+
+        .btn-home:active {
+            transform: scale(0.95);
+        }
+    </style>
 </head>
 
-<!-- MODAL POPUP -->
-<div id="popupModal" class="modal-overlay">
-  <div class="modal-box">
-    <div id="modal-icon" class="modal-icon"></div>
-    <h3 id="modal-title">Completed</h3>
-    <p id="modal-message">This is a message</p>
-
-    <div class="modal-buttons">
-      <button class="btn-close" onclick="closeModal()" class="btn-close">OK</button>
-    </div>
-  </div>
-</div>
-
 <body>
-
-  <!-- Ambient background -->
-  <div class="area">
-    <ul class="circles">
-      <li></li>
-      <li></li>
-      <li></li>
-      <li></li>
-      <li></li>
-      <li></li>
-      <li></li>
-      <li></li>
-      <li></li>
-      <li></li>
-    </ul>
-  </div>
-
-  <!-- HEADER -->
-  <header class="ussh-header">
-    <div class="header-content">
-      <div class="header-left">
-        <img src="./img/VNUHCM_logo.svg.png" class="logo-vnu" alt="VNUHCM">
-        <img src="./img/logo.png" class="logo-ussh" alt="USSH">
-      </div>
-
-      <div class="header-text">
-        <h1>ĐẠI HỌC QUỐC GIA THÀNH PHỐ HỒ CHÍ MINH</h1>
-        <h2>TRƯỜNG ĐẠI HỌC KHOA HỌC XÃ HỘI VÀ NHÂN VĂN</h2>
-      </div>
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
+        </div>
     </div>
-  </header>
-
-  <!-- MAIN CONTENT -->
-  <div class="content fade-in-up">
-
-    <div class="content-wrapper">
-      <h1>CHÀO MỪNG BẠN ĐẾN VỚI HỆ THỐNG ĐẶT PHÒNG HỌC</h1>
-
-      <div class="login-card">
-        <h2>Đăng nhập</h2>
-        <div class="form-group">
-          <input id="email" type="email" class="input-box" placeholder="Email">
+    <!-- HEADER (CHỈ ĐĂNG NHẬP) -->
+    <div class="header">
+        <div class="header-left">
+            <button class="btn-home" onclick="goHome()">
+                <i class="fa fa-home"></i>
+            </button>
+            <div class="header-title">BẢNG TIN</div>
         </div>
 
-        <div class="form-group">
-          <input id="password" type="password" class="input-box" placeholder="Mật khẩu">
+        <div class="header-right" id="header-right">
+            <!-- JS sẽ render nội dung ở đây -->
+        </div>
+    </div>
+
+
+    <!-- CONTENT -->
+    <div class="content">
+
+        <!-- TOP SECTION -->
+        <div class="news-top">
+            <div id="news-main" class="news-main"></div>
+
+            <div class="news-side">
+                <div id="news-side-1"></div>
+                <div id="news-side-2"></div>
+            </div>
         </div>
 
-        <button onclick="login()">Đăng nhập</button>
-        <div class="forgot-password" onclick="openForgotModal()">
-          Quên mật khẩu?
+        <!-- BELOW LIST -->
+        <h2>Bản tin khác</h2>
+        <div id="news-list" class="news-list"></div>
+
+    </div>
+
+    <!-- SUPABASE -->
+    <script>
+        function renderHeaderByLoginStatus() {
+            const headerRight = document.getElementById("header-right");
+            if (!headerRight) return;
+
+            const studentId = localStorage.getItem("studentid");
+
+            // ❌ CHƯA ĐĂNG NHẬP
+            if (!studentId) {
+                headerRight.innerHTML = `
+            <a href="./login.html" class="btn-login">Đăng nhập</a>
+        `;
+                return;
+            }
+
+            // ✅ ĐÃ ĐĂNG NHẬP
+            headerRight.innerHTML = `
+        <div class="icon notification-icon" onclick="toggleNotification()">
+            <img src="../img/notification_new.png" class="icon-img">
+            <div id="notif-count" class="notif-count" style="display:none;">0</div>
         </div>
-        <div class="after-login-space"></div>
 
-      </div>
-    </div>
-  </div>
-  <!-- FORGOT PASSWORD MODAL -->
-  <div id="forgotModal" class="modal-overlay">
-    <div class="modal-box" style="width:420px">
-      <h3>Quên mật khẩu</h3>
+        <div class="icon logout-icon" onclick="openLogoutModal()">
+            <img src="../img/logout_new.png" class="icon-img">
+        </div>
 
-      <!-- EMAIL -->
-      <div class="form-group">
-        <input id="fp-email" type="email" class="input-box" placeholder="Nhập email">
-      </div>
+        <div id="header-user">Đang tải...</div>
 
-      <button onclick="sendOTP()" style="margin-bottom:15px;">
-        Gửi mã OTP về email
-      </button>
+        <div id="notif-dropdown" class="notif-dropdown">
+            <div class="notif-title">Thông báo</div>
+            <div id="notif-list" class="notif-list">Không có thông báo!</div>
+        </div>
+    `;
 
-      <!-- OTP -->
-      <div class="form-group">
-        <input id="fp-otp" type="text" class="input-box" placeholder="Nhập mã OTP (6 số)">
-      </div>
-
-      <!-- NEW PASSWORD -->
-      <div class="form-group input-wrapper">
-        <input id="fp-password" type="password" class="input-box" placeholder="Mật khẩu mới">
-      </div>
-
-      <!-- CONFIRM PASSWORD -->
-      <div class="form-group input-wrapper">
-        <input id="fp-confirm" type="password" class="input-box" placeholder="Xác nhận mật khẩu mới"
-          oninput="checkForgotPasswordMatch()">
-        <span id="fp-error" class="error-x">✖</span>
-      </div>
-
-      <div class="modal-buttons">
-        <button onclick="confirmForgotPassword()">Xác nhận</button>
-        <button class="btn-cancel" onclick="closeForgotModal()">Hủy</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- FOOTER -->
-  <div class="footer fade-in">
-    © 2025 - USSH VNUHCM
-  </div>
-
-  <!-- JAVASCRIPT Supabase + Function -->
-  <script>
-    const db = supabase.createClient(
-      "https://oxaimnemcnqudtdguoyk.supabase.co",
-      "sb_publishable_6p-lVAZg_ATPz1a1cDjlOg_9vIcR42c"
-    );
-
-    function checkPasswordMatch() {
-      const pwd = document.getElementById("r_password").value;
-      const conf = document.getElementById("r_confirm").value;
-      document.getElementById("pwd_error").style.display = (pwd !== conf && conf !== "") ? "inline" : "none";
-    }
-
-    function togglePassword(id, eyeIcon) {
-      const input = document.getElementById(id);
-      input.type = input.type === "password" ? "text" : "password";
-      eyeIcon.textContent = input.type === "password" ? "👁️" : "🙈";
-    }
-
-    function saveStudentId(id) {
-      localStorage.setItem("studentid", id);
-    }
-    function saveAdminId(id) {
-      localStorage.setItem("adminid", id);
-    }
-
-    // 🔵 LOGIN (STUDENT + ADMIN)
-    async function login() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-
-      // -------- ADMIN LOGIN --------
-      // -------- CHECK IF EMAIL IS ADMIN --------
-      const { data: adminEmail } = await db
-        .from("admin")
-        .select("*")
-        .eq("email", email)
-        .limit(1);
-
-      // Nếu email tồn tại trong bảng admin → xử lý login admin
-      if (adminEmail && adminEmail.length > 0) {
-
-        // Kiểm tra password admin
-        const { data: adminData } = await db
-          .from("admin")
-          .select("*")
-          .eq("email", email)
-          .eq("password", password)
-          .limit(1);
-
-        if (!adminData || adminData.length === 0) {
-          showPopup("error", "Đăng nhập thất bại", "Sai email hoặc mật khẩu!");
-          return;
-        }
-        // ⭐ LƯU ADMIN ID VÀO LOCALSTORAGE
-        saveAdminId(adminData[0].adminid);
-        console.log("Save adminid:", adminData[0].adminid);
-
-        // Đăng nhập admin thành công
-        showPopup("success", "Chào mừng quản trị viên!", "Đang tải...");
-
-        setTimeout(() => window.location.href = "./admin/information_admin.html", 1500);
-        return;
-      }
-
-      // -------- STUDENT LOGIN --------
-      const { data } = await db
-        .from("student")
-        .select("*")
-        .eq("email", email)
-        .eq("password", password)
-        .limit(1);
-
-
-      if (!data || data.length === 0) {
-        showPopup("error", "Đăng nhập thất bại", "Sai email hoặc mật khẩu!");
-        return;
-      }
-      // 🔍 Kiểm tra status
-      if (data[0].status === "Tốt nghiệp") {
-        showPopup(
-          "error",
-          "Không thể truy cập",
-          "Người dùng tài khoản đã tốt nghiệp, bạn không còn quyền sử dụng hệ thống."
-        );
-        return;
-      }
-      showPopup(
-        "success",
-        "Chào mừng bạn trở lại!",
-        "Đang tải..."
-      );
-      saveStudentId(data[0].studentid);
-
-      setTimeout(() => {
-        window.location.href = "./student/information.html";
-      }, 1500);
-    }
-
-    // 🔵 REGISTER (MATCH DB MỚI)
-    async function register() {
-      const studentid = parseInt(document.getElementById("r_student_id").value);
-      const fullname = document.getElementById("r_name").value;
-      const email = document.getElementById("r_email").value;
-      const phonenumber = document.getElementById("r_phone").value;
-      const major = document.getElementById("r_major").value;
-      const password = document.getElementById("r_password").value;
-      const confirm = document.getElementById("r_confirm").value;
-
-      if (password !== confirm)
-        return showPopup("Error", "Passwords do not match!");
-
-      const { data: exists } = await db
-        .from("student")
-        .select("*")
-        .or(`email.eq.${email},studentid.eq.${studentid}`);
-
-      if (exists.length)
-        return showPopup("Error", "Student already exists!");
-
-      await db.from("student").insert([
-        {
-          studentid,
-          fullname,
-          email,
-          phonenumber,
-          major,
-          password
-        }
-      ]);
-
-      showPopup("Completed", "Your account has been created!");
-    }
-
-
-    function showPopup(type, title, message) {
-      const modal = document.getElementById("popupModal");
-      const icon = document.getElementById("modal-icon");
-
-      // reset
-      icon.className = "modal-icon";
-
-      if (type === "success") {
-        icon.textContent = "✓";
-        icon.classList.add("success");
-      } else {
-        icon.textContent = "✕";
-        icon.classList.add("error");
-      }
-
-      document.getElementById("modal-title").innerText = title;
-      document.getElementById("modal-message").innerText = message;
-
-      modal.style.display = "flex";
-    }
-
-
-    function closeModal() {
-      document.getElementById("popupModal").style.display = "none";
-    }
-
-    /* =========================
-   FORGOT PASSWORD LOGIC
-========================= */
-
-    function openForgotModal() {
-      document.getElementById("forgotModal").style.display = "flex";
-    }
-
-    function closeForgotModal() {
-      document.getElementById("forgotModal").style.display = "none";
-    }
-
-    /* Giả lập gửi OTP */
-    function sendOTP() {
-      const email = document.getElementById("fp-email").value;
-      if (!email) {
-        showPopup("error", "Lỗi", "Vui lòng nhập email!");
-        return;
-      }
-
-      showPopup(
-        "success",
-        "OTP đã gửi",
-        "Mã OTP đã được gửi về email."
-      );
-    }
-
-    /* Check mật khẩu khớp */
-    function checkForgotPasswordMatch() {
-      const pwd = document.getElementById("fp-password").value;
-      const conf = document.getElementById("fp-confirm").value;
-      const err = document.getElementById("fp-error");
-
-      if (!conf) {
-        err.style.display = "none";
-        return;
-      }
-
-      err.style.display = pwd !== conf ? "block" : "none";
-    }
-
-    /* XÁC NHẬN ĐỔI MẬT KHẨU */
-    async function confirmForgotPassword() {
-      const email = document.getElementById("fp-email").value;
-      const pwd = document.getElementById("fp-password").value;
-      const conf = document.getElementById("fp-confirm").value;
-
-      if (!email || !pwd || !conf) {
-        showPopup("error", "Lỗi", "Vui lòng nhập đầy đủ thông tin!");
-        return;
-      }
-
-      if (pwd !== conf) {
-        showPopup("error", "Lỗi", "Mật khẩu xác nhận không khớp!");
-        return;
-      }
-
-      /* =========================
-         1️⃣ CHECK ADMIN TRƯỚC
-      ========================= */
-      const { data: adminData } = await db
-        .from("admin")
-        .select("adminid")
-        .eq("email", email)
-        .single();
-
-      if (adminData) {
-        const { error } = await db
-          .from("admin")
-          .update({ password: pwd })
-          .eq("email", email);
-
-        if (error) {
-          showPopup("error", "Lỗi", "Không thể đổi mật khẩu admin!");
-          return;
+            // load tên + thông báo nếu đã đăng nhập
+            if (typeof loadStudentName === "function") loadStudentName();
+            if (typeof loadNotifications === "function") loadNotifications();
         }
 
-        closeForgotModal();
-        showPopup("success", "Thành công", "Đổi mật khẩu ADMIN thành công!");
-        return;
-      }
+        function renderNews(item) {
+            const img = `./img/${item.image_url}`;
 
-      /* =========================
-         2️⃣ CHECK STUDENT
-      ========================= */
-      const { data: studentData } = await db
-        .from("student")
-        .select("studentid")
-        .eq("email", email)
-        .single();
+            // format ngày đăng
+            let postDate = "—";
+            if (item.date_post) {
+                const d = new Date(item.date_post);
+                postDate = d.toLocaleDateString("vi-VN");
+            }
 
-      if (studentData) {
-        const { error } = await db
-          .from("student")
-          .update({ password: pwd })
-          .eq("email", email);
-
-        if (error) {
-          showPopup("error", "Lỗi", "Không thể đổi mật khẩu sinh viên!");
-          return;
+            return `
+        <img src="${img}">
+        <div class="news-body">
+            <h3>${item.title}</h3>
+            <p>${item.summary || ""}</p><br>
+            <p class="news-date">📅 Ngày đăng: ${postDate}</p>
+        </div>
+    `;
         }
 
-        closeForgotModal();
-        showPopup("success", "Thành công", "Đổi mật khẩu SINH VIÊN thành công!");
-        return;
-      }
+        async function loadNews() {
+            const { data } = await db
+                .from("news")
+                .select("*")
+                .eq("shownews", "Có")
+                .order("section_order");
 
-      /* =========================
-         3️⃣ EMAIL KHÔNG TỒN TẠI
-      ========================= */
-      showPopup("error", "Lỗi", "Email không tồn tại trong hệ thống!");
-    }
-  </script>
+            data.forEach(n => {
+                if (n.section_order === 1) {
+                    document.getElementById("news-main").innerHTML = renderNews(n);
+                }
+                else if (n.section_order === 2) {
+                    document.getElementById("news-side-1").innerHTML =
+                        `<div class="news-card">${renderNews(n)}</div>`;
+                }
+                else if (n.section_order === 3) {
+                    document.getElementById("news-side-2").innerHTML =
+                        `<div class="news-card">${renderNews(n)}</div>`;
+                }
+                else {
+                    document.getElementById("news-list").innerHTML +=
+                        `<div class="news-card">${renderNews(n)}</div>`;
+                }
+            });
+        }
+        function goHome() {
+            const studentId = localStorage.getItem("studentid");
 
+            if (studentId) {
+                // ✅ Đã đăng nhập
+                window.location.href = "./student/information.html";
+            } else {
+                // ❌ Chưa đăng nhập
+                window.location.href = "./login.html";
+            }
+        }
+        // GỌI KHI LOAD TRANG
+        window.addEventListener("DOMContentLoaded", renderHeaderByLoginStatus);
+        loadNews();
+    </script>
 </body>
 
 </html>

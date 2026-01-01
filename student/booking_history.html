@@ -135,7 +135,7 @@
             <a href="./student_feedback.html">Phản hồi sinh viên</a>
             <a href="./reward.html">Đổi phần thưởng</a>
             <a href="./student_reward.html">Lịch sử đổi thưởng</a>
-            <a href="../news.html">Bản tin</a>
+            <a href="../index.html">Bản tin</a>
         </div>
 
         <!-- CONTENT -->
@@ -336,7 +336,7 @@
                 if (b.booking_status === "Đã sử dụng") continue;
 
                 // 🔑 CHỐT RULE: CHỈ XỬ LÝ BOOKING KHÔNG TRỄ
-                if (b.booking_late === "Đúng") continue;
+                // if (b.booking_late === "Đúng") continue;
 
                 const start = new Date(b.starttime);
                 const end = new Date(b.endtime);
@@ -346,7 +346,16 @@
                 // ===============================
                 // 1️⃣ VI PHẠM: KHÔNG CHECK-IN
                 // ===============================
-                const lateCheckinTime = new Date(start.getTime() + 15 * 60 * 1000);
+                let lateCheckinTime;
+
+                if (b.booking_late === "Đúng") {
+                    // holdtime = starttime + 15p (đã set sẵn khi check-in trễ)
+                    lateCheckinTime = new Date(b.holdtime);
+                } else {
+                    lateCheckinTime = new Date(start.getTime() + 15 * 60 * 1000);
+                }
+
+                console.log("lateCheckinTime: ", lateCheckinTime);
 
                 if (
                     b.booking_status === "Đang giữ chỗ" &&
@@ -407,9 +416,9 @@
                 if (now < start) {
                     newStatus = "Đang giữ chỗ";
                 }
-                else if (now >= start && now <= end) {
-                    newStatus = "Đang sử dụng";
-                }
+                // else if (now >= start && now <= end) {
+                //     newStatus = "Đang sử dụng";
+                // }
                 else if (now > end) {
                     newStatus = "Đã sử dụng";
                 }

@@ -142,7 +142,7 @@ function closeLogoutModal() {
 
 function logout() {
     localStorage.clear();
-    window.location.href = "../index.html";
+    window.location.href = "../login.html";
 }
 
 loadNotifications();
@@ -574,7 +574,8 @@ async function checkDuplicateBookingTime(studentid, intervals) {
         .from("booking")
         .select("starttime, endtime")
         .eq("studentid", studentid)
-        .neq("booking_status", "Hủy");
+        .neq("booking_status", "Hủy")
+        .neq("booking_status", "Đã sử dụng");
 
     if (error) {
         console.error("Check duplicate booking error:", error.message);

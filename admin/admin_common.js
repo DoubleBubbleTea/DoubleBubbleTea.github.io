@@ -109,7 +109,7 @@ function closeLogoutModal() {
 }
 function logout() {
     localStorage.clear();
-    window.location.href = "../index.html";
+    window.location.href = "../login.html";
 }
 
 /* ====================== INIT ON EVERY PAGE ======================= */
