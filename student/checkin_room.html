@@ -158,7 +158,7 @@
                     <label>Chọn Booking ID</label>
                     <select id="bookingSelect"></select>
                     <div id="memberInfo" class="note" style="margin-top:10px;">
-                        👥 Số lượng đăng ký: — <br> ✅ Đã check-in: — / —
+                        Số lượng người đăng ký: — <br><br> Số lượng người đã check-in: — / —
                     </div>
                     <!-- <div class="note">⏰ Cho phép check-in phòng trước <strong>15 phút</strong></div> -->
                     <div class="checkin-actions">
@@ -268,13 +268,13 @@
             const booking = bookings.find(b => b.bookingid === bookingId);
             const info = document.getElementById("memberInfo");
             if (!booking) {
-                info.innerHTML = `👥 Số lượng đăng ký: — <br> ✅ Đã check-in: — / —`;
+                info.innerHTML = `Số lượng người đăng ký: — <br><br> Số lượng người đã check-in: — / —`;
                 return;
             }
             const maxMembers = booking.numbermember || 0;
             const key = `checkin_${bookingId}`;
             const checkedIn = Number(localStorage.getItem(key) || 0);
-            info.innerHTML = `👥 Số lượng đăng ký: <strong>${maxMembers}</strong> <br> ✅ Đã check-in: <strong>${checkedIn} / ${maxMembers}</strong>`;
+            info.innerHTML = `Số lượng người đăng ký: <strong>${maxMembers}</strong> <br><br> Số lượng người đã check-in: <strong>${checkedIn} / ${maxMembers}</strong>`;
         }
 
         async function loadBookings() {
