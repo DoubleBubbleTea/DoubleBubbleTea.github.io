@@ -8,44 +8,76 @@
     <link rel="stylesheet" href="./admin_common.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
+        /* --- CHỈNH SỬA TỈ LỆ HIỂN THỊ --- */
+        body {
+            /* Giảm xuống 80% để đảm bảo vừa hết màn hình laptop mà không bị thanh cuộn ngang */
+            zoom: 80%; 
+            -moz-transform: scale(0.8);
+            -moz-transform-origin: 0 0;
+            background-color: #f4f6fa; /* Màu nền body trùng khớp */
+        }
+
         .content {
             flex: 1;
-            padding: 30px 50px;
+            /* Giảm padding content sát lề hơn */
+            padding: 10px 15px; 
             background: #f4f6fa;
+            overflow-x: hidden; 
         }
 
         .content h2 {
-            font-size: 26px;
-            margin-bottom: 25px;
+            font-size: 22px; /* Giảm size tiêu đề chút */
+            margin-bottom: 15px;
             font-weight: bold;
+        }
+
+        /* --- CHỈNH SỬA BẢNG (TABLE) CHO GỌN --- */
+        .table-scroll {
+            overflow-x: auto; 
+            background: white;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            table-layout: auto; 
         }
 
         th,
         td {
-            padding: 12px;
+            /* Padding cực nhỏ để ép dòng lại gần nhau */
+            padding: 6px 5px; 
             border-bottom: 1px solid #ddd;
             text-align: left;
+            /* Font chữ nhỏ 12.5px để tiết kiệm diện tích ngang */
+            font-size: 12.5px; 
+            white-space: nowrap; 
         }
+
+        /* Chỉnh riêng cột Email và Họ tên nếu cần giới hạn chiều rộng (tùy chọn) */
+        /* td:nth-child(2), td:nth-child(3) { max-width: 150px; overflow: hidden; text-overflow: ellipsis; } */
 
         tr:hover {
             background: #eef3ff;
         }
 
+        /* --- CÁC NÚT BẤM VÀ INPUT (Action Bar) --- */
+        /* Giảm chiều cao các nút và ô lọc xuống 30px - 32px cho gọn */
+        
         .btn-add {
-            padding: 10px 18px;
+            padding: 0 12px;
+            height: 32px; /* Chiều cao cố định nhỏ gọn */
+            line-height: 32px; /* Căn giữa chữ */
             background: #275167;
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 6px;
             cursor: pointer;
-            margin-bottom: 15px;
+            font-size: 12px;
+            margin-bottom: 0; /* Xóa margin bottom vì đang dùng flex gap */
         }
 
         /* Modal chung */
@@ -61,8 +93,8 @@
 
         .modal-box {
             background: white;
-            padding: 22px;
-            width: 360px;
+            padding: 20px;
+            width: 340px;
             border-radius: 10px;
             text-align: center;
             max-height: 90vh;
@@ -72,83 +104,86 @@
         .modal-input {
             width: 100%;
             padding: 8px;
-            margin: 6px 0;
-            border-radius: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
             border: 1px solid #ccc;
             box-sizing: border-box;
+            font-size: 13px;
         }
 
         .modal-buttons button {
             padding: 8px 16px;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
             margin-top: 10px;
         }
 
-        .btn-confirm {
-            background: #dc2626;
-            color: white;
-        }
-
-        .btn-cancel {
-            background: #6b7280;
-            color: white;
-            margin-left: 10px;
-        }
+        .btn-confirm { background: #dc2626; color: white; }
+        .btn-cancel { background: #6b7280; color: white; margin-left: 10px; }
 
         /* ===== FIX ALIGN FILTER BUTTON & INPUT ===== */
-        .filter-box .btn-add,
-        #major-input {
-            height: 42px;
-            padding-top: 0;
-            padding-bottom: 0;
+        .action-bar {
+            margin-bottom: 10px; /* Giảm khoảng cách tới bảng */
         }
 
-        .filter-box .btn-add {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .left-actions {
+            display: flex; 
+            align-items: center; 
+            gap: 8px; /* Giảm khoảng cách giữa các ô lọc */
+            flex-wrap: wrap;
         }
 
-        .action-bar .btn-add {
-            margin-bottom: 0;
-        }
-
-        /* CSS cho các ô Select lọc */
         .filter-select {
             background: #275167;
             color: #faf9f9;
-            height: 38px;
-            padding: 0 14px;
-            min-width: 100px;
+            height: 32px; /* Giảm chiều cao */
+            padding: 0 8px;
+            min-width: 80px;
             border: 1px solid #d1d5db;
-            border-radius: 10px;
-            font-size: 14px;
+            border-radius: 6px;
+            font-size: 12px;
             cursor: pointer;
-            margin-left: 5px;
         }
 
         /* Input lọc điểm uy tín */
         .filter-input {
-            height: 38px;
-            padding: 0 10px;
-            width: 200px;
+            height: 32px; /* Giảm chiều cao */
+            padding: 0 8px;
+            width: 120px; /* Thu nhỏ width */
             border: 1px solid #d1d5db;
-            border-radius: 10px;
-            font-size: 14px;
-            margin-left: 5px;
+            border-radius: 6px;
+            font-size: 12px;
             box-sizing: border-box;
         }
 
-        .filter-select:hover {
-            background: #1e3f50;
+        /* Nút đặt lại */
+        .btn-reset-filter {
+            background: #6b7280;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            height: 32px;
+            padding: 0 10px;
+            font-size: 12px;
+            cursor: pointer;
         }
 
-        .filter-select option {
-            background: white;
-            color: #111;
+        .filter-select:hover { background: #1e3f50; }
+        .filter-select option { background: white; color: #111; }
+
+        /* Nút trong bảng */
+        .btn-edit, .btn-delete {
+            padding: 3px 8px;
+            font-size: 11px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
         }
+        .btn-edit { background-color: #275167; margin-right: 4px; }
+        .btn-delete { background-color: #dc2626; }
+
     </style>
 </head>
 
@@ -204,6 +239,7 @@
                 <img id="student-avatar" src="../img/logo.png" alt="avatar">
                 <div class="avatar-name" id="avatar-fullname">—</div>
             </div>
+            <a href="./dashboard.html">Báo cáo thống kê</a>
             <a href="./information_admin.html">Thông tin quản trị viên</a>
             <a href="./load_student.html" class="active">Danh sách sinh viên</a>
             <a href="./load_history.html">Quản lý lịch sử đặt phòng</a>
@@ -221,13 +257,12 @@
                 <a href="./load_violation.html">Danh sách vi phạm</a>
                 <a href="./load_reward.html">Danh sách đổi thưởng</a>
             </div>
-            <a href="./dashboard.html">Báo cáo thống kê</a>
         </div>
 
         <div class="content">
             <h2>Danh sách sinh viên</h2>
             <div class="action-bar">
-                <div class="left-actions" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <div class="left-actions">
                     <button class="btn-add" onclick="openAddModal()">+ Thêm sinh viên</button>
 
                     <select id="major-select" class="filter-select" onchange="applyFilters()">
@@ -246,12 +281,10 @@
 
                     <select id="edu-select" class="filter-select" onchange="applyFilters()">
                         <option value="">Hệ đào tạo</option>
-                        <!-- <option>Chính quy tập trung</option> -->
                         <option>Chất lượng cao</option>
                         <option>Liên kết quốc tế</option>
                         <option>Đại trà</option>
-                        <!-- <option>Sau đại học</option> -->
-                    </select>
+                        </select>
 
                     <div style="display: flex; align-items: center; gap: 2px;">
                         <select id="trust-select" class="filter-select" onchange="syncTrustInput()">
@@ -271,8 +304,7 @@
                             oninput="applyFilters()">
                     </div>
 
-                    <button class="btn-cancel" style="margin: 0; height: 38px;" onclick="resetFilters()">Đặt
-                        lại</button>
+                    <button class="btn-reset-filter" onclick="resetFilters()">Đặt lại</button>
                 </div>
             </div>
 
@@ -324,12 +356,10 @@
 
             <select id="st-education" class="modal-input">
                 <option value="">— Hệ đào tạo —</option>
-                <!-- <option value="Chính quy tập trung">Chính quy tập trung</option> -->
                 <option value="Chất lượng cao">Chất lượng cao</option>
                 <option value="Liên kết quốc tế">Liên kết quốc tế</option>
                 <option value="Đại trà">Đại trà</option>
-                <!-- <option value="Sau đại học">Sau đại học</option> -->
-            </select>
+                </select>
 
             <select id="st-academicyear" class="modal-input">
                 <option value="" disabled>— Niên khóa —</option>
@@ -400,7 +430,6 @@
             document.getElementById("st-academicyear").value =
                 (student.academic_year || "").trim();
 
-            // ✅ FIX QUAN TRỌNG
             document.getElementById("st-trust").value =
                 String(student.trust_score ?? 0);
 
@@ -521,8 +550,8 @@
                     <td>${st.status || "—"}</td>
                     <td><b style="color: ${st.trust_score < 500 ? 'red' : 'green'}">${st.trust_score ?? 0}</b></td>
                     <td>
-                        <button class="btn-edit" style="padding: 4px 8px; cursor:pointer;" onclick='openEditModal(${JSON.stringify(st)})'>Sửa</button>
-                        <button class="btn-delete" style="padding: 4px 8px; cursor:pointer;" onclick="deleteStudent('${st.studentid}')">Xóa</button>
+                        <button class="btn-edit" onclick='openEditModal(${JSON.stringify(st)})'>Sửa</button>
+                        <button class="btn-delete" onclick="deleteStudent('${st.studentid}')">Xóa</button>
                     </td>
                 </tr>
                 `;

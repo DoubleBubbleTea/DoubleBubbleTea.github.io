@@ -638,7 +638,7 @@ th {
     border-radius: 10px;
     background: #275167;
     cursor: pointer;
-    /* color: #000;   */
+    color: #fff;  
 }
 
 /* Fix btn-add trong toolbar */
@@ -651,9 +651,6 @@ th {
 
 /* SCROLL RIÊNG CHO BẢN */
 .table-scroll {
-    /* max-height: calc(100vh - 20vh); */
-    /* chỉnh số này 1 lần */
-    /* chỉnh theo layout */
     overflow-y: auto;
     border-radius: 10px;
 }
