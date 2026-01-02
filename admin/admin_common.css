@@ -273,9 +273,15 @@ body {
     flex: 1;
     padding: 40px 60px;
     background: #f4f6fa;
-    /* margin: 16px 16px 16px 0; */
     border-radius: 20px;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+
+    display: flex;
+    /* ✅ THÊM */
+    flex-direction: column;
+    /* ✅ THÊM */
+    overflow: hidden;
+    /* ✅ QUAN TRỌNG */
 }
 
 .content h2 {
@@ -336,18 +342,19 @@ body {
 }
 
 .btn-close {
-  padding: 10px 30px;
-  border: none;
-  background: #0A84FF;
-  color: white;
-  font-size: 16px;
-  border-radius: 10px;
-  cursor: pointer;
+    padding: 10px 30px;
+    border: none;
+    background: #0A84FF;
+    color: white;
+    font-size: 16px;
+    border-radius: 10px;
+    cursor: pointer;
 }
 
 .btn-close:hover {
-  background: #0066cc;
+    background: #0066cc;
 }
+
 /* =========================================================
    MODAL
 ========================================================= */
@@ -568,7 +575,8 @@ th {
 
 /* SCROLL RIÊNG CHO BẢN */
 .table-scroll {
-    max-height: calc(100vh - 50vh); /* chỉnh số này 1 lần */
+    /* max-height: calc(100vh - 20vh); */
+    /* chỉnh số này 1 lần */
     /* chỉnh theo layout */
     overflow-y: auto;
     border-radius: 10px;
@@ -683,6 +691,7 @@ table {
     border-radius: 10px;
     cursor: pointer;
     margin-bottom: 15px;
+    align-self: flex-start;
 }
 
 .btn-edit {
