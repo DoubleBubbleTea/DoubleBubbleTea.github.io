@@ -689,3 +689,13 @@ function isAllowedBookingDate(bookingDate) {
     // chỉ cho hôm nay (0) hoặc ngày mai (1)
     return diffDays >= 0 && diffDays <= 1;
 }
+
+function formatDateTime(dt) {
+    return dt.toLocaleString("vi-VN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+    });
+}

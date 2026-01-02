@@ -447,6 +447,14 @@
                 .eq("bookingid", data.bookingid);
 
             clearHoldCountdown();
+
+            // ✅ INSERT NOTIFICATION CHECK-IN GHẾ
+            await insertNotification(
+                studentid,
+                `Check-in ghế ${seatid} tại phòng ${roomid} thành công lúc ${formatDateTime(now)}.`,
+                "Xác nhận"
+            );
+
             showPopup("Thành công", "Check-in thành công.");
             loadCheckoutRooms();
         }
@@ -517,6 +525,13 @@
                     checkout_time: toLocalTimestampString(now)
                 })
                 .eq("bookingid", booking.bookingid);
+
+            // ✅ INSERT NOTIFICATION CHECKOUT GHẾ
+            await insertNotification(
+                studentid,
+                `Check-out ghế ${seatid} tại phòng ${roomid} thành công lúc ${formatDateTime(now)}.`,
+                "Xác nhận"
+            );
 
             clearHoldCountdown();
             loadCheckoutRooms();

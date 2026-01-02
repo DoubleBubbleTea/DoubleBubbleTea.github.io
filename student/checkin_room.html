@@ -79,7 +79,8 @@
         .btn-primary:hover {
             background: #1d4ed8;
         }
-               /* popup thông báo */
+
+        /* popup thông báo */
         #popupModal {
             z-index: 9999;
         }
@@ -340,6 +341,13 @@
             const studentId = Number(localStorage.getItem("studentid"));
             if (studentId) await increaseTrustScore(studentId, 5);
 
+            // ✅ INSERT NOTIFICATION CHECK-IN
+            await insertNotification(
+                studentId,
+                `Check-in phòng ${booking.roomid} thành công lúc ${formatDateTime(now)}.`,
+                "Xác nhận"
+            )
+
             showPopup("Thành công", `Check-in thành công (${count}/${maxMembers})`);
         }
         // xử lý click sao
@@ -472,6 +480,13 @@
             pendingCheckoutBooking = booking;
 
             openFeedbackModal(booking);
+
+            // ✅ INSERT NOTIFICATION CHECKOUT
+            await insertNotification(
+                studentid,
+                `Check-out phòng ${booking.roomid} thành công lúc ${formatDateTime(now)}.`,
+                "Xác nhận"
+            );
         }
 
         loadStudentName();
