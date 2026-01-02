@@ -545,6 +545,82 @@ th {
     margin-bottom: 15px;
 }
 
+/* ===== SELECT & DATE ===== */
+.action-bar select,
+.action-bar input[type="date"] {
+    height: 38px;
+    padding: 0 14px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    font-size: 14px;
+    color: #374151;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* hover / focus */
+.action-bar select:hover,
+.action-bar input[type="date"]:hover {
+    border-color: #2563eb;
+}
+
+.action-bar select:focus,
+.action-bar input[type="date"]:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+/* ===== BUTTON XÓA NGÀY ===== */
+.action-bar button {
+    height: 38px;
+    padding: 0 14px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    background: #275167;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    color: #eef2ff;
+}
+
+.action-bar button:hover {
+    background: #1f4255;
+    border-color: #275167;
+}
+
+/* ===== OPTIONAL: ICON CALENDAR GỌN HƠN ===== */
+.action-bar input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.7;
+}
+/* Đồng bộ font cho date input */
+.action-bar input[type="date"] {
+    font-family: inherit;      /* hoặc font bạn dùng cho button */
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;            /* giống button */
+}
+
+/* QUAN TRỌNG: chỉnh phần text bên trong (Chrome, Edge) */
+.action-bar input[type="date"]::-webkit-datetime-edit {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+/* Placeholder mm/dd/yyyy */
+.action-bar input[type="date"]::-webkit-datetime-edit-text,
+.action-bar input[type="date"]::-webkit-datetime-edit-month-field,
+.action-bar input[type="date"]::-webkit-datetime-edit-day-field,
+.action-bar input[type="date"]::-webkit-datetime-edit-year-field {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
 /* Cụm nút bên trái */
 .left-actions {
     display: flex;
