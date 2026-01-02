@@ -155,7 +155,7 @@ function showPopup(title, message) {
 
 function closeModal() {
     document.getElementById("popupModal").style.display = "none";
-        // 👉 mở feedback cho checkout ghế
+    // 👉 mở feedback cho checkout ghế
     if (pendingSeatCheckoutBooking) {
         document.getElementById("feedback-seat-modal").style.display = "flex";
     }
@@ -341,16 +341,18 @@ function getSlotStatus(slotStart, slotEnd) {
 /* ===================================================================
     LOAD FACILITIES FROM DATABASE
 =================================================================== */
-async function loadFacilities() {
+async function loadFacilities(roomId) {
     const container = document.getElementById("facilityContainer");
-    container.innerHTML = "<p>Đang tải...</p>";
+    container.innerHTML = "<p>Đang tải tiện ích...</p>";
 
     const { data, error } = await db
         .from("facilities")
         .select("*")
+        .eq("roomid", roomId)          // ✅ CHỈ LẤY TIỆN ÍCH CỦA PHÒNG
         .order("facility_id");
 
     if (error) {
+        console.error(error);
         container.innerHTML = "<p>Lỗi tải tiện ích!</p>";
         return;
     }
@@ -358,14 +360,19 @@ async function loadFacilities() {
     facilityData = data || [];
     container.innerHTML = "";
 
+    if (facilityData.length === 0) {
+        container.innerHTML = "<p>Phòng này không có tiện ích.</p>";
+        return;
+    }
+
     facilityData.forEach(f => {
         const label = document.createElement("label");
         label.innerHTML = `
-                    <input type="checkbox" class="facility"
-                           value="${f.facility_type}"
-                           data-cost="${f.cost}">
-                    ${f.facility_type} (+${f.cost.toLocaleString()}đ/giờ)
-                `;
+            <input type="checkbox" class="facility"
+                   value="${f.facility_type}"
+                   data-cost="${f.cost}">
+            ${f.facility_type} (+${f.cost.toLocaleString()}đ/giờ)
+        `;
         container.appendChild(label);
     });
 }
@@ -670,15 +677,15 @@ async function checkUpcomingSeatBookingReminder() {
 }
 
 function isAllowedBookingDate(bookingDate) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-  const target = new Date(bookingDate);
-  target.setHours(0, 0, 0, 0);
+    const target = new Date(bookingDate);
+    target.setHours(0, 0, 0, 0);
 
-  const diffDays =
-    (target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+    const diffDays =
+        (target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
 
-  // chỉ cho hôm nay (0) hoặc ngày mai (1)
-  return diffDays >= 0 && diffDays <= 1;
+    // chỉ cho hôm nay (0) hoặc ngày mai (1)
+    return diffDays >= 0 && diffDays <= 1;
 }

@@ -100,6 +100,7 @@
                     <thead>
                         <tr>
                             <th>ID</th>
+                            <th>Mã phòng</th>
                             <th>Loại cơ sở vật chất</th>
                             <th>Chi phí (VND/giờ)</th>
                             <th>Hành động</th>
@@ -114,6 +115,9 @@
     <div id="modal" class="modal-overlay">
         <div class="modal-box">
             <h3 id="modal-title">Thêm cơ sở vật chất</h3>
+            <select id="facility-room" class="modal-input">
+                <option value="">-- Chọn phòng nhóm --</option>
+            </select>
 
             <input id="facility-type" class="modal-input" placeholder="Tên cơ sở vật chất (VD: Máy lạnh)">
             <input id="facility-cost" class="modal-input" placeholder="Chi phí / giờ" type="number">
@@ -145,6 +149,28 @@
     <script>
         let editingId = null;
         let deleteId = null;
+        async function loadRoomOptions(selectedRoomId = null) {
+            const select = document.getElementById("facility-room");
+            select.innerHTML = `<option value="">-- Chọn phòng nhóm --</option>`;
+
+            const { data, error } = await db
+                .from("room")
+                .select("roomid")
+                .like("roomid", "G%")
+                .order("roomid");
+
+            if (error || !data) return;
+
+            data.forEach(r => {
+                const opt = document.createElement("option");
+                opt.value = r.roomid;
+                opt.textContent = r.roomid;
+                if (selectedRoomId && selectedRoomId === r.roomid) {
+                    opt.selected = true;
+                }
+                select.appendChild(opt);
+            });
+        }
 
         function deleteFacility(id) {
             deleteId = id;
@@ -170,16 +196,23 @@
             document.getElementById("modal-title").innerText = "Thêm cơ sở vật chất";
             document.getElementById("facility-type").value = "";
             document.getElementById("facility-cost").value = "";
+            document.getElementById("facility-room").value = "";
+
+            loadRoomOptions(); // ✅ load dropdown
             document.getElementById("modal").style.display = "flex";
         }
+
 
         function openEditModal(item) {
             editingId = item.facility_id;
             document.getElementById("modal-title").innerText = "Sửa cơ sở vật chất";
             document.getElementById("facility-type").value = item.facility_type;
             document.getElementById("facility-cost").value = item.cost;
+
+            loadRoomOptions(item.roomid); // ✅ set selected
             document.getElementById("modal").style.display = "flex";
         }
+
 
         function closeModal() {
             document.getElementById("modal").style.display = "none";
@@ -188,16 +221,20 @@
         async function saveFacility() {
             const type = document.getElementById("facility-type").value.trim();
             const costValue = document.getElementById("facility-cost").value;
+            const roomid = document.getElementById("facility-room").value;
 
-            // costValue là string → kiểm tra rỗng
-            if (!type || costValue === "") {
+            if (!type || costValue === "" || !roomid) {
                 alert("Vui lòng nhập đầy đủ thông tin!");
                 return;
             }
 
             const cost = Number(costValue);
 
-            const newData = { facility_type: type, cost };
+            const newData = {
+                facility_type: type,
+                cost,
+                roomid               // ✅ LƯU ROOMID
+            };
 
             if (editingId) {
                 await db.from("facilities")
@@ -212,23 +249,33 @@
         }
 
         async function loadFacilities() {
-            const { data } = await db.from("facilities").select("*").order("facility_id");
+            const { data } = await db
+                .from("facilities")
+                .select("*")
+                .order("facility_id");
 
             const table = document.getElementById("facility-table");
             table.innerHTML = "";
 
             data.forEach(item => {
                 table.innerHTML += `
-                    <tr>
-                        <td>${item.facility_id}</td>
-                        <td>${item.facility_type}</td>
-                        <td>${item.cost.toLocaleString()}</td>
-                        <td>
-                            <button class="btn-edit" onclick='openEditModal(${JSON.stringify(item)})'>Sửa</button>
-                            <button class="btn-delete" onclick="deleteFacility(${item.facility_id})">Xóa</button>
-                        </td>
-                    </tr>
-                `;
+            <tr>
+                <td>${item.facility_id}</td>
+                <td>${item.roomid || "—"}</td> <!-- ✅ ROOM -->
+                <td>${item.facility_type}</td>
+                <td>${item.cost.toLocaleString()}</td>
+                <td>
+                    <button class="btn-edit"
+                        onclick='openEditModal(${JSON.stringify(item)})'>
+                        Sửa
+                    </button>
+                    <button class="btn-delete"
+                        onclick="deleteFacility(${item.facility_id})">
+                        Xóa
+                    </button>
+                </td>
+            </tr>
+        `;
             });
         }
 

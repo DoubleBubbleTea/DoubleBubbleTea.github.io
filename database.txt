@@ -42,6 +42,7 @@ CREATE TABLE seat (
 
 CREATE TABLE facilities (
     facility_id SERIAL PRIMARY KEY,
+    roomid TEXT REFERENCES room(roomid) ON DELETE CASCADE,
     facility_type TEXT NOT NULL,
     cost INT NOT NULL    
 );

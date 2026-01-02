@@ -284,33 +284,9 @@
             }
         }
 
-        // function handlePaymentConfirm() {
-        //     const methodEl = document.querySelector(
-        //         'input[name="paymentMethod"]:checked'
-        //     );
-
-        //     if (!methodEl) {
-        //         return showPopup("Thiếu thông tin", "Vui lòng chọn phương thức thanh toán.");
-        //     }
-
-        //     pendingPayment.paymentmethod = methodEl.value;
-
-        //     // ❌ KHÔNG QR
-        //     // ✅ LUÔN finalize luôn
-        //     finalizeBookingWithPayment();
-        // }
-
         function closeQRModal() {
             document.getElementById("qrModal").style.display = "none";
         }
-
-        // function confirmQRPayment() {
-        //     // Ẩn modal QR thanh toán
-        //     document.getElementById("qrModal").style.display = "none";
-
-        //     // Hiện modal QR check-in
-        //     document.getElementById("checkinQRModal").style.display = "flex";
-        // }
 
         function confirmQRPayment() {
             document.getElementById("qrModal").style.display = "none";
@@ -530,6 +506,7 @@
                 currentUserInfo.id = studentid;
                 currentUserInfo.name = data ? data.fullname : "";
             }
+            await loadFacilities(roomId);
 
             initWeekDates();
             initSlots();
@@ -715,16 +692,6 @@
             }
             mergedIntervals.push(cur);
 
-            // const bookingStartTime = mergedIntervals[0].start;
-
-            // if (!isAllowedBookingDate(bookingStartTime)) {
-            //     showPopup(
-            //         "Không thể đặt phòng",
-            //         "Bạn chỉ được đặt phòng cho <b>hôm nay</b> hoặc <b>ngày mai</b>.<br>" +
-            //         "Không thể đặt trước quá 1 ngày."
-            //     );
-            //     return;
-            // }
             // ❌ CHECK KHÔNG CHO ĐẶT 2 PHÒNG CÙNG GIỜ
             const isDuplicated = await checkDuplicateBookingTime(
                 studentid,
@@ -848,24 +815,6 @@
                 ? selectedFacilities.map(f => `${f.name}`).join(", ")
                 : "Không sử dụng";
 
-            // document.getElementById("paymentDetails").innerHTML = `
-            //     <div class="payment-row"><span>Phòng:</span> <strong>${room.roomid}</strong></div>
-            //     <div class="payment-row"><span>Thời lượng:</span> <strong>${hours.toFixed(1)} giờ</strong></div>
-            //     <div class="payment-row"><span>Mục đích:</span> <strong>${purpose}</strong></div>
-            //     <div class="payment-row"><span>Số người:</span> <strong>${memberCount}</strong></div>
-            //     <div class="payment-row"><span>Tiện ích:</span> <strong>${facText}</strong></div>
-
-            //     <div style="margin-top:10px; font-size:13px; font-style:italic; color:#555;">
-            //         Danh sách thành viên (${memberCount} người): <br>
-            //         ${memberList.map(m => `- ${m.studentid} - ${m.fullname}`).join("<br>")}
-            //     </div>
-
-            //     <hr>
-            //     <div class="payment-row"><span>Phí phòng:</span> <strong>${roomCost.toLocaleString()} đ</strong></div>
-            //     <div class="payment-row"><span>Phí tiện ích:</span> <strong>${facilityCost.toLocaleString()} đ</strong></div>
-            //     <div class="payment-total">Tổng cộng: <strong>${total.toLocaleString()} đ</strong></div>
-            // `;
-
             document.getElementById("paymentDetails").innerHTML = `
                 <div class="payment-row"><span>Phòng:</span> <strong>${room.roomid}</strong></div>
                 <div class="payment-row"><span>Thời lượng:</span> <strong>${hours.toFixed(1)} giờ</strong></div>
@@ -892,9 +841,7 @@
             document.getElementById("paymentModal").style.display = "flex";
         }
 
-        /* ===================================================================
-            FINAL BOOKING (LƯU GIỜ THEO GIỜ VIỆT NAM)
-        =================================================================== */
+        // FINAL BOOKING (LƯU GIỜ THEO GIỜ VIỆT NAM)
         async function finalizeBookingWithPayment() {
 
             const studentid = pendingPayment.studentid;
@@ -997,13 +944,10 @@
             renderCalendar();
         }
 
-        /* ===================================================================
-            INIT PAGE
-        =================================================================== */
+        // INIT PAGE
         window.onload = async () => {
             await loadStudentName();
             await loadRooms();
-            await loadFacilities();
         };
     </script>
     <script src="./student_header.js"></script>

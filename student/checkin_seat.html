@@ -417,7 +417,7 @@
                 .eq("roomid", roomid)
                 .eq("seatid", seatid)
                 .eq("booking_status", "Đang giữ chỗ")
-                .eq("booking_late", "Đúng")
+                // .eq("booking_late", "Đúng")
                 .order("starttime", { ascending: false }) // booking gần nhất
                 .limit(1)
                 .single();
@@ -426,6 +426,17 @@
 
             const now = new Date();
             // const end = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+
+            const checkinOpenTime = new Date(
+                subtractMinutes(data.holdtime, 15).replace(" ", "T")
+            );
+
+            if (now < checkinOpenTime) {
+                return showPopup(
+                    "Chưa đến giờ check-in",
+                    "Bạn chỉ có thể check-in khi hệ thống bắt đầu giữ chỗ."
+                );
+            }
 
             await db.from("booking")
                 .update({
@@ -532,24 +543,61 @@
             roomSelect.innerHTML = data.map(r => `<option>${r.roomid}</option>`).join("");
             loadSeats();
         }
+        function subtractMinutes(datetimeStr, minutes) {
+            const d = new Date(datetimeStr.replace(" ", "T"));
+            d.setMinutes(d.getMinutes() - minutes);
+
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, "0");
+            const dd = String(d.getDate()).padStart(2, "0");
+            const hh = String(d.getHours()).padStart(2, "0");
+            const mi = String(d.getMinutes()).padStart(2, "0");
+            const ss = String(d.getSeconds()).padStart(2, "0");
+
+            return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+        }
+
+        function getNowVnTimestamp() {
+            const d = new Date();
+
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, "0");
+            const dd = String(d.getDate()).padStart(2, "0");
+            const hh = String(d.getHours()).padStart(2, "0");
+            const mi = String(d.getMinutes()).padStart(2, "0");
+            const ss = String(d.getSeconds()).padStart(2, "0");
+
+            return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+        }
 
         async function loadSeats() {
             const roomid = roomSelect.value;
+            const nowVn = getNowVnTimestamp(); // YYYY-MM-DD HH:mm:ss
 
-            const { data, error } = await db
+            const { data } = await db
                 .from("booking")
-                .select("seatid, starttime, endtime")
+                .select("seatid, starttime, endtime, holdtime")
                 .eq("roomid", roomid)
                 .eq("booking_status", "Đang giữ chỗ")
-                .order("starttime", { ascending: true }) // booking gần nhất
-                .limit(1);
+                .order("starttime", { ascending: true });
 
-            if (error) {
-                console.error(error);
+            const now = new Date();
+
+            const availableSeats = data.filter(b => {
+                const checkinOpenTime = new Date(
+                    subtractMinutes(b.holdtime, 15).replace(" ", "T")
+                );
+                return now >= checkinOpenTime;
+            });
+
+            if (availableSeats.length === 0) {
+                seatSelect.innerHTML = `
+    <option value="">Chưa đến thời gian check-in</option>
+  `;
                 return;
             }
 
-            seatSelect.innerHTML = (data || []).map(b => {
+            seatSelect.innerHTML = availableSeats.map(b => {
                 const start = new Date(b.starttime).toLocaleTimeString("vi-VN", {
                     hour: "2-digit",
                     minute: "2-digit"
@@ -560,10 +608,10 @@
                 });
 
                 return `
-      <option value="${b.seatid}">
-        ${b.seatid} (${start} – ${end})
-      </option>
-    `;
+            <option value="${b.seatid}">
+                ${b.seatid} (${start} – ${end})
+            </option>
+        `;
             }).join("");
         }
 
