@@ -396,14 +396,14 @@ function renderCalendar() {
             end.setMinutes(start.getMinutes() + 60);
 
             // KHÔNG CHO ĐẶT T7 & CN
-            // const dayOfWeek = start.getDay(); // 0 = CN, 6 = T7
-            // if (dayOfWeek === 0 || dayOfWeek === 6) {
-            //     div.classList.add("past");        // xám
-            //     div.title = "Không cho phép đặt phòng vào Thứ 7 & Chủ nhật";
-            //     td.appendChild(div);
-            //     tr.appendChild(td);
-            //     continue; // bỏ qua xử lý booking khác
-            // }
+            const dayOfWeek = start.getDay(); // 0 = CN, 6 = T7
+            if (dayOfWeek === 0) {
+                div.classList.add("past");        // xám
+                div.title = "Không cho phép đặt phòng vào Thứ 7 & Chủ nhật";
+                td.appendChild(div);
+                tr.appendChild(td);
+                continue; // bỏ qua xử lý booking khác
+            }
 
             div.dataset.start = toLocalTimestampString(start);
             div.dataset.end = toLocalTimestampString(end);

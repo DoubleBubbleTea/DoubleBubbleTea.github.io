@@ -552,9 +552,9 @@ th {
     padding: 0 14px;
     border-radius: 8px;
     border: 1px solid #d1d5db;
-    background: #ffffff;
+    background: #275167;
     font-size: 14px;
-    color: #374151;
+    color: white;
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -577,7 +577,7 @@ th {
     padding: 0 14px;
     border-radius: 8px;
     border: 1px solid #d1d5db;
-    background: #275167;
+    /* background: #275167; */
     font-size: 14px;
     cursor: pointer;
     transition: background 0.2s, border-color 0.2s;
@@ -585,8 +585,8 @@ th {
 }
 
 .action-bar button:hover {
-    background: #1f4255;
-    border-color: #275167;
+    background: #535455;
+    /* border-color: #275167; */
 }
 
 /* ===== OPTIONAL: ICON CALENDAR GỌN HƠN ===== */

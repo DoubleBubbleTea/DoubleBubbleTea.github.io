@@ -369,7 +369,10 @@
         ${isAvailable
                         ? `<p><strong>Mô tả:</strong> ${room.description || "—"}</p>
                <p><strong>Giá phòng:</strong> ${(room.cost || 0).toLocaleString()} đ/giờ</p>`
-                        : `<p style="color:#ef4444; font-weight:600">
+                        : `
+                        <p><strong>Mô tả:</strong> ${room.description || "—"}</p>
+               <p><strong>Giá phòng:</strong> ${(room.cost || 0).toLocaleString()} đ/giờ</p>
+               <p style="color:#ef4444; font-weight:600">
                  Phòng học hiện không mở cho việc đăng ký.<br> 
                  Vui lòng thử lại sau.
                </p>`

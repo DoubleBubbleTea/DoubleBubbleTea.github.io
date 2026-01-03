@@ -487,10 +487,10 @@
                     <th>Mã đặt</th>
                     <th>MSSV</th>
                     <th>Mã ghế</th>
-                    <th>Trạng thái</th>
                     <th>Ngày đặt</th>
                     <th>Bắt đầu</th>
                     <th>Kết thúc</th>
+                    <th>Trạng thái</th>
                     <th>Hành động</th>
                 </tr>`;
             } else if (type === "G") {
@@ -502,10 +502,10 @@
                     <th>Cơ sở vật chất</th>
                     <th>Số lượng</th>
                     <th>Mục đích</th>
-                    <th>Trạng thái</th>
                     <th>Ngày đặt</th>
                     <th>Bắt đầu</th>
                     <th>Kết thúc</th>
+                    <th>Trạng thái</th>
                     <th>Hành động</th>
                 </tr>`;
             } else {
@@ -518,10 +518,10 @@
                     <th>Cơ sở vật chất</th>
                     <th>Số lượng</th>
                     <th>Mục đích</th>
-                    <th>Trạng thái</th>
                     <th>Ngày đặt</th>
                     <th>Bắt đầu</th>
                     <th>Kết thúc</th>
+                    <th>Trạng thái</th>
                     <th>Hành động</th>
                 </tr>`;
             }
@@ -555,27 +555,15 @@
                 let actionButton = "";
 
                 if (b.booking_status === "Hủy") {
-                    actionButton = `<button class="btn-cancel-booking canceled" disabled>Đã hủy</button>                    
-                    <button class="btn-delete"
-                            onclick="openDeleteModal(${b.bookingid})">
-                        Xóa
-                    </button>`;
+                    actionButton = `<button class="btn-cancel-booking canceled" disabled>Đã hủy</button>`;
                 } else if (!allowCancel) {
                     actionButton = `<button class="btn-cancel-booking disabled" disabled>Không thể hủy</button>                     
-                    <button class="btn-delete"
-                            onclick="openDeleteModal(${b.bookingid})">
-                        Xóa
-                    </button>`;
+                `;
                 } else {
                     actionButton = `
                     <button class="btn-cancel-booking cancel"
                             onclick="openCancelModal(${b.bookingid})">
                         Hủy
-                    </button>
-
-                    <button class="btn-delete"
-                            onclick="openDeleteModal(${b.bookingid})">
-                        Xóa
                     </button>
                 `;
                 }
@@ -588,10 +576,10 @@
                     <td>${b.bookingid}</td>
                     <td>${b.studentid}</td>
                     <td>${b.seatid || "—"}</td>
-                    <td><strong>${b.booking_status}</strong></td>
                     <td>${bookingDate}</td>
                     <td>${startTime}</td>
                     <td>${endTime}</td>
+                    <td><strong>${b.booking_status}</strong></td>
                     <td>${actionButton}</td>
                 </tr>`;
                 }
@@ -606,10 +594,10 @@
                     <td>${b.facilities || "—"}</td>
                     <td>${b.numbermember ?? "—"}</td>
                     <td>${b.purpose || "—"}</td>
-                    <td><strong>${b.booking_status}</strong></td>
                     <td>${bookingDate}</td>
                     <td>${startTime}</td>
                     <td>${endTime}</td>
+                    <td><strong>${b.booking_status}</strong></td>
                     <td>${actionButton}</td>
                 </tr>`;
                 }
@@ -625,10 +613,10 @@
                     <td>${b.facilities || "—"}</td>
                     <td>${b.numbermember ?? "—"}</td>
                     <td>${b.purpose || "—"}</td>
-                    <td><strong>${b.booking_status}</strong></td>
                     <td>${bookingDate}</td>
                     <td>${startTime}</td>
                     <td>${endTime}</td>
+                    <td><strong>${b.booking_status}</strong></td>
                     <td>${actionButton}</td>
                 </tr>`;
                 }
