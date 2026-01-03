@@ -165,7 +165,6 @@
             }
         }
 
-
         function renderGrid() {
             const grid = document.getElementById("roomGrid");
             grid.innerHTML = "";
@@ -196,10 +195,15 @@
                         if (duration <= 0) return;
 
                         const block = document.createElement("div");
-                        block.className = `booking-block ${b.booking_status === "Đang giữ chỗ"
-                                ? "booking-hold"
-                                : "booking-confirmed"
-                            }`;
+                        let statusClass = "booking-confirmed";
+
+                        if (b.booking_status === "Đang giữ chỗ") {
+                            statusClass = "booking-hold";
+                        } else if (b.booking_status === "Đã sử dụng") {
+                            statusClass = "booking-used";
+                        }
+
+                        block.className = `booking-block ${statusClass}`;
 
                         block.style.top =
                             40 + (startH - startHour) * cellHeight + "px";

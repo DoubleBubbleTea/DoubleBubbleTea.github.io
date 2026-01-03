@@ -72,13 +72,22 @@
 }
 
 .booking-confirmed {
-    background: #d64946;
-    color: #fffdfd;
+    background: #fcbcba;
+    color: #374151;
+    font-weight: bold;
 }
 
 .booking-hold {
-    background: #ffcc00;
-    color: #fffdfd;
+    background: #fff7d6;
+    color: #374151;
+    font-weight: bold;
+}
+
+.booking-used {
+    background: #e5e7eb;
+    color: #374151;
+    opacity: 0.9;
+    font-weight: bold;
 }
 
 .time-header {
@@ -101,3 +110,5 @@
     z-index: 10;
        box-sizing: border-box; 
 }
+
+
