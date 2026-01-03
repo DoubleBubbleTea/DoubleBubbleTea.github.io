@@ -11,8 +11,10 @@
     background: #fff;
 
     overflow-x: auto;
-    width: fit-content;      /* ✅ FIX CUỐI CÙNG */
-    max-width: 100%;         /* ✅ KHÔNG VỠ LAYOUT */
+    width: fit-content;
+    /* ✅ FIX CUỐI CÙNG */
+    max-width: 100%;
+    /* ✅ KHÔNG VỠ LAYOUT */
 }
 
 /* CỘT GIỜ */
@@ -36,7 +38,8 @@
     grid-auto-columns: 240px;
 
     min-width: max-content;
-    flex: 0 0 auto;          /* ✅ QUAN TRỌNG */
+    flex: 0 0 auto;
+    /* ✅ QUAN TRỌNG */
 }
 
 .room-column {
@@ -91,10 +94,12 @@
 }
 
 .time-header {
-    height: 40px;            /* BẰNG room-header */
+    height: 40px;
+    /* BẰNG room-header */
     border-bottom: 1px solid #ddd;
     background: #f4f6fa;
 }
+
 .time-slot,
 .room-cell,
 .room-header,
@@ -103,12 +108,21 @@
 }
 
 .room-column {
-    position: relative;   /* để booking absolute theo cột */
+    position: relative;
+    /* để booking absolute theo cột */
 }
 
 .booking-block {
     z-index: 10;
-       box-sizing: border-box; 
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* căn giữa theo chiều dọc */
+    align-items: center;
+    /* căn giữa theo chiều ngang */
+    text-align: center;
+
+    padding: 8px;
+    line-height: 1.4;
 }
-
-

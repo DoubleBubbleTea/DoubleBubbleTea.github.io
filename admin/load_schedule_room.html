@@ -133,20 +133,20 @@
             const { data } = await db
                 .from("booking")
                 .select(`
-        bookingid,
-        roomid,
-        studentid,
-        starttime,
-        endtime,
-        booking_status,
-        student:studentid (
-            fullname
-        )
-    `)
+                        bookingid,
+                        roomid,
+                        studentid,
+                        starttime,
+                        endtime,
+                        booking_status,
+                        purpose,
+                        student:studentid (
+                            fullname
+                        )
+                    `)
                 .gte("starttime", start)
                 .lte("starttime", end)
                 .neq("booking_status", "Hủy");
-
 
             bookings = data || [];
         }
@@ -211,20 +211,35 @@
                             duration * cellHeight - 8 + "px";
 
                         block.innerHTML = `
-                    <b>${b.studentid} - ${b.student?.fullname || ""}</b><br>
-                    ${new Date(b.starttime).toLocaleTimeString("vi-VN", {
-                            hour: "2-digit",
-                            minute: "2-digit"
-                        })}
-                    →
-                    ${new Date(b.endtime).toLocaleTimeString("vi-VN", {
-                            hour: "2-digit",
-                            minute: "2-digit"
-                        })}
-                `;
+                        <div style="font-weight:600;">
+                            ${b.studentid} - ${b.student?.fullname || ""}
+                        </div>
+
+                        <div style="font-size:13px; opacity:0.9;">
+                            ${new Date(b.starttime).toLocaleTimeString("vi-VN", {
+                                                hour: "2-digit",
+                                                minute: "2-digit"
+                                            })}
+                            →
+                            ${new Date(b.endtime).toLocaleTimeString("vi-VN", {
+                                                hour: "2-digit",
+                                                minute: "2-digit"
+                                            })}
+                        </div>
+
+                        ${b.purpose ? `
+                            <div style="
+                                margin-top:4px;
+                                font-size:12px;
+                                font-style:italic;
+                                opacity:0.85;
+                            ">
+                                ${b.purpose}
+                            </div>
+                        ` : ""}
+                    `;
 
                         block.onclick = () => openBookingDetail(b.bookingid);
-
                         col.appendChild(block);
                     });
 
