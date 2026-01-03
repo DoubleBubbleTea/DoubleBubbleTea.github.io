@@ -1,0 +1,331 @@
+.content {
+  flex: 1;
+  padding: 30px 40px;
+  background: #f9fafb;
+  overflow-x: auto;
+}
+
+:root {
+  --trong: #ffffff;
+  --dang-cho: #e53935;
+  --da-dat: #ffcc00;
+  --seat-border: #1a5f7a;
+  --wall-color: #1a5f7a;
+}
+
+.map-container {
+  width: 1300px;
+  height: 920px;
+  position: relative;
+  background: white;
+  border: 6px solid var(--wall-color);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  margin: 0 auto;
+}
+
+.seat {
+  width: 44px;
+  height: 48px;
+  border: 2px solid var(--seat-border);
+  border-radius: 8px 8px 22px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 15px;
+  position: absolute;
+  background: #fff;
+  cursor: pointer;
+  z-index: 10;
+  user-select: none;
+}
+
+.seat.occupied {
+  background: #e53935;
+  color: white;
+}
+
+.seat.upcoming {
+  background: #fbc02d;
+  color: #222;
+}
+
+.seat.holding {
+  background: #fbc02d;
+  color: #111;
+}
+
+.seat.rotate-side {
+  transform: rotate(-90deg);
+}
+
+.seat.rotate-side span {
+  transform: rotate(90deg);
+  display: inline-block;
+}
+
+.solo-desk {
+  width: 52px;
+  height: 30px;
+  background: #1a5f7a;
+  border-radius: 12px;
+  position: absolute;
+  z-index: 2;
+}
+
+.solo-desk-horizontal {
+  width: 30px;
+  height: 48px;
+  background: #1a5f7a;
+  border-radius: 8px;
+  position: absolute;
+  z-index: 2;
+}
+
+.desk-oval {
+  position: absolute;
+  background: #1a5f7a;
+  border-radius: 35px;
+  z-index: 2;
+}
+
+.wall {
+  position: absolute;
+  background: var(--wall-color);
+  z-index: 1;
+}
+
+.label-red {
+  position: absolute;
+  color: red;
+  font-weight: bold;
+  font-size: 18px;
+  z-index: 5;
+}
+
+.manager-box {
+  position: absolute;
+  border: 3px solid var(--wall-color);
+  border-radius: 12px;
+  font-size: 40px;
+  font-weight: bold;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .35);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-box {
+  background: white;
+  padding: 18px;
+  border-radius: 14px;
+  width: 420px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+button {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+/* ================= RESET (BỔ SUNG) ================= */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+/* ================= MODAL (BỔ SUNG) ================= */
+.modal-overlay {
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-box {
+  animation: fadeIn 0.25s ease-out;
+  box-sizing: border-box;
+}
+
+/* ================= SLOT BOOKING CALENDAR ================= */
+.calendar-wrapper {
+  margin-top: 10px;
+  border: 1px solid #000;
+  padding: 10px;
+  background: #f9fafb;
+  overflow-x: auto;
+}
+
+table.calendar {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 700px;
+  font-size: 12px;
+}
+
+table.calendar th,
+table.calendar td {
+  border: 1px solid #d1d5db;
+  text-align: center;
+  padding: 3px;
+}
+
+table.calendar thead th {
+  background: #e5e7eb;
+  font-weight: 600;
+}
+
+.time-col {
+  width: 90px;
+  background: #f3f4f6;
+  font-weight: 600;
+}
+
+/* ================= SLOT STATES ================= */
+.slot {
+  height: 24px;
+  background: #ffffff;
+  cursor: pointer;
+  user-select: none;
+}
+
+.slot.selected {
+  background: #22c55e;
+}
+
+.slot:hover:not(.booked) {
+  outline: 1px solid #16a34a;
+}
+
+/* ĐÃ QUA */
+.slot.past {
+  background: #d1d5db !important;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+
+/* ĐANG SỬ DỤNG */
+.slot.using {
+  background: var(--dang-cho) !important;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+
+/* GIỮ CHỖ */
+.slot.hold {
+  background: var(--da-dat) !important;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+
+/* BOOKED CHUNG */
+.slot.booked {
+  background: #d1d5db;
+  cursor: not-allowed;
+}
+
+/* ================= BUTTONS (BỔ SUNG) ================= */
+.booking-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.btn-outline {
+  padding: 8px 18px;
+  border-radius: 6px;
+  border: 1px solid #111827;
+  background: #fff;
+  cursor: pointer;
+}
+
+.btn-primary {
+  padding: 8px 18px;
+  border-radius: 6px;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+
+/* ================= ANIMATION ================= */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 900px) {
+  .modal-box {
+    width: 100vw;
+  }
+}
+
+/* ================= FIX SLOT MODAL OVERFLOW ================= */
+
+/* Modal chiếm tối đa 90% màn hình */
+#slotBookingModal .modal-box {
+  max-height: 90vh;
+  width: 900px;
+  display: flex;
+  flex-direction: column;
+}
+
+#slotBookingModal .calendar-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 10px;
+}
+
+#slotBookingModal .modal-actions {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #e5e7eb;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+#popupModal {
+  z-index: 1200;
+  /* cao hơn slotBookingModal */
+}
+
+#slotBookingModal {
+  z-index: 1000;
+}
+
+#late-booking-modal {
+  z-index: 1100;
+}

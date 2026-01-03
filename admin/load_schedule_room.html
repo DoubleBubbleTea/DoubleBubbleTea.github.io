@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch đặt phòng nhóm</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- ADMIN STYLE -->
+    <link rel="stylesheet" href="./admin_common.css">
+    <link rel="stylesheet" href="./booking_GR.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div style="margin-top:15px;">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div>Dashboard</div>
+        <div class="header-right">
+
+            <div class="icon notification-icon" onclick="toggleNotification()">
+                <img src="../img/notification_new.png" class="icon-img">
+                <div id="notif-count" class="notif-count" style="display:none;">0</div>
+            </div>
+
+            <div class="icon logout-icon" onclick="openLogoutModal()">
+                <img src="../img/logout_new.png" class="icon-img">
+            </div>
+
+            <div id="header-user">Đang tải...</div>
+
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-title">Thông báo</div>
+                <div id="notif-list" class="notif-list">Không có thông báo!</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="avatar-box">
+                <img src="../img/logo.png">
+                <div class="avatar-name" id="avatar-fullname">—</div>
+            </div>
+
+            <a href="./information_admin.html">Thông tin quản trị viên</a>
+            <a href="./load_student.html">Danh sách sinh viên</a>
+            <a href="./load_history.html">Quản lý lịch sử đặt phòng</a>
+            <a href="./load_notification.html">Quản lý nhắc nhở</a>
+            <a href="./load_news.html">Quản lý bản tin</a>
+            <a href="./load_schedule_room.html" class="active">Lịch biểu đặt phòng</a>
+            <a href="javascript:void(0)" class="sidebar-dropdown-toggle" onclick="toggleSidebarDropdown(this)">
+                Danh sách
+                <i class="fa fa-caret-down dropdown-arrow"></i>
+            </a>
+
+            <div class="sidebar-dropdown">
+                <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
+                <a href="./load_room.html">Danh sách phòng</a>
+                <a href="./load_seat.html">Danh sách chỗ ngồi</a>
+                <a href="./load_feedback.html">Danh sách báo cáo sự cố</a>
+                <a href="./load_violation.html">Danh sách vi phạm</a>
+                <a href="./load_reward.html">Danh sách đổi thưởng</a>
+            </div>
+
+            <a href="./dashboard.html">Báo cáo thống kê</a>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <h2>Lịch đặt phòng nhóm</h2>
+            <div id="roomList"></div>
+        </div>
+    </div>
+
+    <!-- MODAL LỊCH -->
+    <div id="scheduleModal" class="modal-overlay">
+        <div class="modal-box booking-box">
+
+            <div class="booking-title">
+                Lịch đặt phòng: <span id="modalRoomId"></span>
+            </div>
+
+            <div class="booking-top-row">
+                <label>Ngày:</label>
+                <select id="daySelect"></select>
+            </div>
+
+            <div class="calendar-wrapper">
+                <table id="calendarTable" class="calendar"></table>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeScheduleModal()">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./admin_common.js"></script>
+
+    <script>
+        let selectedRoomId = null;
+
+        async function loadRooms() {
+            const container = document.getElementById("roomList");
+            container.innerHTML = "Đang tải danh sách phòng...";
+
+            const { data, error } = await db
+                .from("room")
+                .select("roomid, location, capacity")
+                .like("roomid", "G%")
+                .order("roomid");
+
+            if (error || !data) {
+                container.innerHTML = "Không có dữ liệu phòng.";
+                return;
+            }
+
+            container.innerHTML = "";
+
+            data.forEach(room => {
+                container.innerHTML += `
+                    <div class="room-row">
+                        <div class="room-info">
+                            <h2>${room.roomid}</h2>
+                            <p><strong>Vị trí:</strong> ${room.location || "—"}</p>
+                            <p><strong>Sức chứa:</strong> ${room.capacity}</p>
+                            <button class="room-btn"
+                                onclick="openScheduleModal('${room.roomid}')">
+                                Xem lịch
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        async function openScheduleModal(roomId) {
+            selectedRoomId = roomId;
+            document.getElementById("modalRoomId").innerText = roomId;
+
+            initWeekDates();
+            initSlots();
+            await loadBookingsForRoom(roomId);
+            renderCalendar();
+
+            document.getElementById("scheduleModal").style.display = "flex";
+        }
+
+        function closeScheduleModal() {
+            document.getElementById("scheduleModal").style.display = "none";
+        }
+
+        loadRooms();
+    </script>
+
+</body>
+
+</html>

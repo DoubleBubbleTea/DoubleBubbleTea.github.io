@@ -258,35 +258,6 @@ function formatTime(min) {
     - booked: có booking nhưng ko match 2 case trên -> xám
     - free: chưa book, còn tương lai -> trắng, được chọn
 =================================================================== */
-// function getSlotStatus(slotStart, slotEnd) {
-//     const now = new Date();
-//     console.log("getSlotStatus slotStart: ", slotStart);
-//     console.log("getSlotStatus now: ", now);
-//     console.log("getSlotStatus slotEnd: ", slotEnd);
-
-//     if (slotEnd <= now) {
-//         return "past";
-//     }
-
-//     for (const b of currentBookings) {
-//         console.log("getSlotStatus b.start: ", b.start);
-//         console.log("getSlotStatus b.end: ", b.end);
-//         if (slotStart < b.end && slotEnd > b.start) {
-//             if (b.status === "Đang sử dụng" && now >= b.start && now < b.end) {
-//                 console.log("using");
-//                 return "using";
-//             }
-//             if (b.status === "Đang giữ chỗ" && now < b.start) {
-//                 console.log("hold");
-//                 return "hold";
-//             }
-//             console.log("booked");
-//             return "booked";
-//         }
-//     }
-//     return "free";
-// }
-
 function getSlotStatus(slotStart, slotEnd) {
     const GRACE_MINUTES = 30;
 
