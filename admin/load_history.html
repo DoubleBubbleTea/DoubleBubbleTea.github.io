@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>Booking History</title>
+    <title>Quản lý lịch sử</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="./admin_common.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -122,28 +122,28 @@
                 <div class="avatar-name" id="avatar-fullname">—</div>
             </div>
             <a href="./information_admin.html">Thông tin quản trị viên</a>
-            <a href="./load_student.html">Danh sách sinh viên</a>
-            <a href="./load_history.html" class="active">Quản lý lịch sử đặt phòng</a>
+            <a href="./load_student.html">Quản lý hồ sơ</a>
+            <a href="./load_history.html" class="active">Quản lý lịch sử</a>
+            <a href="./load_schedule_room.html">Lịch biểu đặt phòng</a>
             <a href="./load_notification.html">Quản lý nhắc nhở</a>
             <a href="./load_news.html">Quản lý bản tin</a>
-            <a href="./load_schedule_room.html">Lịch biểu đặt phòng</a>
+            <a href="./load_violation.html">Quản lý vi phạm</a>
             <a href="javascript:void(0)" class="sidebar-dropdown-toggle" onclick="toggleSidebarDropdown(this)">
                 Danh sách
                 <i class="fa fa-caret-down dropdown-arrow"></i>
             </a>
             <div class="sidebar-dropdown">
-                <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
+                <a href="./load_facilities.html">Danh sách thiết bị</a>
                 <a href="./load_room.html">Danh sách phòng</a>
                 <a href="./load_seat.html">Danh sách chỗ ngồi</a>
-                <a href="./load_feedback.html">Danh sách báo cáo sự cố</a>
-                <a href="./load_violation.html">Danh sách vi phạm</a>
+                <a href="./load_feedback.html">Danh sách sự cố</a>
                 <a href="./load_reward.html">Danh sách đổi thưởng</a>
             </div>
             <a href="./dashboard.html">Báo cáo thống kê</a>
         </div>
 
         <div class="content">
-            <h2>Quản lý lịch sử đặt phòng</h2>
+            <h2>Quản lý lịch sử</h2>
             <div class="action-bar" style="margin-bottom:15px; display:flex; gap:12px; align-items:center;">
                 <select id="room-filter" onchange="filterHistory()">
                     <option value="all">Hiển thị tất cả</option>
