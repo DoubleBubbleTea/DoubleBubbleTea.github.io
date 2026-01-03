@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Lịch đặt phòng nhóm</title>
+    <title>Lịch biểu đặt phòng</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- ADMIN STYLE -->
@@ -49,8 +49,6 @@
     </div>
 
     <div class="main">
-
-        <!-- SIDEBAR -->
         <div class="sidebar">
             <div class="avatar-box">
                 <img src="../img/logo.png">
@@ -80,96 +78,159 @@
             <a href="./dashboard.html">Báo cáo thống kê</a>
         </div>
 
-        <!-- CONTENT -->
         <div class="content">
-            <h2>Lịch đặt phòng nhóm</h2>
-            <div id="roomList"></div>
-        </div>
-    </div>
+            <h2>Lịch biểu đặt phòng</h2>
 
-    <!-- MODAL LỊCH -->
-    <div id="scheduleModal" class="modal-overlay">
-        <div class="modal-box booking-box">
-
-            <div class="booking-title">
-                Lịch đặt phòng: <span id="modalRoomId"></span>
+            <!-- DATE PICKER -->
+            <div class="schedule-toolbar">
+                <label>Chọn ngày:</label>
+                <input type="date" id="scheduleDate">
             </div>
 
-            <div class="booking-top-row">
-                <label>Ngày:</label>
-                <select id="daySelect"></select>
-            </div>
-
-            <div class="calendar-wrapper">
-                <table id="calendarTable" class="calendar"></table>
-            </div>
-
-            <div class="modal-buttons">
-                <button class="btn-cancel" onclick="closeScheduleModal()">Đóng</button>
+            <!-- SCHEDULE GRID -->
+            <div class="schedule-wrapper">
+                <div class="time-column" id="timeColumn"></div>
+                <div class="room-grid" id="roomGrid"></div>
             </div>
         </div>
     </div>
 
-    <!-- JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./admin_common.js"></script>
-
     <script>
-        let selectedRoomId = null;
+        const startHour = 8;
+        const endHour = 20;
+        let rooms = [];
+        let bookings = [];
+
+        document.getElementById("scheduleDate").valueAsDate = new Date();
+
+        document.getElementById("scheduleDate").addEventListener("change", loadSchedule);
+
+        async function loadSchedule() {
+            await loadRooms();
+            await loadBookings();
+            renderTimeColumn();
+            renderGrid();
+        }
 
         async function loadRooms() {
-            const container = document.getElementById("roomList");
-            container.innerHTML = "Đang tải danh sách phòng...";
-
-            const { data, error } = await db
+            const { data } = await db
                 .from("room")
-                .select("roomid, location, capacity")
+                .select("roomid")
                 .like("roomid", "G%")
                 .order("roomid");
 
-            if (error || !data) {
-                container.innerHTML = "Không có dữ liệu phòng.";
-                return;
+            rooms = data || [];
+        }
+
+        async function loadBookings() {
+            const date = document.getElementById("scheduleDate").value;
+
+            const start = date + " 00:00";
+            const end = date + " 23:59";
+
+            const { data } = await db
+                .from("booking")
+                .select(`
+        bookingid,
+        roomid,
+        studentid,
+        starttime,
+        endtime,
+        booking_status,
+        student:studentid (
+            fullname
+        )
+    `)
+                .gte("starttime", start)
+                .lte("starttime", end)
+                .neq("booking_status", "Hủy");
+
+
+            bookings = data || [];
+        }
+
+        function renderTimeColumn() {
+            const col = document.getElementById("timeColumn");
+            col.innerHTML = "";
+
+            // ⬅️ HEADER RỖNG ĐỂ CANH HÀNG
+            col.innerHTML += `<div class="time-header"></div>`;
+
+            for (let h = startHour; h < endHour; h++) {
+                col.innerHTML += `
+            <div class="time-slot">${h}:00 - ${h + 1}:00</div>
+        `;
             }
+        }
 
-            container.innerHTML = "";
 
-            data.forEach(room => {
-                container.innerHTML += `
-                    <div class="room-row">
-                        <div class="room-info">
-                            <h2>${room.roomid}</h2>
-                            <p><strong>Vị trí:</strong> ${room.location || "—"}</p>
-                            <p><strong>Sức chứa:</strong> ${room.capacity}</p>
-                            <button class="room-btn"
-                                onclick="openScheduleModal('${room.roomid}')">
-                                Xem lịch
-                            </button>
-                        </div>
-                    </div>
+        function renderGrid() {
+            const grid = document.getElementById("roomGrid");
+            grid.innerHTML = "";
+
+            const cellHeight = 60;   // PHẢI khớp .room-cell height
+
+            rooms.forEach(room => {
+                const col = document.createElement("div");
+                col.className = "room-column";
+
+                col.innerHTML = `<div class="room-header">${room.roomid}</div>`;
+
+                // render các ô rỗng trước
+                for (let h = startHour; h < endHour; h++) {
+                    const cell = document.createElement("div");
+                    cell.className = "room-cell";
+                    col.appendChild(cell);
+                }
+
+                // render booking (CHỈ 1 LẦN)
+                bookings
+                    .filter(b => b.roomid === room.roomid)
+                    .forEach(b => {
+                        const startH = new Date(b.starttime).getHours();
+                        const endH = new Date(b.endtime).getHours();
+
+                        const duration = endH - startH;
+                        if (duration <= 0) return;
+
+                        const block = document.createElement("div");
+                        block.className = `booking-block ${b.booking_status === "Đang giữ chỗ"
+                                ? "booking-hold"
+                                : "booking-confirmed"
+                            }`;
+
+                        block.style.top =
+                            40 + (startH - startHour) * cellHeight + "px";
+                        block.style.height =
+                            duration * cellHeight - 8 + "px";
+
+                        block.innerHTML = `
+                    <b>${b.studentid} - ${b.student?.fullname || ""}</b><br>
+                    ${new Date(b.starttime).toLocaleTimeString("vi-VN", {
+                            hour: "2-digit",
+                            minute: "2-digit"
+                        })}
+                    →
+                    ${new Date(b.endtime).toLocaleTimeString("vi-VN", {
+                            hour: "2-digit",
+                            minute: "2-digit"
+                        })}
                 `;
+
+                        block.onclick = () => openBookingDetail(b.bookingid);
+
+                        col.appendChild(block);
+                    });
+
+                grid.appendChild(col);
             });
         }
 
-        async function openScheduleModal(roomId) {
-            selectedRoomId = roomId;
-            document.getElementById("modalRoomId").innerText = roomId;
+        loadSchedule();
 
-            initWeekDates();
-            initSlots();
-            await loadBookingsForRoom(roomId);
-            renderCalendar();
-
-            document.getElementById("scheduleModal").style.display = "flex";
-        }
-
-        function closeScheduleModal() {
-            document.getElementById("scheduleModal").style.display = "none";
-        }
-
-        loadRooms();
     </script>
-
 </body>
 
 </html>
