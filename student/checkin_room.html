@@ -206,6 +206,27 @@
                 <span class="star" data-value="4">☆</span>
                 <span class="star" data-value="5">☆</span>
             </div>
+            <!-- ✅ CHỌN LOẠI PHẢN HỒI -->
+            <label style="font-weight:600; display:block; margin-bottom:6px;">
+                Loại phản hồi:
+            </label>
+
+            <div style="
+                    margin-bottom:12px;
+                    display:flex;
+                    align-items:center;
+                    gap:24px;
+                ">
+                <label style="font-weight:500; cursor:pointer;">
+                    <input type="radio" name="feedback-type" value="Phản hồi" checked>
+                    Phản hồi
+                </label>
+
+                <label style="font-weight:500; cursor:pointer;">
+                    <input type="radio" name="feedback-type" value="Báo cáo">
+                    Báo cáo sự cố
+                </label>
+            </div>
 
             <label style="font-weight:600; display:block; margin-bottom:6px;">
                 Nhận xét, góp ý:
@@ -381,9 +402,21 @@
 
         function closeFeedbackModal() {
             pendingCheckoutBooking = null;
-            document.getElementById("feedback-modal").style.display = "none";
-            document.getElementById("feedback-text").value = "";
 
+            // reset sao
+            selectedRating = 0;
+            document.querySelectorAll(".star").forEach(s => {
+                s.classList.remove("active");
+                s.textContent = "☆";
+            });
+
+            // reset radio về Phản hồi
+            document.querySelector(
+                'input[name="feedback-type"][value="Phản hồi"]'
+            ).checked = true;
+
+            document.getElementById("feedback-text").value = "";
+            document.getElementById("feedback-modal").style.display = "none";
         }
 
         async function confirmFeedback() {
@@ -398,6 +431,17 @@
             const now = new Date();
             const feedbackText = document.getElementById("feedback-text").value.trim();
 
+            // 🔽 LẤY LOẠI FEEDBACK
+            const feedbackType = document.querySelector(
+                'input[name="feedback-type"]:checked'
+            )?.value || "Phản hồi";
+
+            // 🔽 SET STATUS THEO LOẠI
+            const feedbackStatus =
+                feedbackType === "Báo cáo"
+                    ? "Chưa xử lý"
+                    : "Đã ghi nhận";
+
             const { data: student } = await db
                 .from("student")
                 .select("fullname, trust_score")
@@ -409,8 +453,13 @@
                 studentid,
                 fullname: student?.fullname || "—",
                 roomid: booking.roomid,
+
                 feedback: feedbackText || null,
                 satisfaction: selectedRating,
+
+                feedback_type: feedbackType,
+                feedback_status: feedbackStatus,
+
                 feedbackdate: now.toISOString().split("T")[0]
             });
 
@@ -422,7 +471,12 @@
             pendingCheckoutBooking = null;
             closeFeedbackModal();
 
-            showPopup("Cảm ơn bạn đã đánh giá.", "Bạn được cộng 50 điểm uy tín.");
+            showPopup(
+                "Cảm ơn bạn đã phản hồi!",
+                feedbackType === "Báo cáo"
+                    ? "Báo cáo của bạn đã được ghi nhận và sẽ được xử lý."
+                    : "Bạn được cộng 50 điểm uy tín."
+            );
         }
 
         async function handleCheckoutRoom() {

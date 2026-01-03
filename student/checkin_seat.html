@@ -239,6 +239,23 @@
                 <span class="seat-star" data-value="4">☆</span>
                 <span class="seat-star" data-value="5">☆</span>
             </div>
+            <label style="font-weight:600;">Loại phản hồi:</label>
+            <div style="
+                    margin-bottom:12px;
+                    display:flex;
+                    align-items:center;
+                    gap:24px;
+                ">
+                <label style="font-weight:500; cursor:pointer;">
+                    <input type="radio" name="feedback-type" value="Phản hồi" checked>
+                    Phản hồi
+                </label>
+
+                <label style="font-weight:500; cursor:pointer;">
+                    <input type="radio" name="feedback-type" value="Báo cáo">
+                    Báo cáo sự cố
+                </label>
+            </div>
 
             <!-- ✅ TEXTAREA GÓP Ý -->
             <label style="font-weight:600;">Báo cáo sự cố:</label>
@@ -300,13 +317,26 @@
                 .eq("studentid", studentid)
                 .single();
 
+            // lấy loại feedback được chọn
+            const feedbackType = document.querySelector(
+                'input[name="feedback-type"]:checked'
+            )?.value || "Phản hồi";
+
+            // xác định status theo loại
+            const feedbackStatus =
+                feedbackType === "Báo cáo"
+                    ? "Chưa xử lý"
+                    : "Đã ghi nhận";
+
             // ✅ INSERT FEEDBACK (ĐÃ CÓ feedback TEXT)
             await db.from("feedback").insert({
                 studentid: studentid,
                 fullname: student?.fullname || "—",
                 roomid: booking.roomid,
-                feedback: feedbackText || null,   // 👈 CÓ THỂ RỖNG
+                feedback: feedbackText || null,
                 satisfaction: seatRating,
+                feedback_type: feedbackType,
+                feedback_status: feedbackStatus,
                 feedbackdate: today
             });
 
@@ -333,8 +363,16 @@
         function closeSeatFeedbackModal() {
             pendingSeatCheckoutBooking = null;
             seatRating = 0;
+
+            // reset radio về "Phản hồi"
+            document.querySelector(
+                'input[name="feedback-type"][value="Phản hồi"]'
+            ).checked = true;
+
+            document.getElementById("feedback-text").value = "";
             document.getElementById("feedback-seat-modal").style.display = "none";
         }
+
 
         /* ================= HOLD COUNTDOWN ================= */
         function startHoldCountdown(holdtime) {
@@ -398,7 +436,7 @@
                 .select("holdtime, booking_status")
                 .eq("studentid", studentid)
                 .eq("booking_status", "Đang giữ chỗ")
-                .like("roomid", "I%") 
+                .like("roomid", "I%")
                 .order("holdtime", { ascending: true })
                 .limit(1)
                 .single();

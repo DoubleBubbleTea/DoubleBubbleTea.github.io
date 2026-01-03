@@ -92,7 +92,8 @@ CREATE TABLE feedback (
     roomid TEXT REFERENCES room(roomid),
     feedback TEXT,
     satisfaction float NOT NULL,
-    feedback_status TEXT CHECK (feedback_status IN ('Chưa xử lý', 'Đã xử lý')) DEFAULT 'Chưa xử lý',
+    feedback_type TEXT CHECK (feedback_type IN ('Phản hồi', 'Báo cáo')) DEFAULT 'Phản hồi',
+    feedback_status TEXT CHECK (feedback_status IN ('Đã ghi nhận', 'Chưa xử lý', 'Đã xử lý')) DEFAULT 'Đã ghi nhận',
     feedbackdate date
 );
 

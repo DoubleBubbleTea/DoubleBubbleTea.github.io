@@ -127,6 +127,25 @@
                     <tbody id="feedback-table"></tbody>
                 </table>
             </div>
+
+            <h2 style="margin-top:40px;">Danh sách phản hồi</h2>
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>MSSV</th>
+                            <th>Họ tên</th>
+                            <th>Nội dung phản hồi</th>
+                            <th>Mức độ hài lòng</th>
+                            <th>Ngày gửi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="feedback-only-table"></tbody>
+                </table>
+            </div>
+
         </div>
     </div>
     <!-- EDIT FEEDBACK MODAL -->
@@ -214,37 +233,60 @@
                 return;
             }
 
-            const table = document.getElementById("feedback-table");
-            table.innerHTML = "";
+            const reportTable = document.getElementById("feedback-table");
+            const feedbackTable = document.getElementById("feedback-only-table");
+
+            reportTable.innerHTML = "";
+            feedbackTable.innerHTML = "";
 
             (data || []).forEach(fb => {
-                table.innerHTML += `
-        <tr>
-            <td>${fb.feedbackid}</td>
-            <td>${fb.studentid}</td>
-            <td>${fb.fullname}</td>
-            <td>${fb.feedback || "—"}</td>
-            <td class="rating">${fb.satisfaction}</td>
-            <td>
-                <span style="
-                    font-weight:600;
-                    color:${fb.feedback_status === 'Đã xử lý' ? '#16a34a' : '#dc2626'};
-                ">
-                    ${fb.feedback_status || "Chưa xử lý"}
-                </span>
-            </td>
-            <td>${formatDate(fb.feedbackdate)}</td>
-            <td>
-                <button class="btn-edit"
-                    onclick='openEditFeedbackModal(${JSON.stringify(fb)})'>
-                    Sửa
-                </button>
-            </td>
-        </tr>
-    `;
-            });
 
+                /* ================= BÁO CÁO SỰ CỐ ================= */
+                if (fb.feedback_type === "Báo cáo") {
+                    reportTable.innerHTML += `
+                <tr>
+                    <td>${fb.feedbackid}</td>
+                    <td>${fb.studentid}</td>
+                    <td>${fb.fullname}</td>
+                    <td>${fb.feedback || "—"}</td>
+                    <td class="rating">${fb.satisfaction}</td>
+                    <td>
+                        <span style="
+                            font-weight:600;
+                            color:${fb.feedback_status === 'Đã xử lý'
+                            ? '#16a34a'
+                            : '#dc2626'};
+                        ">
+                            ${fb.feedback_status}
+                        </span>
+                    </td>
+                    <td>${formatDate(fb.feedbackdate)}</td>
+                    <td>
+                        <button class="btn-edit"
+                            onclick='openEditFeedbackModal(${JSON.stringify(fb)})'>
+                            Sửa
+                        </button>
+                    </td>
+                </tr>
+            `;
+                }
+
+                /* ================= PHẢN HỒI ================= */
+                if (fb.feedback_type === "Phản hồi") {
+                    feedbackTable.innerHTML += `
+                <tr>
+                    <td>${fb.feedbackid}</td>
+                    <td>${fb.studentid}</td>
+                    <td>${fb.fullname}</td>
+                    <td>${fb.feedback || "—"}</td>
+                    <td class="rating">${fb.satisfaction}</td>
+                    <td>${formatDate(fb.feedbackdate)}</td>
+                </tr>
+            `;
+                }
+            });
         }
+        
         loadHeader();
         loadFeedback();
     </script>

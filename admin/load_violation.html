@@ -427,10 +427,10 @@
                     if (!student || student.status === "Vô hiệu hóa") continue;
 
                     // 5️⃣ Update status
-                    // await db
-                    //     .from("student")
-                    //     .update({ status: "Vô hiệu hóa" })
-                    //     .eq("studentid", studentid);
+                    await db
+                        .from("student")
+                        .update({ status: "Vô hiệu hóa" })
+                        .eq("studentid", studentid);
 
                     await insertNotification(
                         studentid,
