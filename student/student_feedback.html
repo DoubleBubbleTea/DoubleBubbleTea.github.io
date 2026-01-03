@@ -75,7 +75,6 @@
             justify-content: center;
             margin-top: 20px;
         }
-
     </style>
 </head>
 
@@ -137,6 +136,7 @@
             <a href="./student_feedback.html" class="active">Phản hồi sinh viên</a>
             <a href="./reward.html">Đổi phần thưởng</a>
             <a href="./student_reward.html">Lịch sử đổi thưởng</a>
+            <a href="./student_report.html">Lịch sử báo cáo</a>
             <a href="../index.html">Bản tin</a>
         </div>
 
@@ -214,7 +214,7 @@
                 return;
             }
 
-            const satisfaction = total*100 / (aspects.length * 5);
+            const satisfaction = total * 100 / (aspects.length * 5);
 
             const { data: student } = await db
                 .from("student")

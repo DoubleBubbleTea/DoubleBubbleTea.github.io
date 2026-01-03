@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>Quản lý phản hồi sinh viên</title>
+    <title>Quản lý báo cáo sự cố</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="./admin_common.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -98,7 +98,7 @@
                 <a href="./load_facilities.html">Danh sách cơ sở vật chất</a>
                 <a href="./load_room.html">Danh sách phòng</a>
                 <a href="./load_seat.html">Danh sách chỗ ngồi</a>
-                <a href="./load_feedback.html">Danh sách phản hồi</a>
+                <a href="./load_feedback.html">Danh sách báo cáo sự cố</a>
                 <a href="./load_violation.html">Danh sách vi phạm</a>
                 <a href="./load_reward.html">Danh sách đổi thưởng</a>
             </div>
@@ -107,7 +107,7 @@
 
         <!-- CONTENT -->
         <div class="content">
-            <h2>Phản hồi & mức độ hài lòng của sinh viên</h2>
+            <h2>Danh sách báo cáo sự cố của sinh viên</h2>
 
             <div class="table-scroll">
                 <table>
@@ -116,13 +116,31 @@
                             <th>ID</th>
                             <th>MSSV</th>
                             <th>Họ tên</th>
-                            <th>Nội dung phản hồi</th>
+                            <th>Nội dung báo cáo</th>
                             <th>Mức độ hài lòng</th>
+                            <th>Trạng thái</th>
                             <th>Ngày gửi</th>
+                            <th>Hành động</th>
                         </tr>
                     </thead>
                     <tbody id="feedback-table"></tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+    <!-- EDIT FEEDBACK MODAL -->
+    <div id="feedback-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Sửa trạng thái báo cáo</h3>
+
+            <select id="feedback-status" class="modal-input">
+                <option value="Chưa xử lý">Chưa xử lý</option>
+                <option value="Đã xử lý">Đã xử lý</option>
+            </select>
+
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="saveFeedbackStatus()">Lưu</button>
+                <button class="btn-cancel" onclick="closeFeedbackModal()">Hủy</button>
             </div>
         </div>
     </div>
@@ -132,6 +150,41 @@
     <script src="./admin_common.js"></script>
 
     <script>
+        let editingFeedbackId = null;
+
+        function openEditFeedbackModal(feedback) {
+            editingFeedbackId = feedback.feedbackid;
+            document.getElementById("feedback-status").value =
+                feedback.feedback_status || "Chưa xử lý";
+
+            document.getElementById("feedback-modal").style.display = "flex";
+        }
+
+        function closeFeedbackModal() {
+            editingFeedbackId = null;
+            document.getElementById("feedback-modal").style.display = "none";
+        }
+
+        async function saveFeedbackStatus() {
+            if (!editingFeedbackId) return;
+
+            const status = document.getElementById("feedback-status").value;
+
+            const { error } = await db
+                .from("feedback")
+                .update({ feedback_status: status })
+                .eq("feedbackid", editingFeedbackId);
+
+            if (error) {
+                alert("Cập nhật thất bại!");
+                console.error(error);
+                return;
+            }
+
+            closeFeedbackModal();
+            loadFeedback();
+        }
+
         function formatDate(d) {
             if (!d) return "—";
             return new Date(d).toLocaleDateString("vi-VN");
@@ -165,18 +218,32 @@
 
             (data || []).forEach(fb => {
                 table.innerHTML += `
-          <tr>
+        <tr>
             <td>${fb.feedbackid}</td>
             <td>${fb.studentid}</td>
             <td>${fb.fullname}</td>
             <td>${fb.feedback || "—"}</td>
             <td class="rating">${fb.satisfaction}</td>
+            <td>
+                <span style="
+                    font-weight:600;
+                    color:${fb.feedback_status === 'Đã xử lý' ? '#16a34a' : '#dc2626'};
+                ">
+                    ${fb.feedback_status || "Chưa xử lý"}
+                </span>
+            </td>
             <td>${formatDate(fb.feedbackdate)}</td>
-          </tr>
-        `;
+            <td>
+                <button class="btn-edit"
+                    onclick='openEditFeedbackModal(${JSON.stringify(fb)})'>
+                    Sửa
+                </button>
+            </td>
+        </tr>
+    `;
             });
-        }
 
+        }
         loadHeader();
         loadFeedback();
     </script>

@@ -163,6 +163,7 @@
             <a href="./student_feedback.html">Phản hồi sinh viên</a>
             <a href="./reward.html">Đổi phần thưởng</a>
             <a href="./student_reward.html">Lịch sử đổi thưởng</a>
+            <a href="./student_report.html">Lịch sử báo cáo</a>
             <a href="../index.html">Bản tin</a>
         </div>
 
@@ -240,8 +241,8 @@
             </div>
 
             <!-- ✅ TEXTAREA GÓP Ý -->
-            <label style="font-weight:600;">Nhận xét, góp ý:</label>
-            <textarea id="feedback-text" placeholder="Nhập ý kiến của bạn..." style="
+            <label style="font-weight:600;">Báo cáo sự cố:</label>
+            <textarea id="feedback-text" placeholder="Nội dung..." style="
                 width:100%;
                 min-height:80px;
                 padding:8px;
@@ -397,6 +398,7 @@
                 .select("holdtime, booking_status")
                 .eq("studentid", studentid)
                 .eq("booking_status", "Đang giữ chỗ")
+                .like("roomid", "I%") 
                 .order("holdtime", { ascending: true })
                 .limit(1)
                 .single();
@@ -457,6 +459,19 @@
 
             showPopup("Thành công", "Check-in thành công.");
             loadCheckoutRooms();
+        }
+
+        function openSeatFeedbackModal(booking) {
+            // lưu booking để confirmSeatFeedback() dùng
+            pendingSeatCheckoutBooking = booking;
+
+            // reset UI sao + textarea mỗi lần mở
+            seatRating = 0;
+            document.querySelectorAll(".seat-star").forEach(s => (s.textContent = "☆"));
+            document.getElementById("feedback-text").value = "";
+
+            // hiện modal
+            document.getElementById("feedback-seat-modal").style.display = "flex";
         }
 
         /* ================= CHECKOUT (CẬP NHẬT TÍNH ĐIỂM UY TÍN) ================= */
@@ -548,7 +563,7 @@
             pendingSeatCheckoutBooking = booking;
             seatRating = 0;
 
-            openSeatFeedbackModal(booking); // modal feedback ghế
+            // openSeatFeedbackModal(booking); // modal feedback ghế
         }
 
 

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch sử báo cáo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="./layout.css">
+    <script src="./student_header.js"></script>
+    <script defer src="https://app.fastbots.ai/embed.js" data-bot-id="cmj49xvd200slpa1pjdwephas"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <style>
+        /* GIỮ NGUYÊN STYLE GIỐNG student_reward.html */
+        .content {
+            flex: 1;
+            padding: 40px 80px;
+            box-sizing: border-box;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: #f3f4f6;
+        }
+
+        .status-done {
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            color: #dc2626;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-title">LỊCH SỬ BÁO CÁO</div>
+        <div class="header-right">
+            <div class="icon notification-icon" onclick="toggleNotification()">
+                <img src="../img/notification_new.png" class="icon-img">
+                <div id="notif-count" class="notif-count" style="display:none;">0</div>
+            </div>
+
+            <div class="icon logout-icon" onclick="openLogoutModal()">
+                <img src="../img/logout_new.png" class="icon-img">
+            </div>
+
+            <div id="header-user">Đang tải...</div>
+
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-title">Thông báo</div>
+                <div id="notif-list" class="notif-list">Không có thông báo!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="avatar-box">
+                <img id="student-avatar" src="../img/logo.png">
+                <div class="avatar-name" id="avatar-fullname">—</div>
+            </div>
+
+            <h3>Danh sách</h3>
+            <a href="./information.html">Thông tin cá nhân</a>
+            <a href="#" onclick="checkTrustBeforeBooking()">Đặt phòng</a>
+            <a href="./booking_history.html">Lịch sử đặt phòng</a>
+            <a href="./checkin_room.html">Check-in phòng</a>
+            <a href="./checkin_seat.html">Check-in chỗ ngồi</a>
+            <a href="./student_feedback.html">Phản hồi sinh viên</a>
+            <a href="./reward.html">Đổi phần thưởng</a>
+            <a href="./student_reward.html">Lịch sử đổi thưởng</a>
+            <a href="./student_report.html" class="active">Lịch sử báo cáo</a>
+            <a href="../index.html">Bản tin</a>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <h2>Lịch sử báo cáo của bạn</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Phòng</th>
+                        <th>Nội dung báo cáo</th>
+                        <th>Mức độ hài lòng</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày gửi</th>
+                    </tr>
+                </thead>
+                <tbody id="reportBody">
+                    <tr>
+                        <td colspan="6" style="text-align:center;">Đang tải...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Bạn muốn đăng xuất?</h3>
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="logout()">Đăng xuất</button>
+                <button class="btn-cancel" onclick="closeLogoutModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadReportHistory() {
+            const studentId = localStorage.getItem("studentid");
+            const body = document.getElementById("reportBody");
+
+            if (!studentId) {
+                body.innerHTML = `<tr><td colspan="6">Không tìm thấy studentid</td></tr>`;
+                return;
+            }
+
+            const { data, error } = await db
+                .from("feedback")
+                .select("feedbackid, roomid, feedback, satisfaction, feedback_status, feedbackdate")
+                .eq("studentid", studentId)
+                .order("feedbackdate", { ascending: false });
+
+            if (error || !data || data.length === 0) {
+                body.innerHTML = `<tr><td colspan="6">Chưa có báo cáo nào</td></tr>`;
+                return;
+            }
+
+            body.innerHTML = "";
+
+            data.forEach(fb => {
+                const date = new Date(fb.feedbackdate).toLocaleDateString("vi-VN");
+
+                body.innerHTML += `
+                    <tr>
+                        <td>${fb.feedbackid}</td>
+                        <td>${fb.roomid || "—"}</td>
+                        <td>${fb.feedback || "—"}</td>
+                        <td>${fb.satisfaction}</td>
+                        <td class="${fb.feedback_status === "Đã xử lý" ? "status-done" : "status-pending"}">
+                            ${fb.feedback_status || "Chưa xử lý"}
+                        </td>
+                        <td>${date}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // INIT
+        window.addEventListener("DOMContentLoaded", () => {
+            loadStudentName();
+            loadNotifications();
+            loadReportHistory();
+        });
+    </script>
+
+</body>
+
+</html>
