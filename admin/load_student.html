@@ -11,29 +11,31 @@
         /* --- CHỈNH SỬA TỈ LỆ HIỂN THỊ --- */
         body {
             /* Giảm xuống 80% để đảm bảo vừa hết màn hình laptop mà không bị thanh cuộn ngang */
-            zoom: 80%; 
+            zoom: 80%;
             -moz-transform: scale(0.8);
             -moz-transform-origin: 0 0;
-            background-color: #f4f6fa; /* Màu nền body trùng khớp */
+            background-color: #f4f6fa;
+            /* Màu nền body trùng khớp */
         }
 
         .content {
             flex: 1;
             /* Giảm padding content sát lề hơn */
-            padding: 10px 15px; 
+            padding: 10px 15px;
             background: #f4f6fa;
-            overflow-x: hidden; 
+            overflow-x: hidden;
         }
 
         .content h2 {
-            font-size: 22px; /* Giảm size tiêu đề chút */
+            font-size: 22px;
+            /* Giảm size tiêu đề chút */
             margin-bottom: 15px;
             font-weight: bold;
         }
 
         /* --- CHỈNH SỬA BẢNG (TABLE) CHO GỌN --- */
         .table-scroll {
-            overflow-x: auto; 
+            overflow-x: auto;
             background: white;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
             border-radius: 4px;
@@ -43,18 +45,18 @@
             width: 100%;
             border-collapse: collapse;
             background: white;
-            table-layout: auto; 
+            table-layout: auto;
         }
 
         th,
         td {
             /* Padding cực nhỏ để ép dòng lại gần nhau */
-            padding: 6px 5px; 
+            padding: 6px 5px;
             border-bottom: 1px solid #ddd;
             text-align: left;
             /* Font chữ nhỏ 12.5px để tiết kiệm diện tích ngang */
-            font-size: 12.5px; 
-            white-space: nowrap; 
+            font-size: 12.5px;
+            white-space: nowrap;
         }
 
         /* Chỉnh riêng cột Email và Họ tên nếu cần giới hạn chiều rộng (tùy chọn) */
@@ -66,18 +68,21 @@
 
         /* --- CÁC NÚT BẤM VÀ INPUT (Action Bar) --- */
         /* Giảm chiều cao các nút và ô lọc xuống 30px - 32px cho gọn */
-        
+
         .btn-add {
             padding: 0 12px;
-            height: 32px; /* Chiều cao cố định nhỏ gọn */
-            line-height: 32px; /* Căn giữa chữ */
+            height: 32px;
+            /* Chiều cao cố định nhỏ gọn */
+            line-height: 32px;
+            /* Căn giữa chữ */
             background: #275167;
             color: white;
             border: none;
             border-radius: 6px;
             cursor: pointer;
             font-size: 12px;
-            margin-bottom: 0; /* Xóa margin bottom vì đang dùng flex gap */
+            margin-bottom: 0;
+            /* Xóa margin bottom vì đang dùng flex gap */
         }
 
         /* Modal chung */
@@ -119,25 +124,36 @@
             margin-top: 10px;
         }
 
-        .btn-confirm { background: #dc2626; color: white; }
-        .btn-cancel { background: #6b7280; color: white; margin-left: 10px; }
+        .btn-confirm {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #6b7280;
+            color: white;
+            margin-left: 10px;
+        }
 
         /* ===== FIX ALIGN FILTER BUTTON & INPUT ===== */
         .action-bar {
-            margin-bottom: 10px; /* Giảm khoảng cách tới bảng */
+            margin-bottom: 10px;
+            /* Giảm khoảng cách tới bảng */
         }
 
         .left-actions {
-            display: flex; 
-            align-items: center; 
-            gap: 8px; /* Giảm khoảng cách giữa các ô lọc */
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            /* Giảm khoảng cách giữa các ô lọc */
             flex-wrap: wrap;
         }
 
         .filter-select {
             background: #275167;
             color: #faf9f9;
-            height: 32px; /* Giảm chiều cao */
+            height: 32px;
+            /* Giảm chiều cao */
             padding: 0 8px;
             min-width: 80px;
             border: 1px solid #d1d5db;
@@ -148,13 +164,60 @@
 
         /* Input lọc điểm uy tín */
         .filter-input {
-            height: 32px; /* Giảm chiều cao */
+            height: 32px;
+            /* Giảm chiều cao */
             padding: 0 8px;
-            width: 120px; /* Thu nhỏ width */
+            width: 120px;
+            /* Thu nhỏ width */
             border: 1px solid #d1d5db;
             border-radius: 6px;
             font-size: 12px;
             box-sizing: border-box;
+
+        }
+
+        .filter-select:hover {
+            background: 275167;
+            border-color: #275167;
+            color: white;
+        }
+
+        .filter-select option {
+            background: white;
+            color: #111;
+        }
+
+        .action-bar select,
+        .action-bar input[type="date"] {
+            height: 38px;
+            padding: 0 14px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            background: #275167;
+            font-size: 14px;
+            color: white;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        /* Nút trong bảng */
+        .btn-edit,
+        .btn-delete {
+            padding: 3px 8px;
+            font-size: 11px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .btn-edit {
+            background-color: #275167;
+            margin-right: 4px;
+        }
+
+        .btn-delete {
+            background-color: #dc2626;
         }
 
         /* Nút đặt lại */
@@ -168,22 +231,23 @@
             font-size: 12px;
             cursor: pointer;
         }
-        
-        .filter-select:hover { background: #275167; border-color: #275167;}
-        .filter-select option { background: white; color: #111; }
 
-        /* Nút trong bảng */
-        .btn-edit, .btn-delete {
-            padding: 3px 8px;
-            font-size: 11px;
-            border: none;
-            border-radius: 4px;
+        .action-bar .btn-reset-filter {
+            height: 38px;
+            padding: 0 14px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            background: #6b7280;
+            font-size: 14px;
             cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
             color: white;
         }
-        .btn-edit { background-color: #275167; margin-right: 4px; }
-        .btn-delete { background-color: #dc2626; }
 
+        .action-bar .btn-reset-filter:hover {
+            background: #212327;
+            border-color: #212327;
+        }
     </style>
 </head>
 
@@ -285,7 +349,7 @@
                         <option>Chất lượng cao</option>
                         <option>Liên kết quốc tế</option>
                         <option>Đại trà</option>
-                        </select>
+                    </select>
 
                     <div style="display: flex; align-items: center; gap: 2px;">
                         <select id="trust-select" class="filter-select" onchange="syncTrustInput()">
@@ -360,7 +424,7 @@
                 <option value="Chất lượng cao">Chất lượng cao</option>
                 <option value="Liên kết quốc tế">Liên kết quốc tế</option>
                 <option value="Đại trà">Đại trà</option>
-                </select>
+            </select>
 
             <select id="st-academicyear" class="modal-input">
                 <option value="" disabled>— Niên khóa —</option>
