@@ -670,3 +670,33 @@ function formatDateTime(dt) {
         year: "numeric"
     });
 }
+
+function toggleSidebarDropdown(toggleEl) {
+    const dropdown = toggleEl.nextElementSibling;
+    const isOpen = dropdown.classList.contains("open");
+
+    if (isOpen) {
+        // 🔽 Thu gọn
+        dropdown.classList.remove("open");
+        toggleEl.classList.remove("open");
+        localStorage.setItem("sidebarDanhSachOpen", "false");
+    } else {
+        // 🔼 Xổ xuống
+        dropdown.classList.add("open");
+        toggleEl.classList.add("open");
+        localStorage.setItem("sidebarDanhSachOpen", "true");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const isOpen = localStorage.getItem("sidebarDanhSachOpen");
+    if (isOpen === "true") {
+        const toggleEl = document.querySelector(".sidebar-dropdown-toggle");
+        const dropdown = document.querySelector(".sidebar-dropdown");
+
+        if (toggleEl && dropdown) {
+            toggleEl.classList.add("open");
+            dropdown.classList.add("open");
+        }
+    }
+});
