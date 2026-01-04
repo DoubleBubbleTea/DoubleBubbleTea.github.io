@@ -218,9 +218,10 @@
 
         <!-- CONTENT -->
         <div class="content">
-            <div class="content-title">Lịch sử đổi thưởng</div>
-            <div class="trust-box" id="trustBox">
-                🎯 Điểm uy tín hiện tại: <strong id="trustScore">—</strong>
+            <div class="content-title">Đổi thưởng</div>
+            <div class="score-card">
+                <div class="score-title">💎 Điểm uy tín hiện tại:</div>
+                <div id="trust-score-display" class="score-number">...</div>
             </div>
             <div class="reward-grid" id="rewardGrid">
                 <!-- Reward cards render tại đây -->
@@ -272,21 +273,6 @@
             closeUseRewardModal();
             showPopup("Thành công", "Phần thưởng đã được đánh dấu là đã sử dụng!");
             loadRewardHistory();
-        }
-
-        async function loadTrustScore() {
-            const studentId = localStorage.getItem("studentid");
-            if (!studentId) return;
-
-            const { data, error } = await db
-                .from("student")
-                .select("trust_score")
-                .eq("studentid", studentId)
-                .single();
-
-            if (error || !data) return;
-            console.log("data.trust_score: ", data.trust_score);
-            document.getElementById("trustScore").innerText = data.trust_score;
         }
 
         async function loadRewards() {

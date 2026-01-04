@@ -700,3 +700,24 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 });
+
+/* ================= LOAD TRUST SCORE (MỚI) ================= */
+async function loadTrustScore() {
+    const studentId = localStorage.getItem("studentid");
+    if (!studentId) return;
+
+    const { data, error } = await db
+        .from("student")
+        .select("trust_score")
+        .eq("studentid", studentId)
+        .single();
+
+    const display = document.getElementById("trust-score-display");
+
+    if (!error && data) {
+        // Nếu null thì mặc định là 0
+        display.textContent = data.trust_score !== null ? data.trust_score : 0;
+    } else {
+        display.textContent = "Error";
+    }
+}

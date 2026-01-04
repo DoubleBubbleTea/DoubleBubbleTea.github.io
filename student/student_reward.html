@@ -118,7 +118,10 @@
         <!-- CONTENT -->
         <div class="content">
             <h2>Lịch sử đổi thưởng</h2>
-
+            <div class="score-card">
+                <div class="score-title">💎 Điểm uy tín hiện tại:</div>
+                <div id="trust-score-display" class="score-number">...</div>
+            </div>
             <table>
                 <thead>
                     <tr>
@@ -259,6 +262,7 @@
             loadStudentName();
             loadNotifications();
             loadRewardHistory();
+            loadTrustScore();
         });
     </script>
 

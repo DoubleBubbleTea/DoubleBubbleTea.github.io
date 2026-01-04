@@ -686,3 +686,32 @@ iframe[src*="fastbots.ai"] {
     float: right;
     padding-right: 8px;
 }
+
+        /* --- STYLE CHO ĐIỂM UY TÍN --- */
+        .score-card {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border: 1px solid #bfdbfe;
+            padding: 15px 25px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-title {
+            font-size: 16px;
+            color: #1e40af;
+            font-weight: 600;
+        }
+
+        .score-number {
+            font-size: 24px;
+            font-weight: 800;
+            color: #2563eb;
+            background: #fff;
+            padding: 5px 15px;
+            border-radius: 8px;
+            border: 1px solid #93c5fd;
+        }
