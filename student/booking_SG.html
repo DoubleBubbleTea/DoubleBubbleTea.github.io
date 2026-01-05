@@ -19,7 +19,7 @@
       pointer-events: none !important;
     }
   </style>
-  </head>
+</head>
 
 <body>
   <!-- LATE BOOKING CONFIRM MODAL -->
@@ -82,23 +82,22 @@
       <h3>Danh sách</h3>
       <a href="./information.html">Thông tin cá nhân</a>
       <a href="./pre_booking.html" class="active">Đặt phòng</a>
-            <a href="javascript:void(0)" class="sidebar-dropdown-toggle" onclick="toggleSidebarDropdown(this)">
-                Lịch sử
-                <i class="fa fa-caret-down dropdown-arrow"></i>
-            </a>
+      <a href="javascript:void(0)" class="sidebar-dropdown-toggle" onclick="toggleSidebarDropdown(this)">
+        Lịch sử
+        <i class="fa fa-caret-down dropdown-arrow"></i>
+      </a>
 
-            <div class="sidebar-dropdown">
-                <a href="./booking_history.html">Lịch sử đặt phòng</a>
-                <a href="./student_report.html">Lịch sử báo cáo</a>
-                <a href="./student_reward.html">Lịch sử đổi thưởng</a>
-            </div>
+      <div class="sidebar-dropdown">
+        <a href="./booking_history.html">Lịch sử đặt phòng</a>
+        <a href="./student_report.html">Lịch sử báo cáo</a>
+        <a href="./student_reward.html">Lịch sử đổi thưởng</a>
+      </div>
       <a href="./reward.html">Đổi phần thưởng</a>
       <a href="../index.html">Bản tin</a>
-      <a href="./checkin_room.html">Check-in phòng</a>
-      <a href="./checkin_seat.html">Check-in chỗ ngồi</a>
+      <a href="./checkin_room.html">Check-in phòng nhóm</a>
+      <a href="./checkin_seat.html">Check-in phòng cá nhân</a>
     </div>
 
-    <!-- CONTENT -->
     <div class="content">
 
       <h2 style="text-align:center;margin-bottom:20px;">SƠ ĐỒ PHÒNG</h2>
@@ -111,7 +110,6 @@
         </select>
       </div>
 
-      <!-- ========== SLOT BOOKING MODAL ========== -->
       <div id="slotBookingModal" class="modal-overlay">
         <div class="modal-box">
           <h3>Chọn khung giờ sử dụng</h3>
@@ -127,7 +125,7 @@
         </div>
       </div>
 
-      <div class="map-container" style="position: relative; width: 1320px; height: 900px; transform: scale(0.75); transform-origin: top left; margin: 0 auto;">
+      <div class="map-container" style="position: relative; width: 1320px; height: 900px; transform: scale(0.75); transform-origin: top center; left: 50%; margin-left: -660px;">
         <div class="wall" style="left:330px;top:0;width:6px;height:220px"></div>
         <div class="wall" style="left:330px;top:320px;width:6px;height:574px"></div>
         <div class="wall" style="right:330px;top:0;width:6px;height:220px"></div>
@@ -472,7 +470,7 @@
             );
             return;
           }
-          
+
           const isLateBooking = bookingStartTime < now;
 
           if (isLateBooking) {
@@ -566,7 +564,7 @@
             .select("starttime,endtime,booking_status")
             .eq("seatid", selectedSeatId)
             .neq("booking_status", "Hủy");
-          
+
           if (!data) return;
 
           currentBookings = data.map(b => ({
@@ -614,8 +612,8 @@
         loadRoomDropdown();
 
         window.addEventListener("load", () => {
-             checkUpcomingSeatBookingReminder();
-             setInterval(checkUpcomingSeatBookingReminder, 60 * 1000);
+              checkUpcomingSeatBookingReminder();
+              setInterval(checkUpcomingSeatBookingReminder, 60 * 1000);
         });
 
         setInterval(() => {

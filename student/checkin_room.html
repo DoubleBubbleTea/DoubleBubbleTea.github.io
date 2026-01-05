@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Check-in phòng</title>
+    <title>Check-in phòng nhóm</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -153,14 +153,14 @@
             </div>
             <a href="./reward.html">Đổi phần thưởng</a>
             <a href="../index.html">Bản tin</a>
-            <a href="./checkin_room.html" class="active">Check-in phòng</a>
-            <a href="./checkin_seat.html">Check-in chỗ ngồi</a>
+            <a href="./checkin_room.html" class="active">Check-in phòng nhóm</a>
+            <a href="./checkin_seat.html">Check-in phòng cá nhân</a>
         </div>
 
         <div class="content">
             <div class="checkin-grid">
                 <div class="checkin-box">
-                    <h2>Check-in phòng học</h2>
+                    <h2>Check-in phòng nhóm</h2>
                     <label>Chọn phòng</label>
                     <select id="roomSelect"></select>
                     <label>Chọn Booking ID</label>
@@ -170,12 +170,12 @@
                     </div>
                     <!-- <div class="note">⏰ Cho phép check-in phòng trước <strong>15 phút</strong></div> -->
                     <div class="checkin-actions">
-                        <button class="btn-primary" onclick="handleCheckin()">Check-in phòng</button>
+                        <button class="btn-primary" onclick="handleCheckin()">Check-in phòng nhóm</button>
                     </div>
                 </div>
 
                 <div class="checkin-box checkout-box">
-                    <h2>Checkout phòng học</h2>
+                    <h2>Check-out phòng nhóm</h2>
                     <label>Chọn phòng đang dùng</label>
                     <select id="checkoutRoomSelect"></select>
                     <!-- <div class="note" style="color:#dc2626;">⏹ Trạng thái → <strong>Đã sử dụng</strong></div> -->
@@ -202,7 +202,7 @@
             <h3>Đánh giá sự hài lòng</h3>
 
             <p style="margin-bottom:10px;">
-                Bạn đánh giá trải nghiệm phòng học này thế nào?
+                Bạn đánh giá trải nghiệm phòng nhóm này thế nào?
             </p>
 
             <div id="starRating" style="font-size:28px; text-align:center; margin-bottom:15px;">
