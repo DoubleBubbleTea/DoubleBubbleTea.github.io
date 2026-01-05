@@ -621,7 +621,8 @@ iframe[src*="fastbots.ai"] {
     padding: 8px 14px;
     border-radius: 10px;
 
-    border: 1px solid #275167;   /* 👈 viền màu xanh */
+    border: 1px solid #275167;
+    /* 👈 viền màu xanh */
 
     background-color: #fff;
     color: #275167;
@@ -687,31 +688,73 @@ iframe[src*="fastbots.ai"] {
     padding-right: 8px;
 }
 
-        /* --- STYLE CHO ĐIỂM UY TÍN --- */
-        .score-card {
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            border: 1px solid #bfdbfe;
-            padding: 15px 25px;
-            border-radius: 12px;
-            display: inline-flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
+/* --- STYLE CHO ĐIỂM UY TÍN --- */
+.score-card {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border: 1px solid #bfdbfe;
+    padding: 15px 25px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
 
-        .score-title {
-            font-size: 16px;
-            color: #1e40af;
-            font-weight: 600;
-        }
+.score-title {
+    font-size: 16px;
+    color: #1e40af;
+    font-weight: 600;
+}
 
-        .score-number {
-            font-size: 24px;
-            font-weight: 800;
-            color: #2563eb;
-            background: #fff;
-            padding: 5px 15px;
-            border-radius: 8px;
-            border: 1px solid #93c5fd;
-        }
+.score-number {
+    font-size: 24px;
+    font-weight: 800;
+    color: #2563eb;
+    background: #fff;
+    padding: 5px 15px;
+    border-radius: 8px;
+    border: 1px solid #93c5fd;
+}
+
+.popup-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 12px auto;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: bold;
+}
+
+/* Thành công */
+.popup-icon.success {
+    border: 3px solid #22c55e;
+    color: #22c55e;
+}
+
+/* Lỗi */
+.popup-icon.error {
+    border: 3px solid #ef4444;
+    color: #ef4444;
+}
+
+/* ================= POPUP NHỎ CÓ ICON ================= */
+.modal-box.small-popup {
+    padding-top: 32px;          /* chừa chỗ cho icon */
+}
+
+/* Ép icon luôn hiển thị rõ */
+#popupModal .popup-icon {
+    display: flex;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 14px auto;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: bold;
+}

@@ -147,9 +147,23 @@ function logout() {
 
 loadNotifications();
 
-function showPopup(title, message) {
+function showPopup(title, message, type = "success") {
+    const icon = document.getElementById("popupIcon");
+
     document.getElementById("modal-title").innerText = title;
     document.getElementById("modal-message").innerHTML = message;
+
+    // reset icon
+    icon.className = "popup-icon";
+
+    if (type === "error") {
+        icon.classList.add("error");
+        icon.innerText = "✕";
+    } else {
+        icon.classList.add("success");
+        icon.innerText = "✓";
+    }
+
     document.getElementById("popupModal").style.display = "flex";
 }
 

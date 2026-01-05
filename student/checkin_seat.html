@@ -86,23 +86,6 @@
             z-index: 9000;
         }
 
-        .popup-icon {
-            width: 64px;
-            height: 64px;
-            margin: 0 auto 12px auto;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 36px;
-            font-weight: bold;
-        }
-
-        .popup-icon.success {
-            border: 3px solid #22c55e;
-            /* xanh lá */
-            color: #22c55e;
-        }
     </style>
 </head>
 
@@ -217,9 +200,7 @@
         <div class="modal-box small-popup">
 
             <!-- ICON -->
-            <div class="popup-icon success">
-                ✓
-            </div>
+            <div id="popupIcon" class="popup-icon"></div>
 
             <h3 id="modal-title"></h3>
             <p id="modal-message"></p>
@@ -469,7 +450,7 @@
                 .limit(1)
                 .single();
 
-            if (!data) return showPopup("Lỗi", "Không tìm thấy booking.");
+            if (!data) return showPopup("Lỗi", "Không tìm thấy booking.", "error");
 
             const now = new Date();
             // const end = new Date(now.getTime() + 2 * 60 * 60 * 1000);
@@ -535,7 +516,7 @@
                 .single();
 
             if (!booking) {
-                return showPopup("Lỗi", "Không tìm thấy booking.");
+                return showPopup("Lỗi", "Không tìm thấy booking.", "error");
             }
 
             // 2️⃣ Tính thời gian sử dụng
