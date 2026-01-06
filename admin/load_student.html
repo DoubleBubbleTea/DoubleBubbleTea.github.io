@@ -444,7 +444,7 @@
                 <option value="Vô hiệu hóa">Vô hiệu hóa</option>
             </select>
 
-            <select id="st-trust" class="modal-input">
+            <!-- <select id="st-trust" class="modal-input">
                 <option value="" disabled>— Chọn điểm uy tín —</option>
                 <option value="0">0</option>
                 <option value="100">100</option>
@@ -457,9 +457,10 @@
                 <option value="800">800</option>
                 <option value="900">900</option>
                 <option value="1000">1000</option>
-                <option value="1000">20000</option>
-                <option value="1000">50000</option>
-            </select>
+                <option value="20000">20000</option>
+                <option value="50000">50000</option>
+            </select> -->
+            <input id="st-trust" type="number" class="modal-input" placeholder="Điểm uy tín" min="0" step="1" />
 
             <div class="modal-buttons">
                 <button class="btn-save" style="background: #275167; color: white;" onclick="saveStudent()">Lưu</button>
@@ -499,8 +500,7 @@
             document.getElementById("st-academicyear").value =
                 (student.academic_year || "").trim();
 
-            document.getElementById("st-trust").value =
-                String(student.trust_score ?? 0);
+            document.getElementById("st-trust").value = student.trust_score ?? 0;
 
             document.getElementById("st-status").value = student.status;
 
@@ -552,10 +552,16 @@
             const fullname = document.getElementById("st-name").value.trim();
             const email = document.getElementById("st-email").value.trim();
             const phonenumber = document.getElementById("st-phone").value.trim();
-            const trust_score = document.getElementById("st-trust").value;
+            const trust_score_raw = document.getElementById("st-trust").value;
+            const trust_score = Number(trust_score_raw);
 
-            if (!fullname || !email || !studentid || trust_score === "") {
+            if (!fullname || !email || !studentid || trust_score_raw === "") {
                 showPopup("Lỗi", "Vui lòng nhập đầy đủ các thông tin bắt buộc!");
+                return;
+            }
+
+            if (isNaN(trust_score) || trust_score < 0) {
+                showPopup("Lỗi", "Điểm uy tín phải là số không âm!");
                 return;
             }
 
