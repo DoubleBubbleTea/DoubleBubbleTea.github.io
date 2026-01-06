@@ -190,8 +190,6 @@
 
     <div id="popupModal" class="modal-overlay">
         <div class="modal-box small-popup">
-            <!-- ICON -->
-            <div id="popupIcon" class="popup-icon"></div>
             <h3 id="modal-title"></h3>
             <p id="modal-message"></p>
             <button class="btn-primary" onclick="closeModal()">OK</button>
@@ -348,7 +346,7 @@
             const allowFrom = new Date(start.getTime() - 15 * 60000);
 
             if (now < allowFrom || now > end) {
-                return showPopup("Không thể check-in", "Chưa đến thời gian check-in phòng.", "error");
+                return showPopup("Không thể check-in", "Chưa đến thời gian check-in phòng.");
             }
 
             const maxMembers = booking.numbermember || 0;
@@ -356,7 +354,7 @@
             let count = Number(localStorage.getItem(key) || 0);
 
             if (count >= maxMembers) {
-                return showPopup("Hết lượt check-in", `Số lượng check-in đã đạt tối đa (${maxMembers}).`, "error");
+                return showPopup("Hết lượt check-in", `Số lượng check-in đã đạt tối đa (${maxMembers}).`);
             }
 
             count++;
@@ -432,7 +430,7 @@
             if (!pendingCheckoutBooking) return;
 
             if (selectedRating < 1) {
-                return showPopup("Thiếu đánh giá", "Vui lòng chọn từ 1 đến 5 sao.", "error");
+                return showPopup("Thiếu đánh giá", "Vui lòng chọn từ 1 đến 5 sao.");
             }
 
             const booking = pendingCheckoutBooking;
@@ -493,7 +491,7 @@
             const roomid = document.getElementById("checkoutRoomSelect").value;
 
             if (!studentid || !roomid) {
-                return showPopup("Lỗi", "Thiếu thông tin sinh viên hoặc phòng.", "error");
+                return showPopup("Lỗi", "Thiếu thông tin sinh viên hoặc phòng.");
             }
 
             const { data: booking, error } = await db
@@ -507,7 +505,7 @@
                 .single();
 
             if (error || !booking) {
-                return showPopup("Lỗi", "Không tìm thấy phòng đang sử dụng.", "error");
+                return showPopup("Lỗi", "Không tìm thấy phòng đang sử dụng.");
             }
 
             const now = new Date();

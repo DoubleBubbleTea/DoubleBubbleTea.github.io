@@ -199,9 +199,6 @@
     <div id="popupModal" class="modal-overlay">
         <div class="modal-box small-popup">
 
-            <!-- ICON -->
-            <div id="popupIcon" class="popup-icon"></div>
-
             <h3 id="modal-title"></h3>
             <p id="modal-message"></p>
 
@@ -450,7 +447,7 @@
                 .limit(1)
                 .single();
 
-            if (!data) return showPopup("Lỗi", "Không tìm thấy booking.", "error");
+            if (!data) return showPopup("Lỗi", "Không tìm thấy booking.");
 
             const now = new Date();
             // const end = new Date(now.getTime() + 2 * 60 * 60 * 1000);
@@ -516,7 +513,7 @@
                 .single();
 
             if (!booking) {
-                return showPopup("Lỗi", "Không tìm thấy booking.", "error");
+                return showPopup("Lỗi", "Không tìm thấy booking.");
             }
 
             // 2️⃣ Tính thời gian sử dụng
