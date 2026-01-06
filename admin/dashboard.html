@@ -6,6 +6,8 @@
     <title>Quản lý tiện ích phòng</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="./admin_common.css">
 
     <style>
@@ -246,6 +248,34 @@
             <!-- ===== OVERVIEW ===== -->
             <div class="overview">
                 <div class="overview-title">Over View</div>
+                <div class="schedule-toolbar" style="display:flex; align-items:center; gap:12px;">
+                    <label>Chọn tháng:</label>
+                    <input type="month" id="dashboardMonth" onchange="loadDashboard()">
+
+                    <button onclick="exportDashboardReport()" style="
+                        padding:8px 14px;
+                        border-radius:8px;
+                        border:none;
+                        background:#275167;
+                        color:white;
+                        cursor:pointer;
+                        font-weight:600;
+                    ">
+                        <i class="fa fa-download"></i> Xuất file thống kê báo cáo
+                    </button>
+                    <button onclick="exportDashboardPDF()" style="
+                        padding:8px 14px;
+                        border-radius:8px;
+                        border:none;
+                        background:#dc2626;
+                        color:white;
+                        cursor:pointer;
+                        font-weight:600;
+                    ">
+                        <i class="fa fa-file-pdf-o"></i> Xuất PDF báo cáo
+                    </button>
+                </div> <br>
+
                 <div class="overview-cards">
 
                     <div class="o-card">
@@ -485,15 +515,59 @@
 
             return { labels, counts };
         }
+        function getMonthRange(monthStr) {
+            if (!monthStr) return { start: null, end: null };
+
+            const [year, month] = monthStr.split("-").map(Number);
+
+            // JS month: 0–11
+            const start = new Date(year, month - 1, 1, 0, 0, 0);
+            const end = new Date(year, month, 1, 0, 0, 0); // tháng sau
+
+            return {
+                start: start.toISOString(),
+                end: end.toISOString()
+            };
+        }
 
         // ====== DASHBOARD LOAD ======
         async function loadDashboard() {
-            // 1) OVERVIEW COUNTS
-            const usedBookingCountReq = db
+            const monthVal = document.getElementById("dashboardMonth")?.value;
+
+            // 🔑 TÍNH KHOẢNG THỜI GIAN THÁNG
+            const { start, end } = getMonthRange(monthVal);
+
+            /* ===============================
+               1) OVERVIEW – TỔNG SỐ ĐẶT PHÒNG (THEO THÁNG)
+            =============================== */
+            let usedBookingCountReq = db
                 .from("booking")
                 .select("*", { count: "exact", head: true })
                 .eq("booking_status", "Đã sử dụng");
 
+            if (start && end) {
+                usedBookingCountReq = usedBookingCountReq
+                    .gte("starttime", start)
+                    .lt("starttime", end);
+            }
+
+            /* ===============================
+               2) BOOKINGS DATA – DÙNG CHO TẤT CẢ BIỂU ĐỒ
+            =============================== */
+            let usedBookingsReq = db
+                .from("booking")
+                .select("bookingid, roomid, starttime, endtime, facilities")
+                .eq("booking_status", "Đã sử dụng");
+
+            if (start && end) {
+                usedBookingsReq = usedBookingsReq
+                    .gte("starttime", start)
+                    .lt("starttime", end);
+            }
+
+            /* ===============================
+               3) CÁC SỐ LIỆU KHÁC (KHÔNG PHỤ THUỘC THÁNG)
+            =============================== */
             const groupRoomCountReq = db
                 .from("room")
                 .select("*", { count: "exact", head: true })
@@ -508,88 +582,87 @@
                 .from("seat")
                 .select("*", { count: "exact", head: true });
 
-            // 2) BOOKINGS DATA (for charts)
-            // lấy các field cần thiết thôi
-            const usedBookingsReq = db
-                .from("booking")
-                .select("bookingid, roomid, starttime, endtime, facilities")
-                .eq("booking_status", "Đã sử dụng");
-
-            // 3) FACILITIES LIST
             const facilitiesListReq = db
                 .from("facilities")
                 .select("facility_type")
                 .order("facility_id");
 
+            /* ===============================
+               4) CHẠY SONG SONG QUERY
+            =============================== */
             const [
                 usedBookingCountRes,
+                usedBookingsRes,
                 groupRoomCountRes,
                 indRoomCountRes,
                 seatCountRes,
-                usedBookingsRes,
                 facilitiesListRes
             ] = await Promise.all([
                 usedBookingCountReq,
+                usedBookingsReq,
                 groupRoomCountReq,
                 indRoomCountReq,
                 seatCountReq,
-                usedBookingsReq,
                 facilitiesListReq
             ]);
 
+            /* ===============================
+               5) HIỂN THỊ OVERVIEW
+            =============================== */
             const usedBookingCount = usedBookingCountRes.count ?? 0;
-            const groupRoomCount = groupRoomCountRes.count ?? 0;
-            const indRoomCount = indRoomCountRes.count ?? 0;
-            const seatTotal = seatCountRes.count ?? 0;
-
-            document.getElementById("ov-used-booking").innerText = formatNumber(usedBookingCount);
-            document.getElementById("ov-group-room").innerText = formatNumber(groupRoomCount);
-            document.getElementById("ov-ind-room").innerText = formatNumber(indRoomCount);
-            document.getElementById("ov-seat-total").innerText = formatNumber(seatTotal);
-
             const usedBookings = usedBookingsRes.data ?? [];
 
-            // ===== PIE: group vs seat =====
-            const A = usedBookingCount;
-            const B = usedBookings.filter(b => String(b.roomid || "").startsWith("I")).length;
-            const C = usedBookings.filter(b => String(b.roomid || "").startsWith("G")).length;
+            document.getElementById("ov-used-booking").innerText = formatNumber(usedBookingCount);
+            document.getElementById("ov-group-room").innerText =
+                usedBookings.filter(b => String(b.roomid).startsWith("G")).length;
+            document.getElementById("ov-ind-room").innerText =
+                usedBookings.filter(b => String(b.roomid).startsWith("I")).length;
+            document.getElementById("ov-seat-total").innerText =
+                seatCountRes.count ?? 0;
 
-            const seatRate = A > 0 ? (B / A) : 0;
-            const groupRate = A > 0 ? (C / A) : 0;
+            /* ===============================
+               6) PIE – PHÒNG NHÓM / CHỖ NGỒI (THEO THÁNG)
+            =============================== */
+            const seatBookings = usedBookings.filter(b => String(b.roomid).startsWith("I")).length;
+            const groupBookings = usedBookings.filter(b => String(b.roomid).startsWith("G")).length;
+
+            renderPieChart(seatBookings, groupBookings);
 
             document.getElementById("pie-note").innerText =
-                `A=${A} | Chỗ ngồi (I*)=${B} (${(seatRate * 100).toFixed(1)}%) | Phòng nhóm (G*)=${C} (${(groupRate * 100).toFixed(1)}%)`;
+                `Tháng ${monthVal || "tất cả"} | Chỗ ngồi: ${seatBookings} | Phòng nhóm: ${groupBookings}`;
 
-            renderPieChart(B, C);
-
-            // ===== LINE: peak hours 07-20 =====
-            // const peak = hourSlotsCount(usedBookings);
-            // renderLineChart(peak.labels, peak.data);
-
+            /* ===============================
+               7) LINE – KHUNG GIỜ CAO ĐIỂM (THEO THÁNG)
+            =============================== */
             const hourly = countHourlyUsage(usedBookings);
-
             renderLineChart(hourly.labels, hourly.counts);
 
-            // ===== BAR: facilities usage =====
-            const facilityTypes = (facilitiesListRes.data ?? []).map(x => x.facility_type);
-            const usageMap = new Map();
-            facilityTypes.forEach(t => usageMap.set(t, 0));
+            /* ===============================
+               8) BAR – TIỆN ÍCH (THEO THÁNG)
+            =============================== */
+            const facilityTypes = (facilitiesListRes.data ?? []).map(f => f.facility_type);
+            const usageMap = new Map(facilityTypes.map(f => [f, 0]));
 
             for (const b of usedBookings) {
                 const items = normalizeFacilitiesCell(b.facilities);
                 for (const it of items) {
-                    // chỉ đếm những tiện ích có trong bảng facilities
                     if (usageMap.has(it)) usageMap.set(it, usageMap.get(it) + 1);
                 }
             }
 
-            const barFacLabels = facilityTypes;
-            const barFacData = barFacLabels.map(l => usageMap.get(l) || 0);
-            renderFacilitiesBar(barFacLabels, barFacData);
+            renderFacilitiesBar(facilityTypes, facilityTypes.map(f => usageMap.get(f)));
 
-            // ===== BAR: duration distribution =====
+            /* ===============================
+               9) BAR – THỜI LƯỢNG ĐẶT CHỖ (THEO THÁNG)
+            =============================== */
             const dur = durationBuckets(usedBookings);
             renderDurationBar(dur.labels, dur.data);
+
+            /* ===============================
+               10) TITLE
+            =============================== */
+            document.querySelector(".overview-title").innerText =
+                monthVal ? `Over View – Tháng ${monthVal}` : "Over View";
         }
 
         // ====== RENDER CHARTS ======
@@ -727,8 +800,125 @@
             });
         }
 
+        async function exportDashboardReport() {
+            const monthVal = document.getElementById("dashboardMonth")?.value;
+            const { start, end } = getMonthRange(monthVal);
+
+            // lấy booking đã sử dụng theo tháng
+            let query = db
+                .from("booking")
+                .select("bookingid, roomid, starttime, endtime, facilities")
+                .eq("booking_status", "Đã sử dụng");
+
+            if (start && end) {
+                query = query.gte("starttime", start).lt("starttime", end);
+            }
+
+            const { data: bookings, error } = await query;
+
+            if (error || !bookings || bookings.length === 0) {
+                alert("Không có dữ liệu để xuất!");
+                return;
+            }
+
+            /* ====== TỔNG HỢP DỮ LIỆU ====== */
+            const total = bookings.length;
+            const groupCount = bookings.filter(b => String(b.roomid).startsWith("G")).length;
+            const seatCount = bookings.filter(b => String(b.roomid).startsWith("I")).length;
+
+            const facilityMap = {};
+            bookings.forEach(b => {
+                normalizeFacilitiesCell(b.facilities).forEach(f => {
+                    facilityMap[f] = (facilityMap[f] || 0) + 1;
+                });
+            });
+
+            /* ====== TẠO CSV ====== */
+            let csv = "";
+            csv += `BÁO CÁO THỐNG KÊ ĐẶT PHÒNG THÁNG ${monthVal || "TẤT CẢ"}\n\n`;
+
+            csv += "TỔNG QUAN\n";
+            csv += `Tổng số đặt phòng,${total}\n`;
+            csv += `Phòng nhóm,${groupCount}\n`;
+            csv += `Chỗ ngồi,${seatCount}\n\n`;
+
+            csv += "THỐNG KÊ TIỆN ÍCH\n";
+            csv += "Tiện ích,Số lần sử dụng\n";
+            Object.entries(facilityMap).forEach(([k, v]) => {
+                csv += `${k},${v}\n`;
+            });
+
+            csv += "\nCHI TIẾT BOOKING\n";
+            csv += "BookingID,Phòng,Giờ bắt đầu,Giờ kết thúc,Tiện ích\n";
+            bookings.forEach(b => {
+                csv += `${b.bookingid},${b.roomid},${b.starttime},${b.endtime},"${b.facilities || ""}"\n`;
+            });
+
+            /* ====== DOWNLOAD FILE ====== */
+            const BOM = "\uFEFF"; // 🔑 CỰC KỲ QUAN TRỌNG
+            const blob = new Blob([BOM + csv], {
+                type: "text/csv;charset=utf-8;"
+            });
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `bao_cao_thong_ke_${monthVal || "all"}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        async function exportDashboardPDF() {
+            const toolbar = document.querySelector(".schedule-toolbar");
+
+            // 1️⃣ ẨN toolbar trước khi chụp
+            if (toolbar) toolbar.style.display = "none";
+
+            // đợi DOM cập nhật
+            await new Promise(r => setTimeout(r, 100));
+
+            // 2️⃣ CHỤP dashboard
+            const dashboard = document.querySelector(".content");
+
+            const canvas = await html2canvas(dashboard, {
+                scale: 2,
+                useCORS: true
+            });
+
+            const imgData = canvas.toDataURL("image/png");
+            const { jsPDF } = window.jspdf;
+
+            const pdf = new jsPDF("p", "mm", "a4");
+
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const imgHeight = (canvas.height * pageWidth) / canvas.width;
+
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            // trang đầu
+            pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
+            heightLeft -= pdf.internal.pageSize.getHeight();
+
+            // nếu dài → thêm trang
+            while (heightLeft > 0) {
+                pdf.addPage();
+                position = heightLeft - imgHeight;
+                pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
+                heightLeft -= pdf.internal.pageSize.getHeight();
+            }
+
+            // 3️⃣ LƯU FILE
+            const monthVal = document.getElementById("dashboardMonth")?.value || "Tat_ca";
+            pdf.save(`Bao_cao_thong_ke_${monthVal}.pdf`);
+
+            // 4️⃣ HIỆN LẠI toolbar
+            if (toolbar) toolbar.style.display = "";
+        }
+
         // gọi dashboard sau cùng
         loadDashboard();
     </script>
 </body>
+
 </html>
