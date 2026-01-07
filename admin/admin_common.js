@@ -205,3 +205,21 @@ async function insertNotification(studentId, message, type = "Thông tin") {
         );
     }
 }
+
+// function normalizeString(str) {
+//     return (str || "")
+//         .toLowerCase()
+//         .normalize("NFD")
+//         .replace(/[\u0300-\u036f]/g, "") // bỏ dấu
+//         .trim();
+// }
+
+function normalizeString(str) {
+    return (str || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") // bỏ dấu
+        .replace(/đ/g, "d")              // xử lý đ
+        .replace(/Đ/g, "d")              // xử lý Đ
+        .trim();
+}

@@ -21,6 +21,24 @@
             margin-bottom: 25px;
             font-weight: bold;
         }
+
+        .action-bar .left-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Input lọc thiết bị */
+        .action-bar #facility-filter {
+            width: 200px;
+            height: 36px;
+            padding: 0 12px;
+            font-size: 14px;
+            border-radius: 10px;
+            background-color: white;
+            color: black;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -74,7 +92,7 @@
             <a href="./load_student.html">Quản lý hồ sơ</a>
             <a href="./load_history.html">Quản lý lịch sử</a>
             <a href="./load_schedule_room.html">Lịch biểu đặt phòng</a>
-            <a href="./load_notification.html">Quản lý nhắc nhở</a>
+            <a href="./load_notification.html">Quản lý thông báo</a>
             <a href="./load_news.html">Quản lý bản tin</a>
             <a href="./load_violation.html">Quản lý vi phạm</a>
             <a href="javascript:void(0)" class="sidebar-dropdown-toggle" onclick="toggleSidebarDropdown(this)">
@@ -94,8 +112,14 @@
         <!-- CONTENT -->
         <div class="content">
             <h2>Danh sách thiết bị</h2>
+            <div class="action-bar">
+                <div class="left-actions">
+                    <button class="btn-add" onclick="openAddModal()">+ Thêm thiết bị</button>
+                    <input type="text" id="facility-filter" class="filter-input" placeholder="Tìm theo loại thiết bị"
+                        oninput="applyFacilityFilter()" />
+                </div>
+            </div>
 
-            <button class="btn-add" onclick="openAddModal()">+ Thêm thiết bị</button>
             <div class="table-scroll">
                 <table>
                     <thead>
@@ -150,6 +174,8 @@
     <script>
         let editingId = null;
         let deleteId = null;
+        let facilityData = [];
+
         async function loadRoomOptions(selectedRoomId = null) {
             const select = document.getElementById("facility-room");
             select.innerHTML = `<option value="">-- Chọn phòng nhóm --</option>`;
@@ -249,35 +275,58 @@
             loadFacilities();
         }
 
+        function renderFacilities(data) {
+            const table = document.getElementById("facility-table");
+            table.innerHTML = "";
+
+            data.forEach(item => {
+                table.innerHTML += `
+        <tr>
+            <td>${item.facility_id}</td>
+            <td>${item.roomid || "—"}</td>
+            <td>${item.facility_type}</td>
+            <td>${item.cost.toLocaleString()}</td>
+            <td>
+                <button class="btn-edit"
+                    onclick='openEditModal(${JSON.stringify(item)})'>
+                    Sửa
+                </button>
+                <button class="btn-delete"
+                    onclick="deleteFacility(${item.facility_id})">
+                    Xóa
+                </button>
+            </td>
+        </tr>
+        `;
+            });
+        }
+
         async function loadFacilities() {
             const { data } = await db
                 .from("facilities")
                 .select("*")
                 .order("facility_id");
 
-            const table = document.getElementById("facility-table");
-            table.innerHTML = "";
+            facilityData = data || [];
+            renderFacilities(facilityData);
+        }
 
-            data.forEach(item => {
-                table.innerHTML += `
-            <tr>
-                <td>${item.facility_id}</td>
-                <td>${item.roomid || "—"}</td> <!-- ✅ ROOM -->
-                <td>${item.facility_type}</td>
-                <td>${item.cost.toLocaleString()}</td>
-                <td>
-                    <button class="btn-edit"
-                        onclick='openEditModal(${JSON.stringify(item)})'>
-                        Sửa
-                    </button>
-                    <button class="btn-delete"
-                        onclick="deleteFacility(${item.facility_id})">
-                        Xóa
-                    </button>
-                </td>
-            </tr>
-        `;
+        function applyFacilityFilter() {
+            const filterVal = normalizeString(
+                document.getElementById("facility-filter").value
+            );
+
+            if (!filterVal) {
+                renderFacilities(facilityData);
+                return;
+            }
+
+            const filtered = facilityData.filter(item => {
+                const type = normalizeString(item.facility_type);
+                return type.startsWith(filterVal);
             });
+
+            renderFacilities(filtered);
         }
 
         async function loadHeader() {

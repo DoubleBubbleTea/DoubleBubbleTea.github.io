@@ -92,6 +92,18 @@
             border-radius: 10px;
             border: 1px solid #ccc;
         }
+
+        /* Input lọc thiết bị */
+        .action-bar #news-filter {
+            width: 200px;
+            height: 36px;
+            padding: 0 12px;
+            font-size: 14px;
+            border-radius: 10px;
+            background-color: white;
+            color: black;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -144,7 +156,7 @@
             <a href="./load_student.html">Quản lý hồ sơ</a>
             <a href="./load_history.html">Quản lý lịch sử</a>
             <a href="./load_schedule_room.html">Lịch biểu đặt phòng</a>
-            <a href="./load_notification.html">Quản lý nhắc nhở</a>
+            <a href="./load_notification.html">Quản lý thông báo</a>
             <a href="./load_news.html" class="active">Quản lý bản tin</a>
             <a href="./load_violation.html">Quản lý vi phạm</a>
             <a href="javascript:void(0)" class="sidebar-dropdown-toggle" onclick="toggleSidebarDropdown(this)">
@@ -163,9 +175,16 @@
 
         <!-- CONTENT -->
         <div class="content">
-            <h2>Danh sách bản tin</h2>
+            <h2>Quản lý bản tin</h2>
+            <div class="action-bar">
+                <div class="left-actions">
+                    <button class="btn-add" onclick="openAddModal()">+ Thêm bản tin</button>
 
-            <button class="btn-add" onclick="openAddModal()">+ Thêm bản tin</button>
+                    <input type="text" id="news-filter" class="filter-input" placeholder="Tìm theo tiêu đề"
+                        oninput="applyNewsFilter()" />
+                </div>
+            </div>
+
             <div class="table-scroll">
                 <table>
                     <thead>
@@ -225,6 +244,7 @@
     <script>
         let editingId = null;
         let deleteId = null;
+        let newsData = [];
 
         function openAddModal() {
             editingId = null;
@@ -291,31 +311,54 @@
             loadNews();
         }
 
+        function renderNews(data) {
+            const table = document.getElementById("news-table");
+            table.innerHTML = "";
+
+            data.forEach(n => {
+                table.innerHTML += `
+        <tr>
+            <td>${n.newsid}</td>
+            <td>${n.title}</td>
+            <td>${n.section_order}</td>
+            <td>${n.image_url || "—"}</td>
+            <td>${n.shownews}</td>
+            <td>
+                <button class="btn-edit" onclick='openEditModal(${JSON.stringify(n)})'>Sửa</button>
+                <button class="btn-delete" onclick="deleteNews('${n.newsid}')">Xóa</button>
+            </td>
+        </tr>
+        `;
+            });
+        }
+
+        function applyNewsFilter() {
+            const filterVal = normalizeString(
+                document.getElementById("news-filter").value
+            );
+
+            if (!filterVal) {
+                renderNews(newsData);
+                return;
+            }
+
+            const filtered = newsData.filter(n =>
+                normalizeString(n.title).includes(filterVal)
+            );
+
+            renderNews(filtered);
+        }
+
         async function loadNews() {
             const { data } = await db
                 .from("news")
                 .select("*")
                 .order("section_order");
 
-            const table = document.getElementById("news-table");
-            table.innerHTML = "";
-
-            data.forEach(n => {
-                table.innerHTML += `
-                <tr>
-                    <td>${n.newsid}</td>
-                    <td>${n.title}</td>
-                    <td>${n.section_order}</td>
-                    <td>${n.image_url || "—"}</td>
-                    <td>${n.shownews}</td>
-                    <td>
-                        <button class="btn-edit" onclick='openEditModal(${JSON.stringify(n)})'>Sửa</button>
-                        <button class="btn-delete" onclick="deleteNews('${n.newsid}')">Xóa</button>
-                    </td>
-                </tr>
-            `;
-            });
+            newsData = data || [];
+            renderNews(newsData);
         }
+
 
         async function loadHeader() {
             const adminId = localStorage.getItem("adminid");

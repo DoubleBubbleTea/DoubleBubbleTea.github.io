@@ -248,6 +248,15 @@
             background: #212327;
             border-color: #212327;
         }
+
+        .action-bar #name-filter {
+            width: 120px;
+            height: 38px;
+            border-radius: 10px;
+            background-color: white;
+            color: black;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -307,7 +316,7 @@
             <a href="./load_student.html" class="active">Quản lý hồ sơ</a>
             <a href="./load_history.html">Quản lý lịch sử</a>
             <a href="./load_schedule_room.html">Lịch biểu đặt phòng</a>
-            <a href="./load_notification.html">Quản lý nhắc nhở</a>
+            <a href="./load_notification.html">Quản lý thông báo</a>
             <a href="./load_news.html">Quản lý bản tin</a>
             <a href="./load_violation.html">Quản lý vi phạm</a>
             <a href="javascript:void(0)" class="sidebar-dropdown-toggle" onclick="toggleSidebarDropdown(this)">
@@ -329,6 +338,8 @@
             <div class="action-bar">
                 <div class="left-actions">
                     <button class="btn-add" onclick="openAddModal()">+ Thêm sinh viên</button>
+                    <input type="text" id="name-filter" class="filter-input" placeholder="Tìm theo họ tên"
+                        oninput="applyFilters()" />
 
                     <select id="major-select" class="filter-select" onchange="applyFilters()">
                         <option value="">Lọc theo ngành</option>
@@ -652,6 +663,9 @@
             const year = document.getElementById("year-select").value;
             const edu = document.getElementById("edu-select").value;
             const trustVal = document.getElementById("trust-input").value;
+            const nameFilter = normalizeString(
+                document.getElementById("name-filter")?.value
+            );
 
             let query = db.from("student").select("*");
 
@@ -661,7 +675,18 @@
             if (trustVal !== "") query = query.eq("trust_score", Number(trustVal));
 
             const { data, error } = await query.order("studentid", { ascending: true });
-            if (!error) renderTable(data);
+            if (error || !data) return;
+
+            let filtered = data;
+
+            // 🔍 lọc theo tên (không phân biệt hoa/thường, dấu)
+            if (nameFilter) {
+                filtered = filtered.filter(st =>
+                    // normalizeString(st.fullname).startsWith(nameFilter)
+                    normalizeString(st.fullname).includes(nameFilter)
+                );
+            }
+            renderTable(filtered);
         }
 
         function resetFilters() {
@@ -670,6 +695,7 @@
             document.getElementById("edu-select").value = "";
             document.getElementById("trust-select").value = "";
             document.getElementById("trust-input").value = "";
+            document.getElementById("name-filter").value = "";
             loadStudents();
         }
 

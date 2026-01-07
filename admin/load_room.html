@@ -112,6 +112,18 @@
             color: white;
             margin-left: 10px;
         }
+
+        /* Input lọc thiết bị */
+        .action-bar #room-filter {
+            width: 200px;
+            height: 36px;
+            padding: 0 12px;
+            font-size: 14px;
+            border-radius: 10px;
+            background-color: white;
+            color: black;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -174,7 +186,7 @@
             <a href="./load_student.html">Quản lý hồ sơ</a>
             <a href="./load_history.html">Quản lý lịch sử</a>
             <a href="./load_schedule_room.html">Lịch biểu đặt phòng</a>
-            <a href="./load_notification.html">Quản lý nhắc nhở</a>
+            <a href="./load_notification.html">Quản lý thông báo</a>
             <a href="./load_news.html">Quản lý bản tin</a>
             <a href="./load_violation.html">Quản lý vi phạm</a>
             <a href="javascript:void(0)" class="sidebar-dropdown-toggle" onclick="toggleSidebarDropdown(this)">
@@ -195,7 +207,14 @@
         <div class="content">
             <h2>Danh sách phòng</h2>
 
-            <button class="btn-add" onclick="openAddModal()">+ Thêm phòng</button>
+            <div class="action-bar">
+                <div class="left-actions">
+                    <button class="btn-add" onclick="openAddModal()">+ Thêm phòng</button>
+
+                    <input type="text" id="room-filter" class="filter-input" placeholder="Tìm theo mã phòng"
+                        oninput="applyRoomFilter()" />
+                </div>
+            </div>
             <div class="table-scroll">
                 <table>
                     <thead>
@@ -248,6 +267,7 @@
     <script>
         let editingRoomId = null;
         let deleteRoomId = null;
+        let roomData = [];
 
         function openAddModal() {
             editingRoomId = null;
@@ -323,28 +343,52 @@
             loadRooms();
         }
 
-        async function loadRooms() {
-            const { data } = await db.from("room").select("*").order("roomid");
+        function applyRoomFilter() {
+            const filterVal = normalizeString(
+                document.getElementById("room-filter").value
+            );
+
+            if (!filterVal) {
+                renderRooms(roomData);
+                return;
+            }
+
+            const filtered = roomData.filter(r =>
+                normalizeString(r.roomid).startsWith(filterVal)
+            );
+
+            renderRooms(filtered);
+        }
+
+
+        function renderRooms(data) {
             const table = document.getElementById("room-table");
             table.innerHTML = "";
 
             data.forEach(r => {
                 table.innerHTML += `
-                    <tr>
-                        <td>${r.roomid}</td>
-                        <td>${r.roomtype || "—"}</td>
-                        <td>${r.location || "—"}</td>
-                        <td>${r.capacity ?? "—"}</td>
-                        <td>${r.cost?.toLocaleString() || "—"}</td>
-                        <td>${r.status || "—"}</td>
-                        <td>${r.description || "—"}</td>
-                        <td>
-                            <button class="btn-edit" onclick='openEditModal(${JSON.stringify(r)})'>Sửa</button>
-                            <button class="btn-delete" onclick="openDeleteModal('${r.roomid}')">Xóa</button>
-                        </td>
-                    </tr>
-                `;
+            <tr>
+                <td>${r.roomid}</td>
+                <td>${r.roomtype || "—"}</td>
+                <td>${r.location || "—"}</td>
+                <td>${r.capacity ?? "—"}</td>
+                <td>${r.cost?.toLocaleString() || "—"}</td>
+                <td>${r.status || "—"}</td>
+                <td>${r.description || "—"}</td>
+                <td>
+                    <button class="btn-edit" onclick='openEditModal(${JSON.stringify(r)})'>Sửa</button>
+                    <button class="btn-delete" onclick="openDeleteModal('${r.roomid}')">Xóa</button>
+                </td>
+            </tr>
+        `;
             });
+        }
+
+        async function loadRooms() {
+            const { data } = await db.from("room").select("*").order("roomid");
+
+            roomData = data || [];
+            renderRooms(roomData);
         }
 
         async function loadHeader() {
