@@ -19,7 +19,6 @@ CREATE TABLE admin (
     adminid SERIAL PRIMARY KEY,
     fullname TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    status TEXT CHECK (status IN ('Hoạt động', 'Khóa')),
     password TEXT NOT NULL
 );
 

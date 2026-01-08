@@ -98,10 +98,10 @@
                         <span id="view-email">...</span>
                     </div>
 
-                    <div class="info-item">
+                    <!-- <div class="info-item">
                         <label>Trạng thái:</label>
                         <span id="view-status">...</span>
-                    </div>
+                    </div> -->
 
                     <div style="margin-top: 25px;">
                         <button class="btn-change-pass" onclick="openPasswordModal()">Đổi mật khẩu</button>
@@ -121,10 +121,10 @@
                         <input id="edit-email" class="info-edit">
                     </div>
 
-                    <div class="info-item">
+                    <!-- <div class="info-item">
                         <label>Trạng thái:</label>
                         <input id="edit-status" class="info-edit">
-                    </div>
+                    </div> -->
 
                     <button class="btn-save" onclick="saveAdmin()">Lưu</button>
                     <button class="btn-cancel" onclick="cancelEdit()">Hủy</button>
@@ -284,11 +284,11 @@
 
             document.getElementById("view-fullname").innerText = data.fullname;
             document.getElementById("view-email").innerText = data.email;
-            document.getElementById("view-status").innerText = data.status;
+            // document.getElementById("view-status").innerText = data.status;
 
             document.getElementById("edit-fullname").value = data.fullname;
             document.getElementById("edit-email").value = data.email;
-            document.getElementById("edit-status").value = data.status;
+            // document.getElementById("edit-status").value = data.status;
         }
 
         function enableEdit() {
@@ -307,7 +307,7 @@
             const updated = {
                 fullname: document.getElementById("edit-fullname").value,
                 email: document.getElementById("edit-email").value,
-                status: document.getElementById("edit-status").value
+                // status: document.getElementById("edit-status").value
             };
 
             const { error } = await db.from("admin").update(updated).eq("adminid", adminId);
