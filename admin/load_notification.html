@@ -207,7 +207,7 @@
         <div class="modal-box">
             <h3 id="modal-title">Thêm thông báo</h3>
             <input id="notif-studentid" class="modal-input" placeholder="MSSV sinh viên">
-            <input id="notif-fullname" class="modal-input" placeholder="Họ tên sinh viên">
+            <!-- <input id="notif-fullname" class="modal-input" placeholder="Họ tên sinh viên"> -->
             <select id="notif-scope" class="modal-input">
                 <option value="Sinh viên">Sinh viên</option>
                 <option value="Tất cả">Tất cả</option>
@@ -250,7 +250,7 @@
             document.getElementById("modal-title").innerText = "Thêm thông báo";
 
             document.getElementById("notif-studentid").value = "";
-            document.getElementById("notif-fullname").value = "";
+            // document.getElementById("notif-fullname").value = "";
             document.getElementById("notif-message").value = "";
             document.getElementById("notif-type").value = "Thông tin";
             document.getElementById("notif-scope").value = "Sinh viên";
@@ -262,7 +262,7 @@
             editingId = item.notification_id;
             document.getElementById("modal-title").innerText = "Sửa thông báo";
             document.getElementById("notif-studentid").value = item.studentid ?? "";
-            document.getElementById("notif-fullname").value = item.fullname ?? "";
+            // document.getElementById("notif-fullname").value = item.fullname ?? "";
             document.getElementById("notif-message").value = item.message;
             document.getElementById("notif-type").value = item.type;
             document.getElementById("notif-scope").value = item.scope;
@@ -277,7 +277,6 @@
         async function saveNotification() {
             const scope = document.getElementById("notif-scope").value;
             const studentidRaw = document.getElementById("notif-studentid").value;
-            const fullnameRaw = document.getElementById("notif-fullname").value;
             const msg = document.getElementById("notif-message").value.trim();
             const type = document.getElementById("notif-type").value;
 
@@ -293,33 +292,26 @@
             };
 
             if (scope === "Sinh viên") {
-                if (!studentidRaw || !fullnameRaw) {
-                    alert("Thông báo sinh viên cần MSSV và Họ tên!");
+                if (!studentidRaw) {
+                    alert("Thông báo sinh viên cần MSSV!");
                     return;
                 }
                 newData.studentid = Number(studentidRaw);
-                newData.fullname = fullnameRaw.trim();
             } else {
-                // TẤT CẢ
                 newData.studentid = null;
-                newData.fullname = "Hệ thống";
             }
 
             if (editingId) {
-                await db
-                    .from("notification")
+                await db.from("notification")
                     .update(newData)
                     .eq("notification_id", editingId);
             } else {
-                await db
-                    .from("notification")
-                    .insert(newData);
+                await db.from("notification").insert(newData);
             }
 
             closeModal();
             loadNotifications();
         }
-
 
         /* OPEN DELETE MODAL */
         function openDeleteModal(id) {
@@ -346,11 +338,25 @@
         }
 
         async function loadNotifications() {
-            const { data } = await db
+            const { data, error } = await db
                 .from("notification")
-                .select("notification_id, studentid, fullname, scope, message, type, notidate")
+                .select(`
+            notification_id,
+            studentid,
+            message,
+            type,
+            scope,
+            notidate,
+            student (
+                fullname
+            )
+        `)
                 .order("notification_id", { ascending: false });
 
+            if (error) {
+                console.error(error);
+                return;
+            }
 
             const table = document.getElementById("notif-table");
             table.innerHTML = "";
@@ -360,7 +366,7 @@
 <tr>
     <td>${n.notification_id}</td>
     <td>${n.studentid ?? "—"}</td>
-    <td>${n.fullname}</td>
+    <td>${n.student ? n.student.fullname : "Hệ thống"}</td>
     <td>
         <span style="
             padding:2px 8px;

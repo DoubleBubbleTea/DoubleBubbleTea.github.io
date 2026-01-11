@@ -458,7 +458,7 @@
             // ✅ INSERT FEEDBACK
             await db.from("feedback").insert({
                 studentid,
-                fullname: student?.fullname || "—",
+                // fullname: student?.fullname || "—",
                 roomid: booking.roomid,
 
                 feedback: feedbackText || null,

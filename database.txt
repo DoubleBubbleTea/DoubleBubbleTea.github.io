@@ -68,7 +68,6 @@ CREATE TABLE payment (
     paymentid BIGSERIAL PRIMARY KEY,
     bookingid BIGINT REFERENCES booking(bookingid) ON DELETE CASCADE,
     studentid INT REFERENCES student(studentid),
-    studentname TEXT,
     cost INT,
     paymentmethod TEXT CHECK (paymentmethod IN ('Tiền mặt', 'Momo', 'Ngân hàng')),
     paymenttime TIMESTAMP DEFAULT NOW()
@@ -77,7 +76,6 @@ CREATE TABLE payment (
 CREATE TABLE notification (
     notification_id BIGSERIAL PRIMARY KEY,
     studentid INT NOT NULL REFERENCES student(studentid) ON DELETE CASCADE,
-    fullname TEXT NOT NULL,
     message TEXT NOT NULL,
     type TEXT CHECK (type IN ('Xác nhận','Cảnh báo','Nhắc nhở','Thông tin')) DEFAULT 'Thông tin',
     scope TEXT CHECK (scope IN ('Tất cả', 'Sinh viên')) DEFAULT 'Sinh viên',
@@ -87,7 +85,6 @@ CREATE TABLE notification (
 CREATE TABLE feedback (
     feedbackid BIGSERIAL PRIMARY KEY,
     studentid INT NOT NULL REFERENCES student(studentid) ON DELETE CASCADE,
-    fullname TEXT NOT NULL,
     roomid TEXT REFERENCES room(roomid),
     feedback TEXT,
     satisfaction float NOT NULL,
@@ -99,7 +96,6 @@ CREATE TABLE feedback (
 CREATE TABLE violation (
     violationid BIGSERIAL PRIMARY KEY,
     studentid INT NOT NULL REFERENCES student(studentid) ON DELETE CASCADE,
-    fullname TEXT NOT NULL,
     description TEXT NOT NULL,
     violationdate date
 );
@@ -132,8 +128,7 @@ CREATE TABLE reward_redemption (
 );
 
 CREATE TABLE booking_members (
-    id BIGSERIAL PRIMARY KEY,
+    booking_member_id BIGSERIAL PRIMARY KEY,
     bookingid BIGINT REFERENCES booking(bookingid) ON DELETE CASCADE,
-    studentid INT NOT NULL,
-    fullname TEXT NOT NULL
+    studentid INT NOT NULL REFERENCES student(studentid)
 );

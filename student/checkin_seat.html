@@ -316,7 +316,7 @@
             // ✅ INSERT FEEDBACK (ĐÃ CÓ feedback TEXT)
             await db.from("feedback").insert({
                 studentid: studentid,
-                fullname: student?.fullname || "—",
+                // fullname: student?.fullname || "—",
                 roomid: booking.roomid,
                 feedback: feedbackText || null,
                 satisfaction: seatRating,

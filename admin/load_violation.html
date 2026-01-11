@@ -289,17 +289,21 @@
             editingViolationId = v.violationid;
 
             document.getElementById("v-studentid").value = v.studentid;
-            document.getElementById("v-fullname").value = v.fullname;
+            document.getElementById("v-fullname").value =
+                v.student ? v.student.fullname : "";
             document.getElementById("v-desc").value = v.description;
             document.getElementById("v-date").value = v.violationdate;
 
             document.getElementById("violation-modal").style.display = "flex";
         }
-
         function openViolationModal() {
             editingViolationId = null;
             document.getElementById("v-desc").value = "";
             document.getElementById("v-date").value = "";
+
+            // reset fullname theo student đang chọn
+            fillStudentName();
+
             document.getElementById("violation-modal").style.display = "flex";
         }
 
@@ -331,7 +335,7 @@
         async function saveViolation() {
             const row = {
                 studentid: document.getElementById("v-studentid").value,
-                fullname: document.getElementById("v-fullname").value,
+                // fullname: document.getElementById("v-fullname").value,
                 description: document.getElementById("v-desc").value,
                 violationdate: document.getElementById("v-date").value,
             };
@@ -363,8 +367,17 @@
         async function loadViolations() {
             const { data } = await db
                 .from("violation")
-                .select("*")
+                .select(`
+                    violationid,
+                    studentid,
+                    description,
+                    violationdate,
+                    student (
+                        fullname
+                    )
+                `)
                 .order("violationid", { ascending: false });
+
 
             const table = document.getElementById("violation-table");
             table.innerHTML = "";
@@ -374,7 +387,7 @@
             <tr>
                 <td>${v.violationid}</td>
                 <td>${v.studentid}</td>
-                <td>${v.fullname}</td>
+                <td>${v.student ? v.student.fullname : "—"}</td>
                 <td>${v.description}</td>
                 <td>${v.violationdate || "—"}</td>
                 <td>

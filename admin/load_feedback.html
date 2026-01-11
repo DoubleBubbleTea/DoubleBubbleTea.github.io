@@ -225,7 +225,19 @@
         async function loadFeedback() {
             const { data, error } = await db
                 .from("feedback")
-                .select("*")
+                .select(`
+                    feedbackid,
+                    studentid,
+                    roomid,
+                    feedback,
+                    satisfaction,
+                    feedback_type,
+                    feedback_status,
+                    feedbackdate,
+                    student (
+                        fullname
+                    )
+                `)
                 .order("feedbackid", { ascending: false });
 
             if (error) {
@@ -247,7 +259,7 @@
                 <tr>
                     <td>${fb.feedbackid}</td>
                     <td>${fb.studentid}</td>
-                    <td>${fb.fullname}</td>
+                    <td>${fb.student ? fb.student.fullname : "—"}</td>
                     <td>${fb.feedback || "—"}</td>
                     <td class="rating">${fb.satisfaction}</td>
                     <td>
@@ -277,7 +289,7 @@
                 <tr>
                     <td>${fb.feedbackid}</td>
                     <td>${fb.studentid}</td>
-                    <td>${fb.fullname}</td>
+                    <td>${fb.student ? fb.student.fullname : "—"}</td>
                     <td>${fb.feedback || "—"}</td>
                     <td class="rating">${fb.satisfaction}</td>
                     <td>${formatDate(fb.feedbackdate)}</td>
@@ -286,7 +298,7 @@
                 }
             });
         }
-        
+
         loadHeader();
         loadFeedback();
     </script>

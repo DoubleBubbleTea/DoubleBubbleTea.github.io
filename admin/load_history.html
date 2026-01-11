@@ -365,9 +365,15 @@
             // Ở ĐÂY: Bạn cần query bảng chứa thông tin người đi cùng.
             // Giả sử bạn có bảng 'booking_details' hoặc cột JSON trong 'booking'
             const { data, error } = await db
-                .from("booking_members") // Tên bảng bạn lưu danh sách SV đi cùng
-                .select("*")
+                .from("booking_members")
+                .select(`
+                    studentid,
+                    student (
+                    fullname
+                    )
+                `)
                 .eq("bookingid", bookingId);
+
 
             if (error || !data || data.length === 0) {
                 listBody.innerHTML = "<tr><td colspan='4' style='text-align:center'>Không có sinh viên đi cùng hoặc chưa cập nhật dữ liệu.</td></tr>";
@@ -379,7 +385,7 @@
                 listBody.innerHTML += `
               <tr>
                 <td>${sv.studentid}</td>
-                <td>${sv.fullname || "Đang cập nhật"}</td>
+                <td>${sv.student ? sv.student.fullname : "—"}</td>
                 <td>${formatDate(sv.checkin_time)}</td>
                 <td>${formatDate(sv.checkout_time)}</td>
               </tr>
@@ -426,7 +432,7 @@
             document.getElementById("date-filter").value = "";
             filterHistory();
         }
-        
+
         async function loadHistory() {
             const { data, error } = await db.from("booking").select("*").order("bookingid", { ascending: false });
             if (error) { console.error(error); return; }

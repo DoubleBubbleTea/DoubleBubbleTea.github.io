@@ -518,7 +518,7 @@ async function insertNotification(studentId, message, type = "Thông tin") {
         .from("notification")
         .insert({
             studentid: studentId,
-            fullname: student.fullname,
+            // fullname: student.fullname,
             message: message,
             type: type
             // notidate để DEFAULT / CURRENT_DATE

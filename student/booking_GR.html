@@ -840,7 +840,7 @@
 
             pendingPayment = {
                 studentid,
-                studentname: "",
+                // studentname: "",
                 totalCost: total,
                 paymentmethod: "Tiền mặt", // default
                 purpose: purpose,
@@ -848,7 +848,40 @@
                 memberList: memberList
             };
 
+            // 0️⃣ CHECK THÀNH VIÊN TỒN TẠI
+            const check = await validateMembersExist(pendingPayment.memberList);
+            if (!check.ok) {
+                return showPopup("Lỗi", check.message);
+            }
+
             document.getElementById("paymentModal").style.display = "flex";
+        }
+
+        async function validateMembersExist(memberList) {
+            const ids = memberList.map(m => Number(m.studentid));
+
+            const { data, error } = await db
+                .from("student")
+                .select("studentid")
+                .in("studentid", ids);
+
+            if (error) {
+                console.error(error);
+                return { ok: false, message: "Lỗi kiểm tra sinh viên." };
+            }
+
+            const existingIds = data.map(s => s.studentid);
+
+            const missing = ids.filter(id => !existingIds.includes(id));
+
+            if (missing.length > 0) {
+                return {
+                    ok: false,
+                    message: `MSSV không tồn tại trong hệ thống: ${missing.join(", ")}`
+                };
+            }
+
+            return { ok: true };
         }
 
         // FINAL BOOKING (LƯU GIỜ THEO GIỜ VIỆT NAM)
@@ -897,7 +930,7 @@
             const paymentRow = {
                 bookingid,
                 studentid,
-                studentname: studentname,
+                // studentname: studentname,
                 cost: pendingPayment.totalCost,
                 paymentmethod: pendingPayment.paymentmethod
             };
@@ -912,8 +945,8 @@
             // Chuẩn bị dữ liệu insert
             const memberRows = pendingPayment.memberList.map(mem => ({
                 bookingid: bookingid,
-                studentid: mem.studentid,
-                fullname: mem.fullname
+                studentid: mem.studentid
+                // fullname: mem.fullname
             }));
 
             // Insert vào bảng 'booking_members'
