@@ -59,6 +59,7 @@ CREATE TABLE booking (
     booking_status TEXT CHECK (booking_status IN ('Đang giữ chỗ', 'Đang sử dụng', 'Đã sử dụng', 'Hủy')),
     booking_late TEXT CHECK (booking_late IN ('Đúng', 'Sai')) DEFAULT 'Sai',
     reminder BOOLEAN DEFAULT FALSE,
+    checkin_time TIMESTAMP,    
     checkout_time TIMESTAMP,    
     starttime TIMESTAMP,
     endtime TIMESTAMP

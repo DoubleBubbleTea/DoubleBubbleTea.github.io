@@ -466,7 +466,8 @@
             await db.from("booking")
                 .update({
                     booking_status: "Đang sử dụng",
-                    starttime: toLocalTimestampString(now)
+                    starttime: toLocalTimestampString(now),
+                    checkin_time: toLocalTimestampString(now)
                     // endtime: toLocalTimestampString(end)
                 })
                 .eq("bookingid", data.bookingid);
