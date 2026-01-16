@@ -188,7 +188,6 @@
         </div>
 
         <div class="header-right" id="header-right">
-            <!-- JS sẽ render nội dung ở đây -->
         </div>
     </div>
 
@@ -257,18 +256,30 @@
                 ? `./img/${item.image_url}`
                 : "./img/news_default.jpg";
 
-            // format ngày đăng
             let postDate = "—";
             if (item.date_post) {
                 const d = new Date(item.date_post);
                 postDate = d.toLocaleDateString("vi-VN");
             }
 
+            // 👉 summary có thể click & tải file
+            let summaryHtml = item.summary || "";
+
+            if (item.section_order === 1) {
+                summaryHtml = `
+            <a href="./QUY_DINH_SU_DUNG_PHONG_TU_HOC.docx"
+               download
+               style="color:#275167; font-weight:600; text-decoration:underline; cursor:pointer;">
+               ${item.summary}
+            </a>
+        `;
+            }
+
             return `
         <img src="${img}">
         <div class="news-body">
             <h3>${item.title}</h3>
-            <p>${item.summary || ""}</p><br>
+            <p>${summaryHtml}</p><br>
             <p class="news-date">📅 Ngày đăng: ${postDate}</p>
         </div>
     `;
@@ -303,10 +314,10 @@
             const studentId = localStorage.getItem("studentid");
 
             if (studentId) {
-                // ✅ Đã đăng nhập
+                // Đã đăng nhập
                 window.location.href = "./student/information.html";
             } else {
-                // ❌ Chưa đăng nhập
+                // Chưa đăng nhập
                 window.location.href = "./login.html";
             }
         }

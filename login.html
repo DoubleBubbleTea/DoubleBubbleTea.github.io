@@ -44,19 +44,6 @@
     </ul>
   </div>
 
-  <!-- HEADER -->
-  <!-- <header class="ussh-header">
-    <div class="header-content">
-      <div class="header-left">
-        <img src="./img/VNUHCM_logo.svg.png" class="logo-vnu" alt="VNUHCM">
-        <img src="./img/logo.png" class="logo-ussh" alt="USSH">
-      </div>
-
-      <div class="header-text">
-      </div>
-    </div>
-  </header> -->
-
   <!-- MAIN CONTENT -->
   <div class="content fade-in-up">
 
@@ -122,7 +109,7 @@
 
   <!-- FOOTER -->
   <div class="footer fade-in">
-    © 2025
+    © 2026
   </div>
 
   <!-- ===== TERMS MODAL ===== -->
@@ -208,7 +195,7 @@
         return;
       }
 
-      // ✅ LOGIN THÀNH CÔNG
+      // LOGIN THÀNH CÔNG
       saveStudentId(pendingLogin.studentid);
 
       closeTermsModal();
@@ -243,7 +230,7 @@
       localStorage.setItem("adminid", id);
     }
 
-    // 🔵 LOGIN (STUDENT + ADMIN)
+    // LOGIN (STUDENT + ADMIN)
     async function login() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
@@ -305,25 +292,14 @@
         return;
       }
 
-      // ✅ LƯU TẠM LOGIN
+      // LƯU TẠM LOGIN
       pendingLogin = data[0];
 
-      // 👉 MỞ MODAL ĐIỀU KHOẢN
+      // MỞ MODAL ĐIỀU KHOẢN
       openTermsModal();
-
-      // showPopup(
-      //   "success",
-      //   "Chào mừng bạn trở lại!",
-      //   "Đang tải..."
-      // );
-      // saveStudentId(data[0].studentid);
-
-      // setTimeout(() => {
-      //   window.location.href = "./student/information.html";
-      // }, 1500);
     }
 
-    // 🔵 REGISTER (MATCH DB MỚI)
+    // REGISTER (MATCH DB MỚI)
     async function register() {
       const studentid = parseInt(document.getElementById("r_student_id").value);
       const fullname = document.getElementById("r_name").value;
@@ -387,7 +363,7 @@
 
     /* =========================
    FORGOT PASSWORD LOGIC
-========================= */
+    ========================= */
 
     function openForgotModal() {
       document.getElementById("forgotModal").style.display = "flex";
@@ -443,7 +419,7 @@
       }
 
       /* =========================
-         1️⃣ CHECK ADMIN TRƯỚC
+         CHECK ADMIN TRƯỚC
       ========================= */
       const { data: adminData } = await db
         .from("admin")
@@ -468,7 +444,7 @@
       }
 
       /* =========================
-         2️⃣ CHECK STUDENT
+         CHECK STUDENT
       ========================= */
       const { data: studentData } = await db
         .from("student")
@@ -493,7 +469,7 @@
       }
 
       /* =========================
-         3️⃣ EMAIL KHÔNG TỒN TẠI
+         EMAIL KHÔNG TỒN TẠI
       ========================= */
       showPopup("error", "Lỗi", "Email không tồn tại trong hệ thống!");
     }
