@@ -49,7 +49,6 @@
             border-radius: 6px;
             border: 1px solid #d1d5db;
         }
-
     </style>
 </head>
 
@@ -393,6 +392,16 @@
                 }
             }
         }
+        async function autoUpdateAllBookings() {
+            const { data, error } = await db
+                .from("booking")
+                .select("*")
+                .neq("booking_status", "Đã sử dụng");
+
+            if (error || !data) return;
+
+            await autoUpdateBookingStatus(data);
+        }
 
         /* ================= LOAD DATA ================= */
         async function loadBookingHistory() {
@@ -407,7 +416,7 @@
             const { data, error } = await db
                 .from("booking")
                 .select("*")
-                // .eq("studentid", studentId)
+                .eq("studentid", studentId)
                 .order("starttime", { ascending: false });
 
             if (error) {
@@ -416,7 +425,6 @@
             }
 
             allBookings = data || [];
-            await autoUpdateBookingStatus(allBookings);
             filterByRoomType();
         }
 
@@ -644,6 +652,15 @@
         setInterval(() => {
             loadBookingHistory();
         }, 60 * 1000); // 1 phút
+
+        // Update booking toàn hệ thống mỗi 1 phút
+        setInterval(() => {
+            autoUpdateAllBookings();
+        }, 60 * 1000);
+
+        // Load lịch sử của sinh viên
+        loadBookingHistory();
+
     </script>
 
 </body>
