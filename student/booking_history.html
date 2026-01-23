@@ -407,7 +407,7 @@
             const { data, error } = await db
                 .from("booking")
                 .select("*")
-                .eq("studentid", studentId)
+                // .eq("studentid", studentId)
                 .order("starttime", { ascending: false });
 
             if (error) {
